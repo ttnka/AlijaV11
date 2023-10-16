@@ -1,0 +1,319 @@
+﻿
+@inherits OrgListBase
+@inject NotificationService NS
+@using DashBoard.Modelos
+
+
+@if (ShowAdd && ElUser.Nivel > 4)
+{
+    <div class="form-grup row">
+        <div class="col-sm-10">
+            <OrgAdd LeerOrgAndUserAll="LeerOrgsAndUsers" LasOrgs="LasOrgs" 
+                   LosUsres="LosUsuarios" TipoOrgs="TipoOrgs"
+                    
+                    EsAdministrador=true />
+        </div>
+    </div>
+}
+
+@if (LasOrgs.Any())
+{
+    <RadzenDataGrid @ref="OrgGrid"
+                    AllowFiltering="true" AllowPaging="true" PageSize="50"
+                    AllowSorting="true" AllowColumnResize="true"
+                    ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                    EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
+                    Data="@LasOrgs" TItem="Z100_Org"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            @if (ElUser.Nivel > 4)
+            {
+                <RadzenButton Icon="plus" style="margin-bottom: 10px"
+                              ButtonStyle="ButtonStyle.Info" Click="ShowAddForm">
+                    @txtNewOrg
+                </RadzenButton>
+            }
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                          ButtonStyle="ButtonStyle.Success" Click="GoLeerOrgs">
+                Actualizar
+            </RadzenButton>
+        </HeaderTemplate>
+
+        <Template Context="datos1">
+            <CascadingValue Value="LasOrgs" Name="LasOrgsAll">
+                <RadzenTabs>
+                    <Tabs>
+                        <RadzenTabsItem Text="Usuarios de la Empresa">
+                            
+                        </RadzenTabsItem>
+
+                        <RadzenTabsItem Text="Empresas del Grupo">
+                            
+                        </RadzenTabsItem>
+
+                    </Tabs>
+                </RadzenTabs>
+            </CascadingValue>
+        </Template>
+        <!-- AQUI EMPIEZA REPORTE-->
+
+        <Columns>
+            <RadzenDataGridColumn TItem="Z100_Org" Title="Id"
+                                  Filterable="false" Width="40px">
+                <Template Context="datos">
+                    @(LasOrgs.IndexOf(datos) + 1)
+                </Template>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z100_Org" Title="RFC" Filterable="true"
+                                  Width="160px">
+                <Template Context="datos">
+                    @($"{@MyFunc.FormatoRFC(datos.Rfc)}")
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Rfc" @bind-Value="datos.Rfc" Style="width: 100%" /> <br>
+                    <RadzenLengthValidator Component="Rfc" Min="12" Max="13"
+                                           Text="El RFC de P Morales es de 12 digitos y 13 de P Fisicas" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z100_Org" Title="Comercial"
+                                  Filterable="true" Width="150px">
+                <Template Context="datos">
+                    <div style="white-space:pre-wrap">@datos.Comercial</div>
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Comercial" @bind-Value="datos.Comercial" Style="width: 90%" /><br>
+                    <RadzenRequiredValidator Component="Comercial" Text="El Nombre Comercial es Obligatorio." />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z100_Org" Title="Razon Social"
+                                  Filterable="true" Resizable="true" Width="250px">
+
+                <Template Context="datos">
+                    <RadzenLabel style="white-space:pre-wrap; line-height: initial">
+                        @datos.RazonSocial 
+                    </RadzenLabel>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenLabel style="white-space:pre-wrap; line-height: initial">
+                        @if (datos.Rfc != null )
+                        {
+                            <RadzenTextBox Name="RazonSocial" @bind-Value="datos.RazonSocial"
+                                           Placeholder="Nombre de la Empresa" Style="width: 90%" />
+                        }
+                        
+                    </RadzenLabel>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z100_Org" Title="Tipo"
+                                  Filterable="true" Resizable="true" Width="180px">
+                <Template Context="datos">
+                    @datos.Tipo
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="Tipo" Data=TipoOrgs @bind-Value=@datos.Tipo
+                                    ValueProperty="Key" TextProperty="Value" AllowClear="true"
+                                    Style="width: 100%;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z100_Org" Title="Corporativo"
+                                  Filterable="false" Resizable="true" Width="180px">
+                <Template Context="datos">
+
+                    @if (LasOrgs.Any(x=>x.OrgId == datos.Corporativo))
+                    {
+                        <RadzenLabel>
+                            @LasOrgs.FirstOrDefault(x=>x.OrgId == datos.Corporativo)!.Comercial
+                        </RadzenLabel>
+                    }
+                    else
+                    {
+                        <RadzenLabel>
+                            @LasOrgs.FirstOrDefault(x => x.OrgId == datos.OrgId)!.Comercial
+                        </RadzenLabel>
+                    }
+                </Template>
+                <EditTemplate Context="datos">
+                    @if (ElUser.Nivel > 3)
+                    {
+                        <RadzenDropDown Name="Corporativo" Data=LasOrgsCorp @bind-Value=@datos.Corporativo
+                                        ValueProperty="OrgId" TextProperty="Comercial" AllowClear="true"
+                                        Style="width: 100%;" />
+                    }
+                    else
+                    {
+                        @if (LasOrgs.Any(x => x.OrgId == datos.Corporativo))
+                        {
+                            <RadzenLabel>
+                                @LasOrgs.FirstOrDefault(x => x.OrgId == datos.Corporativo)!.Comercial
+                            </RadzenLabel>
+                        }
+                        else
+                        {
+                            <RadzenLabel>
+                                @LasOrgs.FirstOrDefault(x => x.OrgId == datos.OrgId)!.Comercial
+                            </RadzenLabel>
+                        }
+                    }
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Z100_Org" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+                    @if (datos.Rfc == Constantes.PgRfc || datos.Rfc == Constantes.SyRfc)
+                    {
+                        <label></label>
+                    }
+                    else
+                    {
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
+                                      Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
+
+                    }
+                    @if (datos.Status)
+                    {
+                        <b>Activo</b>
+                    }
+                    else
+                    {
+                        <b>Suspendido</b>
+                    }
+
+
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    @if (datos.Estado != 3)
+                    {
+                        <div style="white-space:pre-wrap">
+                            Borrar este registro?
+                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                                Placeholder="Borrar este registro?">
+                                <Items>
+                                    <RadzenSelectBarItem Text="No" Value="true" />
+                                    <RadzenSelectBarItem Text="Si" Value="false" />
+                                </Items>
+                            </RadzenSelectBar>
+                        </div>
+                    }
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                      Class="m-1" Click="@((args) => SaveRow(datos))" />
+                    
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+else
+{
+    <div class="spinner">
+        org
+    </div>
+}
+
+@code {
+    void ShowAddForm()
+    {
+        ShowAdd = !ShowAdd;
+        txtNewOrg = !ShowAdd ? "Nueva Empresa" : "Ocultar Formato";
+    }
+
+    void Cancelar()
+    {
+        //OrgNew = new();
+    }
+
+    Z100_Org OrgToInsert = new();
+
+    async Task EditRow(Z100_Org org)
+    {
+        await OrgGrid!.EditRow(org);
+        Editando = !Editando;
+    }
+
+    async void OnUpdateRow(Z100_Org org)
+    {
+        if (org == OrgToInsert) OrgToInsert = null!;
+        org.Rfc = org.Rfc.ToUpper();
+
+        Editando = !Editando;
+        var resultado = await Servicio("Update", org);
+
+        string txt = $"{org.Rfc} {org.RazonSocial} tipo:{org.Tipo}, Estado:{org.Estado} Estaus:{org.Status}";
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("info", "Actualizo",
+                $"Se actualizo la info de {org.Comercial}", 0));
+            txt = $"{TBita}, Se actualizo un registro de {org.Comercial} " + txt;
+            var bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                ElUser.Corporativo, false);
+            await BitacoraAll(bitaTemp);
+        }
+        else
+        {
+            var etxt = $"Error No Se actualizo la info de {org.Comercial}";
+            foreach (var e in resultado.MsnError)
+            { etxt += $", {e}"; }
+
+            ShowNotification(ElMsn("Error", "Error", etxt, 0));
+            txt = $"{TBita}, No se actualizo un registro de {org.Comercial} " + txt;
+            txt += etxt; 
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                ElUser.Corporativo, true);
+            await LogRepo.Insert(logTemp);
+        }
+        await OrgGrid!.Reload();
+    }
+
+    async Task SaveRow(Z100_Org org)
+    {
+        org.Moral = org.Rfc.Length == 13;
+        org.Rfc = org.Rfc.ToUpper();
+
+        await OrgGrid!.UpdateRow(org);
+    }
+
+    void CancelEdit(Z100_Org org)
+    {
+        if (org == OrgToInsert) OrgToInsert = null!;
+        Editando = !Editando;
+        OrgGrid!.CancelEditRow(org);
+    }
+
+    async Task InsertRow()
+    {
+        OrgToInsert = new Z100_Org();
+        OrgToInsert.OrgId = Guid.NewGuid().ToString();
+        OrgToInsert.Estado = 3;
+        Editando = !Editando;
+        await OrgGrid!.InsertRow(OrgToInsert);
+
+    }
+    async void OnCreateRow(Z100_Org org)
+    {
+        // No se crean organizaciones en listado
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+
+}

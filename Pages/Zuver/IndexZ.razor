@@ -1,0 +1,53 @@
+﻿
+@page "/indexz"
+@using DashBoard.Pages.Sistema
+@inherits IndexZBase
+
+<h3>Administracion DashBoard RH</h3>
+<AuthorizeView>
+    <Authorized>
+        <CascadingValue Value="ElUser" Name="ElUserAll">
+            <CascadingValue Value="CorporativoAll" Name="CorporativoAll">
+                @if (ElUser != null && ElUser.UserId.Length > 10)
+                {
+                    <RadzenTabs>
+                        <Tabs>
+                            <RadzenTabsItem Text="Organizaciones">
+                                <OrgList 
+                                         LeerOrgAll="LeerOrgAll" LeerUsersAll="LeerUsersAll"
+                                         LasOrgs="LasOrgAll" LosUsuarios="LosUsersAll"
+                                         NivelesEdit="NivelesAll" TipoOrgs="TipoOrgsAll" />
+                            </RadzenTabsItem>
+
+                            <RadzenTabsItem Text="Usuarios">
+                                <UsersList
+                                         LeerOrgAll="LeerOrgAll" LeerUsersAll="LeerUsersAll"
+                                         LasOrgs="LasOrgAll" LosUsuarios="LosUsersAll"
+                                         NivelesEdit="NivelesAll" TipoOrgs="TipoOrgsAll" />
+                            </RadzenTabsItem>
+
+                                <RadzenTabsItem Text="Bitacora">
+                                    <Bitacora />
+                                </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                }
+                else
+                {
+                    <div class="spinner">  </div>
+                }
+            </CascadingValue>
+        </CascadingValue>
+    </Authorized>
+
+    <NotAuthorized>
+        <h1>Es necesario firmar para consultar esta pagina, </h1>
+        <RadzenLink Icon="accessibility" Path="Identity/Account/Login?ReturnUrl=/indexz"
+                    Text="Firma" />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+}
+

@@ -1,0 +1,39 @@
+﻿@page "/arranque"
+
+@inherits ArranqueBase
+
+    <h3>Arranque</h3>
+
+<RadzenTemplateForm Data="Clave" TItem="LaClave" Submit="RunInicio">
+    <div class="form-grup row">
+        <label for="Pass" class="col-sm-3 col-form-label">Clave</label>
+        <div class="col-sm-9">
+
+            <RadzenTextBox Name="Pass" @bind-Value=@Clave.Pass
+                           style="display: block; width: 90%;" Change="PassW" />
+            <RadzenRequiredValidator Component="Pass" Text="El Password es obligatorio " />
+
+        </div>
+    </div>
+    <div class="form-grup row">
+        <label for="botones" class="col-sm-6 col-form-label"></label>
+
+        <div class="col-sm-2">
+            <RadzenButton ButtonType="ButtonType.Reset" Click="ElReset" Text="Cancelar" /> 
+        </div>
+        <div class="col-sm-2">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Arranque" Disabled="!Editando" />
+        </div>
+        <div class="col-sm-2">
+        </div>
+    </div>
+
+</RadzenTemplateForm>
+
+@code {
+    void ElReset()
+    {
+        Clave.Pass = "";
+    }
+}
+

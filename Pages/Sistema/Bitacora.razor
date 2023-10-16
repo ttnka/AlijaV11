@@ -1,0 +1,289 @@
+﻿@page "/bitacora"
+@inherits BitacoraBase
+@using DashBoard.Modelos
+
+<AuthorizeView>
+    <Authorized>
+
+        @if (LasBitas == null || Leyendo)
+            {
+            <h3>Bitacora</h3>
+            <div class="spinner"></div>
+        }
+        else
+        {
+            <RadzenCard>
+
+        <div class="form-group row">
+            <div class="col-sm-5"><h3>Bitacora</h3></div>
+            <div class="col-sm-4">@LaOrgName</div>
+            <div class="col-sm-3">
+                @if (ElUser.Nivel > 4)
+                {
+                    <RadzenLabel>Bitacora</RadzenLabel>
+                    <RadzenSwitch Name="Sistema" @bind-Value="showBitacora" Change="ReadLogs" />
+                    <RadzenLabel>Log</RadzenLabel>
+                }
+            </div>
+        </div>
+        @if (!showBitacora)
+            {
+
+            <RadzenTemplateForm Data="SearchBita" TItem="Filtro"
+                                Submit="@((Filtro args) => { LeerBitacoras(args); })"
+                                Context="DSearch">
+
+                <div class="form-group row">
+                    <b>
+                        <label for="FIni" class="col-sm-5 col-form-label">Fecha</label>
+                        @if (SearchBita.Rango)
+                        {
+                            <label for="FFin" class="col-sm-5 col-form-label">Fin del rango</label>
+                        }
+                        <label for="Rango" class="col-sm-2 col-form-label">Rango</label>
+                    </b>
+                </div>
+
+                <div class="form-group row">
+
+                    <div class="col-sm-5">
+                        <RadzenDatePicker Name="FIni" @bind-Value="SearchBita.FIni"
+                           ShowTime="true"               ></RadzenDatePicker>
+                    </div>
+                    
+                    @if (SearchBita.Rango)
+                    {
+                        <div class="col-sm-5">
+                            <RadzenDatePicker Name="FFin" @bind-Value="SearchBita.FFin"
+                              ShowTime="true"                ></RadzenDatePicker>
+                        
+                        </div>
+                    }
+                    <div class="col-sm-2">
+                        
+                        <RadzenSwitch Name="Rango" @bind-Value="SearchBita.Rango" />
+                        
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <b>
+                        <label for="Usuario" class="col-sm-5 col-form-label">Usuario</label>
+                        <label for="Desc" class="col-sm-5 col-form-label">Descripcion</label>
+                    </b>
+                </div>
+
+                <div class="form-group row">
+
+                    <div class="col-sm-5">
+                        <RadzenDropDown Name="UserId" Data=UsersFiltro @bind-Value=@SearchBita.UserId
+                                        ValueProperty="UserId" TextProperty="Completo"
+                                        AllowClear="true"
+                                        Style="width: 100%;" />
+                    </div>
+                    <div class="col-sm-5">
+                        <RadzenTextBox Name="Desc" @bind-Value="SearchBita.Desc"
+                                       style="display: block; width: 90%;" />
+
+                    </div>
+                    <div class="col-sm-2">
+                        <div style="display: none;">@(SearchBita.Datos = true)</div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <b>
+                        <label for="OrgId" class="col-sm-5 col-form-label">Organizacion</label>
+                        <label for="Corporativo" class="col-sm-5 col-form-label">Corporativo</label>
+                        
+                    </b>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-5">
+                        <RadzenDropDown Name="OrgId" Data=OrgsFiltro @bind-Value=@SearchBita.OrgId
+                                        ValueProperty="OrgId" TextProperty="Comercial" AllowClear="true"
+                                        Style="width: 100%;" />
+
+
+                    </div>
+                    <div class="col-sm-5">
+                        <RadzenDropDown Name="Corporativo" Data=CorpsFiltro @bind-Value=@SearchBita.Corporativo
+                                        ValueProperty="OrgId" TextProperty="Comercial" AllowClear="true"
+                                        Style="width: 100%;" />
+                    </div>
+                    <div class="col-sm-2">
+                        <RadzenButton Icon="refresh" ButtonType="ButtonType.Submit"
+                                      ButtonStyle="ButtonStyle.Success" style="margin-bottom: 10px" />
+                        <RadzenButton Icon="close" ButtonType="ButtonType.Reset"
+                                      ButtonStyle="ButtonStyle.Danger" style="margin-bottom: 10px" />
+
+                    </div>
+                </div>
+
+            </RadzenTemplateForm>
+
+            <RadzenDataGrid @ref="BitaGrid" AllowFiltering="true" AllowPaging="true" PageSize="50"
+                            AllowSorting="true" AllowColumnResize="true"
+                            ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                            EditMode="DataGridEditMode.Single" IsEmptyText="No hay registros"
+                            Data="@LasBitas" TItem="Z190_Bitacora">
+
+                <Columns>
+                    <RadzenDataGridColumn TItem="Z190_Bitacora" Filterable="false" Property="Fecha"
+                                          Title="Fecha" Frozen="true" Width="90px" TextAlign="TextAlign.Left">
+                        <Template Context=DBita>
+                            <label>@($"{@MyFunc.FormatoFecha("DD/MMM/AA", DBita.Fecha)}")</label>
+                            <br />
+                            <label>@($"{@MyFunc.LaHora(@DBita.Fecha, "S")}")</label>
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                    <RadzenDataGridColumn TItem="Z190_Bitacora" Filterable="false"
+                                          Title="Usuarios" Frozen="true" Width="140px" TextAlign="TextAlign.Left">
+                        <Template Context=DBita>
+                            <div style="white-space:pre-wrap">
+                                @if (@DicData.ContainsKey($"UserId_FullName_{DBita.UserId}"))
+                                {
+                                    <RadzenLabel>
+                                        @(DicData[$"UserId_FullName_{DBita.UserId}"])
+                                    </RadzenLabel>
+                                }
+                                else
+                                {
+                                    <RadzenLabel> No hay Nombre! </RadzenLabel>
+                                }
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Z190_Bitacora" Filterable="false"
+                                          Title="Organizacion / Grupo" Width="200px" TextAlign="TextAlign.Left">
+                        <Template Context=DBita>
+                            <div style="white-space:pre-wrap">
+                                @if (LasOrgs.Any(x => x.OrgId == DBita.OrgId))
+                                {
+                                    <RadzenLabel>
+                                        @LasOrgs.FirstOrDefault(x => x.OrgId == DBita.OrgId)!.Comercial
+                                        @if ( DBita.Corporativo.Length > 30 &&
+                                                DBita.OrgId != DBita.Corporativo &&
+                                                LasOrgs.Any(x=>x.OrgId == DBita.Corporativo) )
+                                            {
+                                                @("-" +
+                                                    LasOrgs.FirstOrDefault(x=>x.OrgId == DBita.Corporativo)!.Comercial)
+                                            }
+                                    </RadzenLabel>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>
+                                        No Hay Empresa registrada!
+                                    </RadzenLabel>
+                                }
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                        <RadzenDataGridColumn TItem="Z190_Bitacora" Property="Desc" Filterable="true"
+                                              Title="Descripcion" Width="400px" TextAlign="TextAlign.Left">
+
+                            <Template Context=DBita>
+                                <div style="white-space:pre-wrap">
+                                    @DBita.Desc
+                                </div>
+                            </Template>
+                        </RadzenDataGridColumn>
+
+                </Columns>
+            </RadzenDataGrid>
+
+            }
+            else
+            {
+                if (LosLogs == null || Leyendo )
+                {
+                    <div class="spinner"></div>
+                }
+                else
+                {
+                    <RadzenDataGrid @ref="LogGrid" AllowFiltering="true" AllowPaging="true" PageSize="50"
+                            AllowSorting="true" AllowColumnResize="true"
+                            ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                            EditMode="DataGridEditMode.Single" IsEmptyText="No hay Registros"
+                            Data="@LosLogs" TItem="Z192_Logs">
+
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Z192_Logs" Filterable="false" Property="Fecha"
+                                                  Title="Fecha" Frozen="true" Width="90px" TextAlign="TextAlign.Left">
+                                <Template Context=DBita>
+                                    <label>@($"{@MyFunc.FormatoFecha("DD/MMM/AA", DBita.Fecha)}")</label>
+                                    <br />
+                                    <label>@($"{@MyFunc.LaHora(@DBita.Fecha, "S")}")</label>
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                            <RadzenDataGridColumn TItem="Z192_Logs" Filterable="false"
+                                                  Title="Usuarios" Frozen="true" Width="140px" TextAlign="TextAlign.Left">
+                                <Template Context=DBita>
+                                    <div style="white-space:pre-wrap">
+                                        @if (@DicData.ContainsKey($"LogUserId_FullName_{DBita.UserId}"))
+                                            {
+                                            <RadzenLabel>
+                                                @(DicData[$"LogUserId_FullName_{DBita.UserId}"])
+                                            </RadzenLabel>
+                                            }
+                                            else
+                                            {
+                                            <RadzenLabel> No hay Nombre! </RadzenLabel>
+                                            }
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Z192_Logs" Property="Desc" Filterable="true"
+                                                  Title="Descripcion" Width="400px" TextAlign="TextAlign.Left">
+
+                                <Template Context=DBita>
+                                    <div style="white-space:pre-wrap">
+                                        @DBita.Desc
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                        </Columns>
+                    </RadzenDataGrid>
+                }
+                
+            }
+
+    </RadzenCard>
+        }
+
+    </Authorized>
+
+    <NotAuthorized>
+        <h1>Es necesario firmar para consultar la bitacora, </h1>
+        <RadzenLink Icon="accessibility" Path="Identity/Account/Login?ReturnUrl=/bitacora"
+                    Text="Firma" />
+
+    </NotAuthorized>
+</AuthorizeView>
+
+@code
+{
+    Filtro FVacio = new();
+    async Task OnClick()
+    {
+        await Task.Delay(1);
+        SearchBita = new();
+    }
+    bool showBitacora = false;
+
+    async Task ReadLogs()
+    {
+        if (showBitacora)
+        {
+            FiltroLog vacio = new();
+            await LeerLogs(vacio);
+        }
+    }
+
+    
+}
+
