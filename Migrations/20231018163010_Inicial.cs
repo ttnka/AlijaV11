@@ -158,7 +158,7 @@ namespace DashBoard.Migrations
                     Nivel = table.Column<int>(type: "int", nullable: false),
                     OrgId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    OldEmail = table.Column<string>(type: "varchar(75)", maxLength: 75, nullable: true)
+                    OldEmail = table.Column<string>(type: "varchar(75)", maxLength: 75, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Corporativo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),

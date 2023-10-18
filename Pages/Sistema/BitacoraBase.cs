@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using DashBoard.Data;
 using DashBoard.Modelos;
@@ -47,19 +48,31 @@ namespace DashBoard.Pages.Sistema
 
         protected override async Task OnInitializedAsync()
         {
-            await LeerElUser();
-            var bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
-                $"{TBita}, Consulto listado de bitacora", Corporativo, false);
-            await BitaRepo.Insert(bitaTemp);
+            if (ElUser == null || ElUser.UserId.Length < 15)
+                await LeerElUser();
+            else
+                await Leer();
         }
 
         public async Task Leer()
         {
+            try
+            {
+                await ReadOrg();
+                await LeerUsers();
+                await LeerBitacoras(SearchBita);
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
+                    $"Consulto listado de bitacora, {TBita}", Corporativo, false);
+                await BitaRepo.Insert(bitaTemp);
 
-            await ReadOrg();
-            await LeerUsers();
-
-            await LeerBitacoras(SearchBita);
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar leer los valores iniciales funcion LEER, {TBita}, {ex}",
+                    Corporativo, true);
+                await LogRepo.Insert(LogT);
+            }
         }
 
         public async Task ReadOrg()
@@ -82,8 +95,8 @@ namespace DashBoard.Pages.Sistema
             }
             catch (Exception ex)
             {
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar leer organizaciones, {TBita},{ex} al entrar al pagian de bitacor",
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar leer organizaciones, {TBita},{ex}",
                     Corporativo, true);
                 await LogRepo.Insert(LogT);
             }
@@ -93,7 +106,7 @@ namespace DashBoard.Pages.Sistema
         {
             try
             {
-                var resultado = await UserRepo.GetAll();
+                IEnumerable<Z110_User> resultado = await UserRepo.GetAll();
                 if (resultado.Any())
                 {
                     // Pobla los usuarios para el filtro
@@ -109,14 +122,15 @@ namespace DashBoard.Pages.Sistema
             }
             catch (Exception ex)
             {
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"{TBita}, Error al intentar leer los usuarios {ex} de la bitacora", Corporativo, true);
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar leer los usuarios, {TBita},  {ex} de la bitacora",
+                    Corporativo, true);
                 await LogRepo.Insert(LogT);
                 LosUsers = new();
             }
         }
 
-        public async Task LeerBitacoras(Filtro datos)
+        protected async Task LeerBitacoras(Filtro datos)
         {            
             try
             {
@@ -182,14 +196,15 @@ namespace DashBoard.Pages.Sistema
             catch (Exception ex)
             {
                 Leyendo = false;
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"{TBita}, Error al intentar leer los registros de la bitacora {ex}", Corporativo, true);
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                        $"Error al intentar leer los registros de la bitacora, {TBita}, {ex}",
+                        Corporativo, true);
                 await LogRepo.Insert(LogT);
                 LosUsers = new();
             }
         }
 
-        public async Task LeerLogs(FiltroLog datos)
+        protected async Task LeerLogs(FiltroLog datos)
         {
             try
             {
@@ -255,8 +270,9 @@ namespace DashBoard.Pages.Sistema
             }
             catch (Exception ex)
             {
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"{TBita}, Error al intentar leer los registros de los Logs de errores {ex}", Corporativo, true);
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar leer los registros de los Logs de errores, {TBita}, {ex}",
+                    Corporativo, true);
                 await LogRepo.Insert(LogT);
                 LosLogs = new();
             }
@@ -282,7 +298,7 @@ namespace DashBoard.Pages.Sistema
         #region Usuario y Bitacora
 
         [CascadingParameter(Name = "ElUserAll")]
-        public Z110_User ElUser { get; set; } = new();
+        protected Z110_User ElUser { get; set; } = new();
         
         public MyFunc MyFunc { get; set; } = new MyFunc();
         public NotificationMessage ElMsn(string tipo, string titulo, string mensaje, int duracion)
@@ -348,13 +364,14 @@ namespace DashBoard.Pages.Sistema
         {
             try
             {
-                var user = (await AuthStateTask).User;
+                ClaimsPrincipal user = (await AuthStateTask).User;
                 if (user != null && user.Identity != null && user.Identity.IsAuthenticated)
                 {
-                    var elId = UserMger.GetUserId(user);
-                    if (elId == null ) NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
+                    string elId = UserMger.GetUserId(user) ?? "Vacio";
+                    if (elId == null || elId == "Vacio")
+                        NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
                     ElUser = await UserRepo.GetById(elId!);
-                    
+
                     if (ElUser == null)
                     {
                         NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
@@ -365,8 +382,11 @@ namespace DashBoard.Pages.Sistema
                         NM.NavigateTo("/indexz", true);
                     }
                     */
-                    Corporativo = ElUser!.Corporativo;
-                    await Leer();
+                    else
+                    {
+                        Corporativo = ElUser.Corporativo;
+                        await Leer();
+                    }
                 }
                 else
                 {
@@ -376,8 +396,9 @@ namespace DashBoard.Pages.Sistema
             }
             catch (Exception ex)
             {
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                 $"{TBita}, Error al intentar leer EL USER USUARIO de la bitacora {ex}", "All", true);
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                 $"Error al intentar leer EL USER USUARIO de la bitacora, {TBita}, {ex}",
+                 "All", true);
                 await LogRepo.Insert(LogT);
             }
         }

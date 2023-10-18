@@ -26,9 +26,9 @@ namespace DashBoard.Pages.Sistema
         public bool Editando = false;
         protected override async Task OnInitializedAsync()
         {
-            var emp1 = await OrgsRepo.Get(x => x.Rfc == Constantes.PgRfc);
-            var emp2 = await OrgsRepo.Get(x => x.Rfc == Constantes.SyRfc);
-            if (emp1 != null && emp1.Count() > 0 && emp2 != null && emp2.Count() > 0)
+            List<Z100_Org> emp1 = (await OrgsRepo.Get(x => x.Rfc == Constantes.PgRfc)).ToList();
+            List<Z100_Org> emp2 = (await OrgsRepo.Get(x => x.Rfc == Constantes.SyRfc)).ToList();
+            if (emp1 != null && emp1.Count > 0 && emp2 != null && emp2.Count > 0)
             { NM.NavigateTo("/", true); }
         }
 
@@ -51,8 +51,8 @@ namespace DashBoard.Pages.Sistema
         }
         protected async Task<bool> Creacion()
         {
-            var resultado = await OrgsRepo.GetAll();
-            if (resultado == null || resultado.Count() > 1) return false;
+            IEnumerable<Z100_Org> resultado = await OrgsRepo.GetAll();
+            if (resultado == null || resultado.Any()) return false;
             try
             {
                 List<string> Errores = new();
@@ -70,7 +70,7 @@ namespace DashBoard.Pages.Sistema
 
                     Tipo = "Administracion"
                 };
-                var newSysOrg = await OrgsRepo.Insert(SysOrg);
+                Z100_Org newSysOrg = await OrgsRepo.Insert(SysOrg);
 
 
                 // Genera un nuevo acceso al sistema con un usuario
@@ -87,7 +87,7 @@ namespace DashBoard.Pages.Sistema
                     Nivel = 6
                 };
 
-                var userNew = await AddUserRepo.InsertNewUser(eAddUsuario);
+                ApiRespuesta<AddUser> userNew = await AddUserRepo.InsertNewUser(eAddUsuario);
 
                 string userGeneradoUserId = "No_regreso_el_Usuario_generado";
                 string userGeneradoOrgId = newSysOrg.OrgId;
@@ -108,7 +108,7 @@ namespace DashBoard.Pages.Sistema
                     Corporativo = corporativo,
                     Tipo = "Administracion"
                 };
-                var newPgOrg = await OrgsRepo.Insert(PgOrg);
+                Z100_Org newPgOrg = await OrgsRepo.Insert(PgOrg);
 
 
                 // Genera acceso para publico en general todos 
@@ -125,19 +125,19 @@ namespace DashBoard.Pages.Sistema
                     Nivel = Constantes.NivelPublico
                 };
 
-                var userNewPublico = await AddUserRepo.InsertNewUser(eAddUsuarioPublico);
+                ApiRespuesta<AddUser> userNewPublico = await AddUserRepo.InsertNewUser(eAddUsuarioPublico);
 
 
-                var bitaTemp = MyFunc.MakeBitacora(userGeneradoUserId, userGeneradoOrgId,
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(userGeneradoUserId, userGeneradoOrgId,
                     $"{TBita}, Se las tablas por primera vez", "All", false);
                 await BitacoraRepo.Insert(bitaTemp);
                 return true;
             }
             catch (Exception ex)
             {
-                var bitaTemp = MyFunc.MakeLog("Sistema"!, "Sistema",
+                Z192_Logs logTemp = MyFunc.MakeLog("Sistema"!, "Sistema",
                     $"{TBita}, Error al intentar Arranque de bases de datos {ex}", "All", true);
-                await LogRepo.Insert(bitaTemp);
+                await LogRepo.Insert(logTemp);
                 return false;
             }
         }

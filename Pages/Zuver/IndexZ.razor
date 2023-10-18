@@ -8,27 +8,39 @@
     <Authorized>
         <CascadingValue Value="ElUser" Name="ElUserAll">
             <CascadingValue Value="CorporativoAll" Name="CorporativoAll">
-                @if (ElUser != null && ElUser.UserId.Length > 10)
+                @if (ElUser != null && ElUser.UserId.Length > 10 && CorporativoAll != "All")
                 {
                     <RadzenTabs>
                         <Tabs>
                             <RadzenTabsItem Text="Organizaciones">
-                                <OrgList 
-                                         LeerOrgAll="LeerOrgAll" LeerUsersAll="LeerUsersAll"
+                                <OrgList LeerOrgAll="LeerOrgAll" LeerUsersAll="LeerUsersAll"
                                          LasOrgs="LasOrgAll" LosUsuarios="LosUsersAll"
                                          NivelesEdit="NivelesAll" TipoOrgs="TipoOrgsAll" />
                             </RadzenTabsItem>
 
                             <RadzenTabsItem Text="Usuarios">
-                                <UsersList
-                                         LeerOrgAll="LeerOrgAll" LeerUsersAll="LeerUsersAll"
-                                         LasOrgs="LasOrgAll" LosUsuarios="LosUsersAll"
-                                         NivelesEdit="NivelesAll" TipoOrgs="TipoOrgsAll" />
+                                <UsersList LeerOrgAll="LeerOrgAll" LeerUsersAll="LeerUsersAll"
+                                           LasOrgs="LasOrgAll" LosUsuarios="LosUsersAll"
+                                           NivelesEdit="NivelesAll" TipoOrgs="TipoOrgsAll" />
                             </RadzenTabsItem>
+                            
+                            <RadzenTabsItem Text="Informacion">
+                                <RadzenAccordion>
+                                    <Items>
+                                        <RadzenAccordionItem Text="Mis Datos" Icon="account_box">
+                                            <MisDatos Niveles="NivelesAll" LasOrg="LasOrgAll" />
+                                        </RadzenAccordionItem>
+                                        <RadzenAccordionItem Text="Bitacora" Icon="book">
+                                            <Bitacora />
+                                        </RadzenAccordionItem>
 
-                                <RadzenTabsItem Text="Bitacora">
-                                    <Bitacora />
-                                </RadzenTabsItem>
+                                        <RadzenAccordionItem Text="Configuracion" Icon="note">
+                                            <RadzenLabel>Falta desarrollar</RadzenLabel>
+                                        </RadzenAccordionItem>
+                                    </Items>
+                                </RadzenAccordion>
+                                
+                            </RadzenTabsItem>
                         </Tabs>
                     </RadzenTabs>
                 }

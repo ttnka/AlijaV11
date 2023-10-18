@@ -1,0 +1,229 @@
+﻿@inherits MisDatosBase
+@inject NotificationService NS
+@using DashBoard.Modelos
+
+<RadzenTemplateForm Data="@ElUser" Submit="@((Z110_User args) => { UpDateMisDatos(args); })">
+    <RadzenFieldset Text="Mis Datos" Style="width:80%">
+
+        <div class="container-fluid" style="background: lightgray;">
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Email" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenLabel>@ElUser.OldEmail</RadzenLabel>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Nombre" />
+                </div>
+                <div class="col-md-8">
+
+                    <RadzenTextBox style="width: 90%;" Name="Nombre" @bind-Value="ElUser.Nombre"
+                                   MaxLength="25" /><br />
+                    <RadzenLengthValidator Component="Paterno" Min="1" Max="25" Text="El apelllido paterno es REQUERIDO!"
+                                           Style="position: absolute" />
+
+                </div>
+            </div>
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+
+                    <RadzenLabel Text="Paterno" />
+                </div>
+                <div class="col-md-8">
+
+                    <RadzenTextBox style="width: 90%;" Name="Paterno" @bind-Value="ElUser.Paterno"
+                                   MaxLength="25" /><br />
+                    <RadzenLengthValidator Component="Paterno" Min="1" Max="25" Text="El apelllido paterno es REQUERIDO!"
+                                           Style="position: absolute" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Materno" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenTextBox style="width: 90%;" Name="Materno" @bind-Value="ElUser.Materno"
+                                   MaxLength="25" />
+                </div>
+            </div>
+
+
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Organizacion" />
+                </div>
+                <div class="col-md-8">
+                    @if (ElUser.Nivel < 5)
+                    {
+                        @if (LasOrg.Any(x => x.OrgId == ElUser.OrgId))
+                        {
+                            <RadzenLabel>
+                                @LasOrg.FirstOrDefault(x => x.OrgId == ElUser.OrgId)!.Comercial
+
+                            </RadzenLabel>
+                        }
+                        else
+                        {
+                            <RadzenLabel>
+                                No hay organizacion
+                            </RadzenLabel>
+                        }
+                    }
+                    else
+                    {
+                        <RadzenDropDown Name="OrgId" Data=LasOrg @bind-Value=@ElUser.OrgId
+                                        ValueProperty="OrgId" TextProperty="ComercialRfc"
+                                        Style="width: 90%;" />
+                    }
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Nivel" />
+                </div>
+                <div class="col-md-8">
+                    @if (ElUser.Nivel < 5)
+                    {
+                        @if (Niveles.Any(x => x.Key == ElUser.Nivel))
+                        {
+                            <RadzenLabel>
+                                @Niveles.FirstOrDefault(x => x.Key == ElUser.Nivel).Value
+
+                            </RadzenLabel>
+                        }
+                        else
+                        {
+                            <RadzenLabel>
+                                No hay niveles
+                            </RadzenLabel>
+                        }
+                    }
+                    else
+                    {
+                        <RadzenDropDown Name="Nivel" Data=Niveles @bind-Value=@ElUser.Nivel
+                                        ValueProperty="Key" TextProperty="Value"
+                                        Style="width: 90%;" />
+                    }
+                </div>
+            </div>
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Corporativo o grupo" />
+
+                </div>
+                <div class="col-md-8">
+
+                    @if (ElUser.Nivel < 5)
+                    {
+                        @if (LasOrg.Any(x => x.OrgId == ElUser.Corporativo))
+                        {
+                            <RadzenLabel>
+                                @LasOrg.FirstOrDefault(x => x.OrgId == ElUser.Corporativo)!.ComercialRfc
+
+                            </RadzenLabel>
+                        }
+                        else
+                        {
+                            <RadzenLabel>
+                                No hay corporativo!
+                            </RadzenLabel>
+                        }
+                    }
+                    else
+                    {
+                        <RadzenDropDown Name="Corporativo" Data=LasOrgCorp @bind-Value=@ElUser.Corporativo
+                                        ValueProperty="OrgId" TextProperty="ComercialRfc"
+                                        Style="width: 90%;" />
+                    }
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel>Actualizar</RadzenLabel>
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+                </div>
+                <div class="col-md-4">
+
+                    <RadzenButton Icon="update" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" ButtonType="ButtonType.Submit" Disabled="Editando" >
+                        Actualizar
+                    </RadzenButton>
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger"
+                                  Class="m-1" Click="@( () => { UserToOldData(); } )" />
+                </div>
+            </div>
+        </div>
+
+    </RadzenFieldset>
+</RadzenTemplateForm>
+
+
+@code {
+
+    async Task UpDateMisDatos(Z110_User myData)
+    {
+        try
+        {
+            Editando = !Editando;
+
+            ApiRespuesta<Z110_User> resultado = await Servicio("Update", myData);
+
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("Ok", "Actualizando",
+                        $"Estamos actualizando tus datos {myData.Completo}!!! ", 0));
+
+                string txtOld = await UserTxt(nuevo: false, OldDataUser);
+                string txtNew = await UserTxt(nuevo: true, myData);
+                string txt = txtOld.Substring(0, 5) == "Error" || txtNew.Substring(0, 5) == "Error" ? 
+                    "Error al intentar leer datos" : txtOld + " " + txtNew;
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                Corporativo, false);
+                await BitacoraAll(bitaTemp);
+                await LeerElUser();
+
+            }
+            else
+            {
+                string txt = await UserTxt(true, myData);
+                ShowNotification(ElMsn("Error", "Error",
+                            $"No pudo actualizar tus datos!!! {myData.Completo} ", 0));
+                txt = $"{TBita}, NO se actualizo los datos del USER {myData.Completo} " + txt;
+                foreach (var e in resultado.MsnError)
+                {
+                    txt += e;
+                }
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, true);
+                await LogRepo.Insert(logTemp);
+            }
+            Editando = !Editando;
+            await UserToOldData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar actualizar los datos USER, {TBita},{ex}",
+                   Corporativo, true);
+            await LogRepo.Insert(LogT);
+        }
+    }
+
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+
+    }

@@ -1,0 +1,181 @@
+﻿
+@inherits UserAddBase
+@inject NotificationService NS
+@using DashBoard.Modelos
+
+
+<RadzenCard>
+    <RadzenTemplateForm Data="@NuevoUser" Submit="@((AddUser args) => {AddUsuario(args);})">
+        <div class="container-fluid">
+            <div class="row" style="background:lightgray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Email" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenTextBox style="width: 90%;" Name="Mail" @bind-Value="NuevoUser.Mail"
+                                   Placeholder="e-Mail" Change="@( () => CheckMail(NuevoUser.Mail) )" /> <br />
+                    <RadzenRequiredValidator Component="Mail" Text="Email es requerido" />
+                    <RadzenEmailValidator Component="Mail" Text="Se requiere un Email Valido" />
+                    @if (@MailExiste)
+                    {
+                        <RadzenLabel Style="color: red;">Este Email ya existe debes usar otro</RadzenLabel>
+                    }
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Password" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenPassword style="width: 90%;" Name="Pass" @bind-Value="NuevoUser.Pass"
+                                    Placeholder="Password" Change="@(() => CheckPass(NuevoUser.Pass))" /><br />
+                    <RadzenLengthValidator Component="Pass" Min="6" Max="25" Text="El Password debe contener 6 carcateres al menos y maximo 25!" />
+                    @if (WrongPass != "")
+                    {
+                        var txt = WrongPass.Split("!");
+                        @foreach (var t in txt)
+                        {
+                            <RadzenLabel Style="color: red;">@t</RadzenLabel>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="row" style="background:lightgray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Confirma tu Password" />
+
+                </div>
+                <div class="col-md-8">
+                    <RadzenPassword style="width: 90%;" Name="ConfirmPass" @bind-Value="NuevoUser.ConfirmPass"
+                                    Placeholder="Confirma tu password" Change="@(CheckConfirm)" />
+
+                    @if (WrongConfirm != "")
+                    {
+                        <br />
+                        <RadzenLabel style="color:red">@WrongConfirm</RadzenLabel>
+
+                    }
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Nombre del Usuario" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenTextBox style="width: 90%;" Name="Nombre"
+                                   @bind-Value="NuevoUser.Nombre" Placeholder="Nombres" Change="ReadBotonGo"/><br />
+                    <RadzenLengthValidator Component="Nombre" Min="1" Max="25" Text="El Nombre es Requerido!" />
+
+                    <RadzenTextBox style="width: 90%;" Name="Paterno"
+                                   @bind-Value="NuevoUser.Paterno" Placeholder="Apellido Paterno" Change="ReadBotonGo" /><br />
+                    <RadzenLengthValidator Component="Paterno" Min="1" Max="25" Text="El apellido paterno es Requerido!" />
+
+                    <RadzenTextBox style="width: 90%;" Name="Materno"
+                                   @bind-Value="NuevoUser.Materno" Placeholder="Apellido Materno" />
+                </div>
+            </div>
+            <div class="row" style="background:lightgray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Nivel" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenDropDown Name="Nivel" Data=NivelesEdit @bind-Value=@NuevoUser.Nivel
+                                    ValueProperty="Key" TextProperty="Value" AllowClear="false"
+                                    Style="width: 90%;" />
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Organizacion" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenDropDown Name="OrgId" Data=LasOrgsTmp @bind-Value=@NuevoUser.OrgId
+                                    ValueProperty="OrgId" TextProperty="Comercial" AllowClear="false"
+                                    Style="width: 90%;" Change="ReadBotonGo" />
+
+                </div>
+            </div>
+
+            <div class="row" style="background:lightgray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Corporativo / grupo" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenDropDown Name="Corporativo" Data=LasCorpTmp @bind-Value=@NuevoUser.Corporativo
+                                    ValueProperty="OrgId" TextProperty="ComercialRfc" AllowClear="false"
+                                    Style="width: 90%;" />
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                </div>
+                <div class="col-md-8">
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" ButtonType="ButtonType.Submit" Disabled="!BotonGo" />
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Class="m-1"
+                                  Click="Cancelar" />
+                </div>
+            </div>
+        </div>
+
+    </RadzenTemplateForm>
+</RadzenCard>
+
+
+@code {
+
+    async void AddUsuario(AddUser datos)
+    {
+        //string nivelTxt = @DicData.ContainsKey($"Nivel_{ElUser.Nivel}") ?
+        //    @DicData[$"Nivel_{ElUser.Nivel}"] : "Nivel no definido";
+
+
+        ApiRespuesta<AddUser> resultado = await Servicio("Insert", datos);
+
+        string nivelTxt = NivelesEdit.FirstOrDefault(x => x.Key == datos.Nivel).Value ??
+            "Sin Nivel";
+        string txt = $"{datos.Nombre} {datos.Paterno} {datos.Mail}, ";
+        txt += $"organizacion: {datos.OrgId} {datos.OrgName}, nivel: {nivelTxt}";
+
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("Ok", "Nueva",
+                        $"Estamos creado un nuevo Usuario {datos.Nombre} {datos.Paterno}!!! ", 0));
+            txt = $"{TBita}, Creo un nuevo Usuario  " + txt;
+            Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                Corporativo, false);
+            await BitacoraAll(bitaTemp);
+            NuevoUser = null;
+        }
+        else
+        {
+            ShowNotification(ElMsn("Error", "Error",
+                        $"No pudo crearse un nuevo usuario {datos.Nombre} {datos.Mail}", 0));
+            txt = $"{TBita}, No se creo el nuevo Usuario " + txt;
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, true);
+            await LogRepo.Insert(logTemp);
+        }
+
+        await UpdateUsers();
+        Cancelar();
+    }
+    void Cancelar()
+    {
+        NuevoUser = new();
+        MailExiste = false;
+        WrongPass = "";
+        WrongConfirm = "";
+        
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+}

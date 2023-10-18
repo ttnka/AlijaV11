@@ -93,6 +93,7 @@ namespace DashBoard.Migrations
                         .HasColumnType("varchar(25)");
 
                     b.Property<string>("OldEmail")
+                        .IsRequired()
                         .HasMaxLength(75)
                         .HasColumnType("varchar(75)");
 

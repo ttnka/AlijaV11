@@ -7,7 +7,7 @@
     <RadzenFieldset Text="Nueva Empresa" Style="width:80%">
 
         <div class="container-fluid" style="background: lightgray;">
-            <div class="row">
+            <div class="row" style="background:gray">
                 <div class="col-md-4 align-items-center d-flex">
                     <RadzenLabel Text="RFC" />
                 </div>
@@ -24,7 +24,7 @@
                 </div>
             </div>
 
-            <div class="row" style="background:gray">
+            <div class="row">
                 <div class="col-md-4 align-items-center d-flex">
                     <RadzenLabel Text="Nombre Comercial" />
                 </div>
@@ -36,7 +36,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row" style="background:gray">
                 <div class="col-md-4 align-items-center d-flex">
                     <RadzenLabel Text="Razón Social" />
                 </div>
@@ -48,7 +48,7 @@
                 </div>
             </div>
             
-            <div class="row" style="background:gray">
+            <div class="row">
                 <div class="col-md-4 align-items-center d-flex">
                     <RadzenLabel Text="Tipo de Empresa" />
                 </div>
@@ -73,7 +73,7 @@
                 </div>
             }
 
-            <div class="row">
+            <div class="row" style="background:gray">
                 <div class="col-md-4 align-items-center d-flex">
                     <RadzenLabel Text="Mail Usuario Administrador" />
                 </div>
@@ -87,7 +87,7 @@
                 </div>
             </div>
 
-            <div class="row" style="background: gray">
+            <div class="row">
                 <div class="col-md-4 align-items-center d-flex">
                     <RadzenLabel Text="Nombre Usuario Administrador" />
                 </div>
@@ -108,7 +108,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row" style="background:gray">
                 <div class="col-md-4 align-items-center d-flex">
                     <RadzenLabel Text="Corporativo o grupo" />
                     @if (LasOrgsCorp.Count > 0)
@@ -148,57 +148,67 @@
 
     async Task AddOrg(LaOrgNew org)
     {
-        Editando = !Editando;
-        BotonNuevo = true;
-
-        org.OrgId = Guid.NewGuid().ToString();
-        org.Estado = 1;
-        org.Rfc = org.Rfc.ToUpper();
-
-        org.Corporativo = org.Corporativo.Length < 30 ? org.OrgId : org.Corporativo;
-
-        org.Moral = org.Rfc.Length == 12;
-
-        var resultado = await Servicio("Insert", org);
-
-        string txt = $"{org.Rfc} {org.RazonSocial} " +
-                    $"tipo: {org.Tipo}, Estado:{org.Estado} status:{org.Status}";
-
-        if (resultado.Exito)
+        try
         {
-            ShowNotification(ElMsn("Ok", "Nueva",
-                        $"Estamos creado un nueva ORGANIZACION {org.Comercial}!!! ", 0));
-            txt = $"{TBita}, Creo una nueva organizacion {org.Comercial} " + txt;
+            Editando = !Editando;
+            BotonNuevo = true;
 
-            var bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
-                    Corporativo, false);
-            await BitacoraAll(bitaTemp);
+            org.OrgId = Guid.NewGuid().ToString();
+            org.Estado = 1;
+            org.Rfc = org.Rfc.ToUpper();
+            org.Corporativo = org.Corporativo.Length < 30 ? org.OrgId : org.Corporativo;
+            org.Moral = org.Rfc.Length == 12;
 
-            ShowNotification(ElMsn("Ok", "Nuevo administrador",
-                        $"Estamos creando un nuevo ADMINISTRADOR de {org.Comercial}!!!", 0));
-            string txt1 = $"{TBita}, Creo un nuevo administrador en Comercial:{org.Comercial} {org.NumCliente}, " +
-                    $"Email:{org.UserOldEmail}, nombre {org.UserNombre} {org.UserPaterno} {org.UserMaterno}";
+            ApiRespuesta<LaOrgNew> resultado = await Servicio("Insert", org);
 
-            var bitaTemp1 = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt1,
-                    Corporativo, false);
-            await BitacoraAll(bitaTemp1);
-            await LeerOrgAndUserAll.InvokeAsync();
-            
-            Cancelar() ;
-        }
-        else
-        {
-            ShowNotification(ElMsn("Error", "Error",
-                        $"No pudo ser creada un nueva ORGANIZACION!!! {org.Comercial} {org.NumCliente}", 0));
-            txt = $"{TBita}, NO se creo una nueva organizacion {org.Comercial} " + txt;
-            foreach (var e in resultado.MsnError)
+            string txt = $"{org.Rfc} {org.RazonSocial} " +
+                        $"tipo: {org.Tipo}, Estado:{org.Estado} status:{org.Status}";
+
+            if (resultado.Exito)
+
             {
-                txt += e;
+                ShowNotification(ElMsn("Ok", "Nueva",
+                            $"Estamos creado un nueva ORGANIZACION {org.Comercial}!!! ", 0));
+                txt = $"{TBita}, Creo una nueva organizacion {org.Comercial} " + txt;
+
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                        Corporativo, false);
+                await BitacoraAll(bitaTemp);
+
+                ShowNotification(ElMsn("Ok", "Nuevo administrador",
+                            $"Estamos creando un nuevo ADMINISTRADOR de {org.Comercial}!!!", 0));
+                string txt1 = $"{TBita}, Creo un nuevo administrador en Comercial:{org.Comercial} {org.NumCliente}, " +
+                        $"Email:{org.UserOldEmail}, nombre {org.UserNombre} {org.UserPaterno} {org.UserMaterno}";
+
+                Z190_Bitacora bitaTemp1 = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt1,
+                        Corporativo, false);
+                await BitacoraAll(bitaTemp1);
+                await LeerOrgAndUserAll.InvokeAsync();
+
+                Cancelar();
             }
-            var logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, true);
+            else
+            {
+                ShowNotification(ElMsn("Error", "Error",
+                            $"No pudo ser creada un nueva ORGANIZACION!!! {org.Comercial} {org.NumCliente}", 0));
+                txt = $"{TBita}, NO se creo una nueva organizacion {org.Comercial} " + txt;
+                foreach (var e in resultado.MsnError)
+                {
+                    txt += e;
+                }
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, true);
+                await LogRepo.Insert(logTemp);
+            }
+            BotonNuevo = false;
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible agregar una organizacion, {TBita}, {ex}",
+                    Corporativo, true);
             await LogRepo.Insert(logTemp);
         }
-        BotonNuevo = false;
+
     }
 
     LaOrgNew OrgToInsert = new();

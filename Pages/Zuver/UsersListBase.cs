@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using DashBoard.Data;
+//using DashBoard.Migrations;
 using DashBoard.Modelos;
 using Microsoft.AspNetCore.Components;
 using Radzen;
@@ -49,19 +50,30 @@ namespace DashBoard.Pages.Zuver
         {
             if (Primera)
             {
-                if (LosUsuarios.Count == 0)
+                Primera = false;
+                if (!LosUsuarios.Any())
                     await UsersAllRead();
-                await Leer();
             }
-            var bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
-                $"{TBita}, Consulto listado ", Corporativo, false);
-            await BitacoraAll(bitaTemp);
-            Primera = false;
+            await Leer();
         }
         public async Task Leer()
         {
-            FiltraUsers();
-            FiltraNiveles();
+            try
+            {
+                FiltraUsers();
+                FiltraNiveles();
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
+                    $"Consulto listado, {TBita}", Corporativo, false);
+                await BitacoraAll(bitaTemp);
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                        $"Error al intentar leer los registros de {TBita} {ex}",
+                        Corporativo, true);
+                await LogRepo.Insert(LogT);
+            }
+            
         }
 
         public void FiltraUsers()
@@ -74,11 +86,12 @@ namespace DashBoard.Pages.Zuver
                     LosUsuarios;
             }
         }
+
         public void FiltraNiveles()
         {
             if (NivelesEdit.Any())
             {
-                NivelesTemp = NivelesEdit.Where(x => x.Key > ElUser.Nivel).Select(x => x).ToList();
+                NivelesTemp = NivelesEdit.Where(x => x.Key < ElUser.Nivel).Select(x => x).ToList();
             }
         }
 
@@ -106,25 +119,31 @@ namespace DashBoard.Pages.Zuver
                     }
                     else if (tipo == "Update")
                     {
-                        var userUpdate = await UserRepo.Update(user);
+                        Z110_User userUpdate = await UserRepo.Update(user);
                         if (userUpdate != null)
                         {
                             resp.Exito = true;
+                            resp.Data = userUpdate;
+                            return resp;
                         }
                         else
                         {
-                            var txt = $"No se Actualizo el registro {user.Nombre} {user.Paterno}";
+                            string txt = $"No se Actualizo el registro {user.Nombre} {user.Paterno}";
                             txt += $"organizacion:{user.OrgId}";
                             resp.MsnError.Add(txt);
+                            resp.Exito = false;
+                            resp.Data = user;
+                            return resp;
                         }
                     }
                 }
+                resp.MsnError.Add("Ninguna OPERACION se realizo al intentar actualizar una organizacion!");
                 return resp;
             }
             catch (Exception ex)
             {
                 resp.MsnError.Add(ex.Message);
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar {tipo} los registros de {TBita} {ex}",
                         Corporativo, true);
                 await LogRepo.Insert(LogT);
@@ -184,7 +203,7 @@ namespace DashBoard.Pages.Zuver
             }
             catch (Exception ex)
             {
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar escribir BITACORA, {TBita},{ex}",
                     Corporativo, true);
                 await LogRepo.Insert(LogT);

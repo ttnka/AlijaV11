@@ -250,36 +250,47 @@ else
 
     async void OnUpdateRow(Z100_Org org)
     {
-        if (org == OrgToInsert) OrgToInsert = null!;
-        org.Rfc = org.Rfc.ToUpper();
-
-        Editando = !Editando;
-        var resultado = await Servicio("Update", org);
-
-        string txt = $"{org.Rfc} {org.RazonSocial} tipo:{org.Tipo}, Estado:{org.Estado} Estaus:{org.Status}";
-        if (resultado.Exito)
+        try
         {
-            ShowNotification(ElMsn("info", "Actualizo",
-                $"Se actualizo la info de {org.Comercial}", 0));
-            txt = $"{TBita}, Se actualizo un registro de {org.Comercial} " + txt;
-            var bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
-                ElUser.Corporativo, false);
-            await BitacoraAll(bitaTemp);
+            if (org == OrgToInsert) OrgToInsert = null!;
+            org.Rfc = org.Rfc.ToUpper();
+
+            Editando = !Editando;
+            ApiRespuesta<Z100_Org> resultado = await Servicio("Update", org);
+
+            string txt = $"{org.Rfc} {org.RazonSocial} tipo:{org.Tipo}, Estado:{org.Estado} Estaus:{org.Status}";
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("info", "Actualizo",
+                    $"Se actualizo la info de {org.Comercial}", 0));
+                txt = $"{TBita}, Se actualizo un registro de {org.Comercial} " + txt;
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                    ElUser.Corporativo, false);
+                await BitacoraAll(bitaTemp);
+            }
+            else
+            {
+                string etxt = $"Error No Se actualizo la info de {org.Comercial}";
+                foreach (var e in resultado.MsnError)
+                { etxt += $", {e}"; }
+
+                ShowNotification(ElMsn("Error", "Error", etxt, 0));
+                txt = $"{TBita}, No se actualizo un registro de {org.Comercial} " + txt;
+                txt += etxt;
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    ElUser.Corporativo, true);
+                await LogRepo.Insert(logTemp);
+            }
+            await OrgGrid!.Reload();
         }
-        else
+        catch (Exception ex)
         {
-            var etxt = $"Error No Se actualizo la info de {org.Comercial}";
-            foreach (var e in resultado.MsnError)
-            { etxt += $", {e}"; }
-
-            ShowNotification(ElMsn("Error", "Error", etxt, 0));
-            txt = $"{TBita}, No se actualizo un registro de {org.Comercial} " + txt;
-            txt += etxt; 
-            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
-                ElUser.Corporativo, true);
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible actualizar una organizacion, {TBita}, {ex}",
+                    Corporativo, true);
             await LogRepo.Insert(logTemp);
         }
-        await OrgGrid!.Reload();
+
     }
 
     async Task SaveRow(Z100_Org org)

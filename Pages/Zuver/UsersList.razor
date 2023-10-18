@@ -22,15 +22,16 @@
 {
     <div class="form-grup row">
         <div class="col-sm-9">
-            <!--
-            <UserAdd UsersUpdateAll="LeerUsersAll" DicData="DicData" LasOrgs="LasOrgs"
+            
+            <UserAdd ReadUsersAll="UsersAllRead" ReadOrgsAll="LeerOrgAll"
+                     LasOrgs="LasOrgs" LosUsers="LosUsuarios"
                      TipoOrgs="TipoOrgs" NivelesEdit="NivelesEdit" />
-            -->
+     
         </div>
     </div>
 }
 
-@if (LosUsersTmp.Count >= 0)
+@if (LosUsersTmp != null )
 {
     <RadzenDataGrid @ref="UserGrid"
                     AllowFiltering="true" AllowPaging="true" PageSize="50"
@@ -43,7 +44,7 @@
             @if (ElUser.Nivel > 3)
             {
                 <RadzenButton Icon="add" style="margin-bottom: 10px"
-                              ButtonStyle="ButtonStyle.Success" Click="ShowAddForm">
+                              ButtonStyle="ButtonStyle.Info" Click="ShowAddForm">
                     @txtShowAdd
                 </RadzenButton>
             }
@@ -196,7 +197,7 @@
 else
 {
     <div class="spinner">
-        org
+        
     </div>
 }
 
@@ -222,42 +223,51 @@ else
     }
     async void OnUpdateRow(Z110_User user)
     {
-        if (user == UserToInsert) UserToInsert = null!;
-
-        Editando = !Editando;
-        var resultado = await Servicio("Update", user);
-        string txt = $"{user.Materno}";
-        txt += LasOrgs.Any(x => x.OrgId == user.OrgId) ?
-                    $"Empresa: {LasOrgs.FirstOrDefault(x => x.OrgId == user.OrgId)!.Comercial}"
-                    : "";
-
-        txt += NivelesEdit.Any(x=>x.Key ==  user.Nivel) ?
-                    $"Nivel {NivelesEdit.FirstOrDefault(x=>x.Key == user.Nivel)}" : "";
-
-        txt += $" Estado:{user.Estado} Estaus:{user.Status}";
-
-        if (resultado.Exito)
+        try
         {
-            ShowNotification(ElMsn("info", "Actualizo",
-                $"Se actualizo la info de {user.Nombre} {user.Paterno}", 0));
-            txt = $"{TBita}, Se actualizo un registro de {user.Nombre} {user.Paterno} " + txt;
-            var bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
-                Corporativo, false);
-            await BitacoraAll(bitaTemp);
-        }
-        else
-        {
-            ShowNotification(ElMsn("Error", "Error",
-                $"Error No Se actualizo la info de {user.Nombre} {user.Paterno}", 0));
-            txt = $"{TBita}, No se actualizo un registro de {user.Nombre} {user.Paterno} empresa {user.OrgId} " + txt;
-            foreach (var e in resultado.MsnError)
+            if (user == UserToInsert) UserToInsert = null!;
+
+            Editando = !Editando;
+            ApiRespuesta<Z110_User> resultado = await Servicio("Update", user);
+            string txt = $"{user.Materno}";
+            txt += LasOrgs.Any(x => x.OrgId == user.OrgId) ?
+                        $"Empresa: {LasOrgs.FirstOrDefault(x => x.OrgId == user.OrgId)!.Comercial}"
+                        : "";
+
+            txt += NivelesEdit.Any(x => x.Key == user.Nivel) ?
+                        $"Nivel {NivelesEdit.FirstOrDefault(x => x.Key == user.Nivel)}" : "";
+
+            txt += $" Estado:{user.Estado} Estaus:{user.Status}";
+
+            if (resultado.Exito)
             {
-                txt += e;
+                ShowNotification(ElMsn("info", "Actualizo",
+                    $"Se actualizo la info de {user.Nombre} {user.Paterno}", 0));
+                txt = $"{TBita}, Se actualizo un registro de {user.Nombre} {user.Paterno} " + txt;
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, false);
+                await BitacoraAll(bitaTemp);
             }
-            var logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, true);
-            await LogRepo.Insert(logTemp);
+            else
+            {
+                ShowNotification(ElMsn("Error", "Error",
+                    $"Error No Se actualizo la info de {user.Nombre} {user.Paterno}", 0));
+                txt = $"{TBita}, No se actualizo un registro de {user.Nombre} {user.Paterno} empresa {user.OrgId} " + txt;
+                foreach (var e in resultado.MsnError)
+                {
+                    txt += e;
+                }
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, true);
+                await LogRepo.Insert(logTemp);
+            }
+            await UserGrid!.Reload();
         }
-        await UserGrid!.Reload();
+        catch (Exception ex)
+        {
+
+        }
+
     }
 
     async Task SaveRow(Z110_User user)

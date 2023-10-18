@@ -57,37 +57,48 @@ namespace DashBoard.Pages.Zuver
 
         protected override async Task OnInitializedAsync()
         {
-            Leer();
-            var bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
-                 $"Entro a generar una nueva organizacion, {TBita}", Corporativo, false);
-            await BitacoraAll(bitaTemp);
-        }
-
-        public void Leer()
-        {
-            PoblarLasOrgsCorp();
-            PoblarLosTipos();
-        }
-
-        public void PoblarLosTipos()
-        {
-            if (TipoOrgs.Any())
+            if (Primera)
             {
-                if (ElUser.Nivel < 6)
-                    TipoOrgs.RemoveAll(x => x.Key == "Administracion");
+                Primera = false;
+                if (!LasOrgs.Any() || !LosUsres.Any())
+                    await LeerOrgAndUserAll.InvokeAsync();
             }
+            await Leer();
         }
 
+        public async Task Leer()
+        {
+            try
+            {
+                PoblarLasOrgsCorp();
+
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
+                 $"Entro a generar una nueva organizacion, {TBita}", Corporativo, false);
+                await BitacoraAll(bitaTemp);
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible LEER {TBita}, {ex}",
+                    Corporativo, true);
+                await LogRepo.Insert(logTemp);
+            }
+            
+        }
+
+        
         public void PoblarLasOrgsCorp()
         {
             if (LasOrgs.Any())
             {
                 LasOrgsCorp = ElUser.Nivel < 5 ?
-                    LasOrgs.Where(x => x.Corporativo == ElUser.Corporativo)
-                    .Select(x => x).ToList() :
-                    LasOrgs.Where(x=>x.Estado == 1).Select(x=>x).ToList();       
+                    LasOrgs.Where(x => x.Corporativo == ElUser.Corporativo).GroupBy(x=>x.Corporativo)
+                    .Select(x => x.First()).ToList() :
+
+                    LasOrgs.Where(x=>x.Estado == 1).GroupBy(x=>x.Corporativo).Select(x=>x.First()).ToList();       
             }
         }
+
         public void ChecarFormato()
         {
             EMsn = "";
@@ -135,7 +146,7 @@ namespace DashBoard.Pages.Zuver
                         orgAdd.Corporativo = org.Corporativo;
                         orgAdd.Estado = org.Estado;
 
-                        var orgInsert = await OrgRepo.Insert(orgAdd);
+                        Z100_Org orgInsert = await OrgRepo.Insert(orgAdd);
                         if (orgInsert == null)
                         {
                             resp.MsnError.Add("No puedo agregarse la empresa");
@@ -171,7 +182,7 @@ namespace DashBoard.Pages.Zuver
                                 eAddUsuario.Nivel = org.UserNivel;
                             }
 
-                            var UserInsert = await AddUserRepo.InsertNewUser(eAddUsuario);
+                            ApiRespuesta<AddUser> UserInsert = await AddUserRepo.InsertNewUser(eAddUsuario);
                             if (!UserInsert.Exito)
                             {
                                 resp.MsnError.Add("No se agrego un usuario de la nueva organizacion");
@@ -185,7 +196,7 @@ namespace DashBoard.Pages.Zuver
             }
             catch (Exception ex)
             {
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar agregar una organizacion y un usuario, {TBita}, {ex}",
                     Corporativo, true);
                 await LogRepo.Insert(LogT);
@@ -264,7 +275,7 @@ namespace DashBoard.Pages.Zuver
             }
             catch (Exception ex)
             {
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar escribir BITACORA, {TBita},{ex}",
                     Corporativo, true);
                 await LogRepo.Insert(LogT);

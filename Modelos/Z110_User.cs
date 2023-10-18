@@ -18,7 +18,7 @@ namespace DashBoard.Modelos
         [StringLength(50)]
         public string OrgId { get; set; } = "";
         [StringLength(75)]
-        public string? OldEmail { get; set; }
+        public string OldEmail { get; set; } = "";
         [StringLength(50)]
         public string Corporativo { get; set; } = "";
         public int Estado { get; set; } = 2;

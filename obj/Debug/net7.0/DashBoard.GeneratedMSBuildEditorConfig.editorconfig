@@ -32,6 +32,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lzdGVtYS9CaXRhY29yYS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/Pages/Sistema/MisDatos.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lzdGVtYS9NaXNEYXRvcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/Pages/Zuver/IndexZ.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvWnV2ZXIvSW5kZXhaLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
@@ -42,6 +46,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/Pages/Zuver/OrgList.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvWnV2ZXIvT3JnTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/Pages/Zuver/UserAdd.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvWnV2ZXIvVXNlckFkZC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/Pages/Zuver/UsersList.razor]
@@ -184,12 +192,12 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9NYW5hZ2UvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/Areas/Identity/Pages/Account/Register.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9SZWdpc3Rlci5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
 [/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/Areas/Identity/Pages/Account/RegisterConfirmation.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9SZWdpc3RlckNvbmZpcm1hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/Areas/Identity/Pages/Account/Registerx3.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvSWRlbnRpdHkvUGFnZXMvQWNjb3VudC9SZWdpc3RlcngzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/Areas/Identity/Pages/Account/ResendEmailConfirmation.cshtml]

@@ -23,6 +23,9 @@ namespace DashBoard.Modelos
         public string Corporativo { get; set; } = "All";
         public int Estado { get; set; } = 2;
         public bool Status { get; set; } = true;
+
+        public string ComercialRfc => Comercial + " " + Rfc;
+        
     }
 }
 

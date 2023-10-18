@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using DashBoard.Data;
 using DashBoard.Modelos;
 using MathNet.Numerics.Distributions;
@@ -33,10 +34,9 @@ namespace DashBoard.Pages.Zuver
         {
             if (PrimeraVez)
             {
+                PrimeraVez = false;
                 await LeerElUser();
             }
-
-            PrimeraVez = false;
         }
 
         public async Task Leer()
@@ -49,13 +49,13 @@ namespace DashBoard.Pages.Zuver
                 await LeerUsersAll();
     
                 //await LeerNrpsAll();
-                var bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
                      $"Consulto la seccion de {TBita}", CorporativoAll, false);
                 await BitacoraAll(bitaTemp);
             }
             catch (Exception ex)
             {
-                var logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                      $"Error al entrar a la funcion LEER de {TBita}, {ex}", CorporativoAll, true);
                 await LogAll(logTemp);
             }
@@ -77,7 +77,7 @@ namespace DashBoard.Pages.Zuver
             }
             catch (Exception ex)
             {
-                var logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error, No fue posible leer los usuarios {TBita}, {ex}", "All", true);
                 await LogAll(logTemp);
             }
@@ -102,7 +102,7 @@ namespace DashBoard.Pages.Zuver
             }
             catch (Exception ex)
             {
-                var logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error No fue posible leer las organizaciones, {TBita}, {ex}",
                     CorporativoAll, true);
                 await LogAll(logTemp);
@@ -113,18 +113,20 @@ namespace DashBoard.Pages.Zuver
         {
             try
             {
-                if (TipoOrgsAll.Count < 1)
+                if (!TipoOrgsAll.Any())
                 {
                     string[] OrgT = Constantes.OrgTipo.Split(",");
                     foreach (var tc in OrgT)
                     {
+                        if (tc == "Administracion" && ElUser.Nivel < 6)
+                            continue;
                         TipoOrgsAll.Add(new KeyValuePair<string, string>(tc, tc));
                     }
                 }
             }
             catch (Exception ex)
             {
-                var logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible leer los TIPOS de organizaciones {TBita}, {ex}",
                     CorporativoAll, true);
                 await LogAll(logTemp);
@@ -147,7 +149,7 @@ namespace DashBoard.Pages.Zuver
             }
             catch (Exception ex)
             {
-                var logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible leer los niveles de los usuarios, {TBita}, {ex}",
                     "All", true);
                 await LogAll(logTemp);
@@ -225,26 +227,29 @@ namespace DashBoard.Pages.Zuver
         {
             try
             {
-                var user = (await AuthStateTask).User;
+                ClaimsPrincipal user = (await AuthStateTask).User;
                 if (user != null && user.Identity != null && user.Identity.IsAuthenticated)
                 {
-                    var elId = UserMger.GetUserId(user);
-                    if (elId == null) NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
+                    string elId = UserMger.GetUserId(user) ?? "Vacio";
+                    if (elId == null || elId == "Vacio") NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
                     ElUser = await UserRepo.GetById(elId!);
 
                     if (ElUser == null)
                     {
                         NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
                     }
-                    
+                    /*
                     else if (ElUser.Nivel < 5)
                     {
                         
                         NM.NavigateTo("/indexc", true);
                     }
-                    
-                    CorporativoAll = ElUser!.Corporativo;
-                    await Leer();
+                    */
+                    else
+                    { 
+                        CorporativoAll = ElUser!.Corporativo;
+                        await Leer();
+                    }
                 }
                 else
                 {
@@ -254,7 +259,7 @@ namespace DashBoard.Pages.Zuver
             }
             catch (Exception ex)
             {
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                  $" Error al intentar leer EL USER USUARIO {TBita}, {ex}", "All", true);
                 await LogRepo.Insert(LogT);
             }

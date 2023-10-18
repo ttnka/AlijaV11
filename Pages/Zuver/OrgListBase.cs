@@ -48,22 +48,31 @@ namespace DashBoard.Pages.Zuver
         {
             if (Primera)
             {
-                if (LasOrgs.Count == 0)
-                    await GoLeerOrgs();
+                Primera = false;
+                if (!LasOrgs.Any() || !LosUsuarios.Any())
+                    await LeerOrgsAndUsers();
             }
             await Leer();
-
-            Primera = false;
-            var bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
-                $"El usuario consulto listado de {TBita}", Corporativo, false);
-            await BitacoraAll(bitaTemp);
         }
 
         public async Task Leer()
         {
-            await PoblarLasOrgsCorp();
-        }
+            try
+            {
+                await PoblarLasOrgsCorp();
 
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
+                    $"El usuario consulto listado de {TBita}", Corporativo, false);
+                await BitacoraAll(bitaTemp);
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar generar LEER inicio, {TBita}, {ex}",
+                    Corporativo, true);
+                await LogRepo.Insert(LogT);
+            }
+        }
 
         protected async Task PoblarLasOrgsCorp()
         {
@@ -79,21 +88,23 @@ namespace DashBoard.Pages.Zuver
             }
             catch (Exception ex)
             {
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar generar el listado de corporativos, {TBita}, {ex}",
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar generar el listado de corporativos, {TBita}, {ex}",
                     Corporativo, true);
                 await LogRepo.Insert(LogT);
             }
         }
+
         protected async Task LeerOrgsAndUsers()
         {
+            Primera = false;
             await LeerOrgAll.InvokeAsync();
             await LeerUsersAll.InvokeAsync();
         }
+
         protected async Task GoLeerOrgs()
         {
             await LeerOrgAll.InvokeAsync();
-            await OrgGrid!.Reload();
         }
 
         protected async Task GoLeerUsers()
@@ -116,7 +127,7 @@ namespace DashBoard.Pages.Zuver
                     if (tipo == "Insert")
                     {
                         org.OrgId = Guid.NewGuid().ToString();
-                        var orgInsert = await OrgRepo.Insert(org);
+                        Z100_Org orgInsert = await OrgRepo.Insert(org);
                         if (orgInsert != null)
                         {
                             resp.Exito = true;
@@ -134,25 +145,31 @@ namespace DashBoard.Pages.Zuver
                         && x.OrgId != org.OrgId))
                         {
                             resp.MsnError.Add("El RFC ya esta REGISTRADO!");
+                            resp.Exito = false;
                             return resp;
                         }
-                        var orgUpdate = await OrgRepo.Update(org);
+                        Z100_Org orgUpdate = await OrgRepo.Update(org);
                         if (orgUpdate != null)
                         {
                             resp.Exito = true;
+                            resp.Data = orgUpdate;
+                            return resp;
                         }
                         else
                         {
                             resp.MsnError.Add("No se Actualizo el registro ");
+                            resp.Exito = false;
+                            return resp;
                         }
                     }
                 }
+                resp.MsnError.Add("Ningua operacion se realizo!");
                 return resp;
             }
             catch (Exception ex)
             {
                 resp.MsnError.Add(ex.Message);
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar {tipo} los registros de {TBita} {ex}",
                         Corporativo, true);
                 await LogRepo.Insert(LogT);
@@ -212,8 +229,8 @@ namespace DashBoard.Pages.Zuver
             }
             catch (Exception ex)
             {
-                var LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
                     Corporativo, true);
                 await LogRepo.Insert(LogT);
             }

@@ -5,6 +5,7 @@ namespace DashBoard.Modelos
 	{
         public string Mail { get; set; } = "";
         public string Pass { get; set; } = "";
+        public string ConfirmPass { get; set; } = "";
 
         public string Nombre { get; set; } = "";
         public string Paterno { get; set; } = "";
