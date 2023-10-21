@@ -3,41 +3,244 @@
 For setup and configuration information, see https://go.microsoft.com/fwlink/?linkid=2116645.
 
 
-/*
-    async void AddOrg(Z100_Org org)
-    {
-        Editando = !Editando;
-        org.Estado = 1;
-        org.Rfc = org.Rfc.ToUpper();
-        org.Moral = org.Rfc.Length == 13;
+AlijaV11
+Applicacion de mi memes Alijadores
+esta en la base de datos Omins - Austeridad
 
-        var resultado = await Servicio("Insert", org);
-        //bool sistema = false;
-        string txt = $"{org.Rfc} {org.RazonSocial} " +
-                    $"tipo: {org.Tipo}, Estado:{org.Estado} status:{org.Status}";
-        string txt1 = "";
-        if (resultado.Exito)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@using Microsoft.EntityFrameworkCore
+@using System.Linq
+
+@inherits DbContextPage
+
+@inject DialogService DialogService
+
+<RadzenDataGrid @ref="ordersGrid" AllowFiltering="true" FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="5" AllowSorting="true"
+                Data="@orders" TItem="Order">
+    <Columns>
+        <RadzenDataGridColumn Width="50px" TItem="Order" Title="#" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+            <Template Context="data">
+                @(orders.IndexOf(data) + 1)
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Order" Property="Employee.LastName" Title="Employee">
+            <Template Context="order">
+                <RadzenImage Path="@order.Employee?.Photo" style="width: 40px; height: 40px; border-radius: 8px; margin-right: 8px; float: left;" />
+                <RadzenText TextStyle="TextStyle.Subtitle2" class="mb-0">@order.Employee?.FirstName @order.Employee?.LastName</RadzenText>
+                <RadzenText TextStyle="TextStyle.Caption">@order.Customer?.CompanyName</RadzenText>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Order" Property="OrderDate" Title="Order Date" FormatString="{0:d}" />
+        <RadzenDataGridColumn TItem="Order" Property="Freight" Title="Freight">
+            <Template Context="order">
+                @String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", order.Freight)
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Order" Property="ShipCountry" Title="ShipCountry" />
+        <RadzenDataGridColumn Width="160px" TItem="Order" Property="OrderID" Title="Order Details">
+            <Template Context="data">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="m-1" Click=@(() => OpenOrder(data.OrderID)) Text="@data.OrderID.ToString()" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<Order> ordersGrid;
+    IList<Order> orders;
+
+    async Task OpenOrder(int orderId)
+    {
+        await DialogService.OpenAsync<DialogCardPage>($"Order {orderId}",
+              new Dictionary<string, object>() { { "OrderID", orderId } },
+              new DialogOptions() { Width = "700px", Height = "520px" });
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        orders = dbContext.Orders.Include("Customer").Include("Employee").ToList();
+    }
+}
+
+
+
+
+@using RadzenBlazorDemos.Data
+@using RadzenBlazorDemos.Models.Northwind
+@using Microsoft.EntityFrameworkCore
+
+@inherits DbContextPage
+
+<RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" class="mt-2 mb-4" Text="Add New Order" Click="@InsertRow" Disabled=@(orderToInsert != null || orderToUpdate != null) />
+<RadzenDataGrid @ref="ordersGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="DataGridEditMode.Single"
+            Data="@orders" TItem="Order" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px">
+    <Columns>
+        <RadzenDataGridColumn TItem="Order" Property="OrderID" Title="Order ID" Width="120px" />
+        <RadzenDataGridColumn TItem="Order" Property="Customer.CompanyName" Title="Customer" Width="280px" >
+            <EditTemplate Context="order">
+                <RadzenDropDown @bind-Value="order.CustomerID" Data="@customers" TextProperty="CompanyName" ValueProperty="CustomerID" Style="width:100%; display: block;" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Order" Property="Employee.LastName" Title="Employee" Width="220px">
+            <Template Context="order">
+                <RadzenImage Path="@order.Employee?.Photo" style="width: 32px; height: 32px; border-radius: 16px; margin-right: 6px;" />
+                @order.Employee?.FirstName @order.Employee?.LastName
+            </Template>
+            <EditTemplate Context="order">
+                <RadzenDropDown @bind-Value="order.EmployeeID" Data="@employees" ValueProperty="EmployeeID" Style="width:100%; display: block;">
+                    <Template>
+                        <RadzenImage Path="@context.Photo" style="width: 20px; height: 20px; border-radius: 16px; margin-right: 6px;" />
+                        @context.FirstName @context.LastName
+                    </Template>
+                </RadzenDropDown>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Order" Property="OrderDate" Title="Order Date" Width="200px">
+            <Template Context="order">
+                @String.Format("{0:d}", order.OrderDate)
+            </Template>
+            <EditTemplate Context="order">
+                <RadzenDatePicker @bind-Value="order.OrderDate" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Order" Property="Freight" Title="Freight">
+            <Template Context="order">
+                @String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", order.Freight)
+            </Template>
+            <EditTemplate Context="order">
+                <RadzenNumeric @bind-Value="order.Freight" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Order" Property="ShipName" Title="Ship Name">
+            <EditTemplate Context="order">
+                <RadzenTextBox @bind-Value="order.ShipName" Style="width:100%; display: block" Name="ShipName" />
+                <RadzenRequiredValidator Text="ShipName is required" Component="ShipName" Popup="true" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Order" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="156px">
+            <Template Context="order">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(order))" @onclick:stopPropagation="true">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(order))"  @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="order">
+                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(order))">
+                </RadzenButton>
+                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit(order))">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(order))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<Order> ordersGrid;
+    IEnumerable<Order> orders;
+    IEnumerable<Customer> customers;
+    IEnumerable<Employee> employees;
+
+    Order orderToInsert;
+    Order orderToUpdate;
+
+    void Reset()
+    {
+        orderToInsert = null;
+        orderToUpdate = null;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        customers = dbContext.Customers;
+        employees = dbContext.Employees;
+
+        orders = dbContext.Orders.Include("Customer").Include("Employee");
+    }
+
+    async Task EditRow(Order order)
+    {
+        orderToUpdate = order;
+        await ordersGrid.EditRow(order);
+    }
+
+    void OnUpdateRow(Order order)
+    {
+        Reset();
+
+        dbContext.Update(order);
+
+        dbContext.SaveChanges();
+    }
+
+    async Task SaveRow(Order order)
+    {
+        await ordersGrid.UpdateRow(order);
+    }
+
+    void CancelEdit(Order order)
+    {
+        Reset();
+
+        ordersGrid.CancelEditRow(order);
+
+        var orderEntry = dbContext.Entry(order);
+        if (orderEntry.State == EntityState.Modified)
         {
-            ShowNotification(ElMsn("Ok", "Nueva",
-                        $"Estamos creado un nueva ORGANIZACION {org.Comercial}!!! ", 0));
-            txt = $"{TBita}, Creo una nueva organizacion {org.Comercial} " + txt;
-            ShowNotification(ElMsn("Ok", "Nuevo administrador",
-                        $"Estamos creando un nuevo ADMINISTRADOR de {org.Comercial}!!!", 0));
-            txt1 = $"{TBita}, Creo un nuevo administrador en Comercial:{org.Comercial} {org.NumCliente}";
+            orderEntry.CurrentValues.SetValues(orderEntry.OriginalValues);
+            orderEntry.State = EntityState.Unchanged;
+        }
+    }
+
+    async Task DeleteRow(Order order)
+    {
+        Reset();
+
+        if (orders.Contains(order))
+        {
+            dbContext.Remove<Order>(order);
+
+            dbContext.SaveChanges();
+
+            await ordersGrid.Reload();
         }
         else
         {
-            ShowNotification(ElMsn("Error", "Error",
-                        $"No pudo ser creada un nueva ORGANIZACION!!! {org.Comercial} {org.NumCliente}", 0));
-            txt = $"{TBita}, NO se creo una nueva organizacion {org.Comercial} " + txt;
-            sistema = true;
-        }
-        var bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt, ElUser.OrgId, sistema);
-        await BitacoraAll(bitaTemp);
-        if (txt1.Length > 1)
-        {
-            bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt1, ElUser.OrgId, sistema);
-            await BitacoraAll(bitaTemp);
+            ordersGrid.CancelEditRow(order);
+            await ordersGrid.Reload();
         }
     }
-    */
+
+    async Task InsertRow()
+    {
+        orderToInsert = new Order();
+        await ordersGrid.InsertRow(orderToInsert);
+    }
+
+    void OnCreateRow(Order order)
+    {
+        dbContext.Add(order);
+
+        dbContext.SaveChanges();
+        
+        orderToInsert = null;
+    }
+}

@@ -129,14 +129,14 @@ namespace DashBoard.Pages.Sistema
 
 
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(userGeneradoUserId, userGeneradoOrgId,
-                    $"{TBita}, Se las tablas por primera vez", "All", false);
+                    $"{TBita}, Se las tablas por primera vez", "All", userGeneradoOrgId);
                 await BitacoraRepo.Insert(bitaTemp);
                 return true;
             }
             catch (Exception ex)
             {
                 Z192_Logs logTemp = MyFunc.MakeLog("Sistema"!, "Sistema",
-                    $"{TBita}, Error al intentar Arranque de bases de datos {ex}", "All", true);
+                    $"{TBita}, Error al intentar Arranque de bases de datos {ex}", "All", "Sistema");
                 await LogRepo.Insert(logTemp);
                 return false;
             }

@@ -25,6 +25,7 @@ namespace DashBoard.Pages.Sistema
         [Parameter]
         public List<Z100_Org> LasOrg { get; set; } = new List<Z100_Org>();
         public List<Z100_Org> LasOrgCorp { get; set; } = new List<Z100_Org>();
+        public List<Z100_Org> LosAlijadores { get; set; } = new List<Z100_Org>();
 
         public bool Editando { get; set; } = false;
 
@@ -47,9 +48,9 @@ namespace DashBoard.Pages.Sistema
             {
                 await UserToOldData();
                 await ReadNiveles();
-                await ReadOrgCorp();
+                await ReadOrgCorp(); // Se lee los ALIJADORES que son empresas ADMINISTADORAS
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
-                        $"Consulto {TBita}", Corporativo, false);
+                        $"Consulto {TBita}", Corporativo, ElUser.OrgId);
                 await BitaRepo.Insert(bitaTemp);
                 
             }
@@ -57,10 +58,11 @@ namespace DashBoard.Pages.Sistema
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar leer los datos USER, {TBita},{ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
+
 
         protected async Task ReadNiveles()
         {
@@ -77,7 +79,7 @@ namespace DashBoard.Pages.Sistema
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar leer los datos de NIVELES, {TBita},{ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -90,6 +92,7 @@ namespace DashBoard.Pages.Sistema
                 {
                     LasOrgCorp = LasOrg.GroupBy(x => x.Corporativo)
                         .Select(x => x.First()).ToList();
+                    LosAlijadores = LasOrg.Where(x => x.Tipo == "Administracion").ToList();
                 }
 
             }
@@ -97,7 +100,7 @@ namespace DashBoard.Pages.Sistema
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar leer los datos de las corporaciones, {TBita},{ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -113,7 +116,6 @@ namespace DashBoard.Pages.Sistema
                 OldDataUser.Materno = ElUser.Materno != null ? ElUser.Materno.ToString() : "";
                 OldDataUser.Nivel = ElUser.Nivel;
                 OldDataUser.OldEmail = ElUser.OldEmail.ToString();
-                OldDataUser.Corporativo = ElUser.Corporativo.ToString();
                 OldDataUser.Estado = ElUser.Estado;
                 
             }
@@ -121,7 +123,7 @@ namespace DashBoard.Pages.Sistema
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar leer los datos del USER, {TBita},{ex}",
-                   Corporativo, true);
+                   Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
             
@@ -136,18 +138,16 @@ namespace DashBoard.Pages.Sistema
                     "Sin Nivel" : Niveles.FirstOrDefault(x => x.Key == data.Nivel).Value;
                 string orgIdT =  !LasOrg.Any() || !LasOrg.Exists(x=>x.OrgId == data.OrgId) ?
                     "Sin Organizacion" : LasOrg.FirstOrDefault(x => x.OrgId == data.OrgId)!.ComercialRfc;
-                string corpIdT = !LasOrg.Any() || !LasOrg.Exists(x => x.OrgId == data.Corporativo) ?
-                    "Sin Corporativo" : LasOrg.FirstOrDefault(x => x.OrgId == data.Corporativo)!.ComercialRfc;
                 string statusT = data.Status ? "Activo" : "Suspendido";
                 if (nuevo)
                 {
                     resp = $"El NUEVO registro contiene: Nombre: {data.Completo} Email: {data.OldEmail}, ";
-                    resp += $"nivel: {nivelT}, organizacion: {orgIdT}, Corporativo: {corpIdT}";
+                    resp += $"nivel: {nivelT}, organizacion: {orgIdT} ";
                 }
                 else
                 {
                     resp = $"El registro Original era: Nombre: {data.Completo} Email: {data.OldEmail}, ";
-                    resp += $"nivel: {nivelT}, organizacion: {orgIdT}, Corporativo: {corpIdT}";
+                    resp += $"nivel: {nivelT}, organizacion: {orgIdT} ";
                 }
                 resp += $"Estado: {data.Estado}, Estatus: {statusT}";
                 
@@ -158,7 +158,7 @@ namespace DashBoard.Pages.Sistema
                 resp = "Error";
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar llevar los datos del USER a texto 'UserTxt', {TBita},{ex}",
-                   Corporativo, true);
+                   Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
                 return resp;
             }
@@ -198,7 +198,7 @@ namespace DashBoard.Pages.Sistema
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar actualizar los datos del USER, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
                 resp.Exito = false;
                 return resp;
@@ -293,7 +293,7 @@ namespace DashBoard.Pages.Sistema
                     */
                     else
                     {
-                        Corporativo = ElUser!.Corporativo;
+                        Corporativo = ElUser.OrgId;
                         await Leer();
                     }
                     
@@ -308,7 +308,7 @@ namespace DashBoard.Pages.Sistema
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar leer EL USER USUARIO de la bitacora, {TBita}, {ex}",
-                    "All", true);
+                    "All", ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }

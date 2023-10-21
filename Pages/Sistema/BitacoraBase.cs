@@ -24,6 +24,7 @@ namespace DashBoard.Pages.Sistema
 
         public List<Z190_Bitacora> LasBitas { get; set; } = new();
         public Filtro SearchBita { get; set; } = new();
+        [Parameter]
         public List<Z100_Org> LasOrgs { get; set; } = new();
         public List<Z100_Org> OrgsFiltro { get; set; } = new();
         public List<Z100_Org> CorpsFiltro { get; set; } = new();
@@ -62,7 +63,7 @@ namespace DashBoard.Pages.Sistema
                 await LeerUsers();
                 await LeerBitacoras(SearchBita);
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
-                    $"Consulto listado de bitacora, {TBita}", Corporativo, false);
+                    $"Consulto listado de bitacora, {TBita}", Corporativo, ElUser.OrgId);
                 await BitaRepo.Insert(bitaTemp);
 
             }
@@ -70,7 +71,7 @@ namespace DashBoard.Pages.Sistema
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar leer los valores iniciales funcion LEER, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -79,11 +80,21 @@ namespace DashBoard.Pages.Sistema
         {
             try
             {
+                if (LasOrgs.Any())
+                { 
+                OrgsFiltro = ElUser.Nivel < 5 ?
+                        LasOrgs.Where(x => x.OrgId == ElUser.OrgId)
+                        .Select(x => x).ToList() :
+                        LasOrgs.ToList();
+                CorpsFiltro = LasOrgs.GroupBy(x => x.Corporativo)
+                        .Select(x => x.First()).ToList();
+                }
+                /*
                 var resultado = await OrgsRepo.GetAll();
                 if (resultado.Any())
                 {
                     OrgsFiltro = ElUser.Nivel < 5 ?
-                        resultado.Where(x => x.Corporativo == ElUser.Corporativo)
+                        resultado.Where(x => x.OrgId == ElUser.OrgId)
                         .Select(x => x).ToList() :
                         resultado.ToList();
 
@@ -91,13 +102,13 @@ namespace DashBoard.Pages.Sistema
 
                     CorpsFiltro = resultado.GroupBy(x => x.Corporativo)
                         .Select(x => x.First()).ToList();
-                }
+                }*/
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar leer organizaciones, {TBita},{ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -111,7 +122,7 @@ namespace DashBoard.Pages.Sistema
                 {
                     // Pobla los usuarios para el filtro
                     UsersFiltro = ElUser.Nivel < 5 ?
-                        resultado.Where(x => x.Corporativo == ElUser.Corporativo)
+                        resultado.Where(x => x.OrgId == ElUser.OrgId)
                         .Select(x=>x).ToList() :
                         resultado.ToList();
 
@@ -124,7 +135,7 @@ namespace DashBoard.Pages.Sistema
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar leer los usuarios, {TBita},  {ex} de la bitacora",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
                 LosUsers = new();
             }
@@ -148,7 +159,8 @@ namespace DashBoard.Pages.Sistema
                         datos.FFin = datos.FIni.AddDays(1);
                     }
                     
-                    resultado = await BitaRepo.Get(x => x.Fecha >= datos.FIni &&
+                    resultado = await BitaRepo.Get(x => x.EmpresaId == ElUser.OrgId &&
+                        x.Fecha >= datos.FIni &&
                         x.Fecha <= datos.FFin &&
                         x.UserId == (string.IsNullOrEmpty(datos.UserId) ?
                         x.UserId : datos.UserId) &&
@@ -161,8 +173,7 @@ namespace DashBoard.Pages.Sistema
                 }
                 else
                 {
-                    resultado = await BitaRepo.Get(x => x.Corporativo ==
-                    (ElUser.Nivel < 5 ? ElUser.Corporativo : x.Corporativo));
+                    resultado = await BitaRepo.Get(x => x.EmpresaId == ElUser.OrgId);
                 }
 
                 if (resultado == null || !resultado.Any())
@@ -198,7 +209,7 @@ namespace DashBoard.Pages.Sistema
                 Leyendo = false;
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar leer los registros de la bitacora, {TBita}, {ex}",
-                        Corporativo, true);
+                        Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
                 LosUsers = new();
             }
@@ -223,7 +234,8 @@ namespace DashBoard.Pages.Sistema
                         datos.FFin = datos.FIni.AddDays(1);
                     }
 
-                    resultado = await LogRepo.Get(x => x.Fecha >= datos.FIni &&
+                    resultado = await LogRepo.Get(x => x.EmpresaId == ElUser.OrgId &&
+                        x.Fecha >= datos.FIni &&
                         x.Fecha <= datos.FFin &&
                         x.UserId == (string.IsNullOrEmpty(datos.UserId) ?
                         x.UserId : datos.UserId) &&
@@ -236,8 +248,7 @@ namespace DashBoard.Pages.Sistema
                 }
                 else
                 {
-                    resultado = await LogRepo.Get(x => x.Corporativo ==
-                    (ElUser.Nivel < 5 ? ElUser.Corporativo : x.Corporativo));
+                    resultado = await LogRepo.Get(x => x.EmpresaId == ElUser.OrgId);
                 }
 
                 if (resultado == null || !resultado.Any())
@@ -272,7 +283,7 @@ namespace DashBoard.Pages.Sistema
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar leer los registros de los Logs de errores, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
                 LosLogs = new();
             }
@@ -384,7 +395,7 @@ namespace DashBoard.Pages.Sistema
                     */
                     else
                     {
-                        Corporativo = ElUser.Corporativo;
+                        Corporativo = ElUser.OrgId;
                         await Leer();
                     }
                 }
@@ -398,7 +409,7 @@ namespace DashBoard.Pages.Sistema
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                  $"Error al intentar leer EL USER USUARIO de la bitacora, {TBita}, {ex}",
-                 "All", true);
+                 "All", ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }

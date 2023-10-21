@@ -265,7 +265,7 @@ else
                     $"Se actualizo la info de {org.Comercial}", 0));
                 txt = $"{TBita}, Se actualizo un registro de {org.Comercial} " + txt;
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
-                    ElUser.Corporativo, false);
+                    Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
             }
             else
@@ -278,7 +278,7 @@ else
                 txt = $"{TBita}, No se actualizo un registro de {org.Comercial} " + txt;
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
-                    ElUser.Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(logTemp);
             }
             await OrgGrid!.Reload();
@@ -287,7 +287,7 @@ else
         {
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible actualizar una organizacion, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
             await LogRepo.Insert(logTemp);
         }
 

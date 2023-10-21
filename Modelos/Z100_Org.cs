@@ -7,7 +7,7 @@ namespace DashBoard.Modelos
 	{
         [Key]
         [StringLength(50)]
-        public string OrgId { get; set; } = Guid.NewGuid().ToString();
+        public string OrgId { get; set; } = "";
         [StringLength(15)]
         public string Rfc { get; set; } = "";
         [StringLength(25)]
@@ -21,6 +21,7 @@ namespace DashBoard.Modelos
         public string Tipo { get; set; } = "Cliente";
         [StringLength(50)]
         public string Corporativo { get; set; } = "All";
+        
         public int Estado { get; set; } = 2;
         public bool Status { get; set; } = true;
 

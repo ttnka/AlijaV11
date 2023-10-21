@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Mail;
 using System.Security.Policy;
 using System.Text;
 using DashBoard.Data;
@@ -54,13 +55,13 @@ namespace DashBoard.Modelos
             try
             {
                 
-                var user = CreateUser();
+                IdentityUser user = CreateUser();
                 await _userStore.SetUserNameAsync(user, UsuarioNuevo.Mail, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, UsuarioNuevo.Mail, CancellationToken.None);
-                var result = await _userManager.CreateAsync(user, UsuarioNuevo.Pass);
+                IdentityResult result = await _userManager.CreateAsync(user, UsuarioNuevo.Pass);
                 if (result.Succeeded)
                 {
-                    var userId = await _userManager.GetUserIdAsync(user);
+                    string userId = await _userManager.GetUserIdAsync(user);
 
                     Z110_User userUpDate = new();
                     userUpDate.UserId = userId;
@@ -70,26 +71,25 @@ namespace DashBoard.Modelos
                     userUpDate.OldEmail = user.Email;
                     userUpDate.OrgId = UsuarioNuevo.OrgId!;
                     userUpDate.Nivel = UsuarioNuevo.Nivel;
-                    userUpDate.Corporativo = UsuarioNuevo.Corporativo;
                     userUpDate.Estado = UsuarioNuevo.Sistema ? 1 : 2;
 
                     // Agrega el Usuario nuevo a tabla de Users con los datos ASP USER NET
                     try
                     {
                         await _appDbContext.AddAsync(userUpDate);
-                        var sav1 = await _appDbContext.SaveChangesAsync();
+                        await _appDbContext.SaveChangesAsync();
 
                         apiRespuesta.Data.UsuarioId = userId;
                         apiRespuesta.Exito = true;
                     }
                     catch (Exception ex)
                     {
-                        var eTxt = $"Se genero un error al intentar crear un nuevo usuario {ex}";
-                        var userT = userId ?? "Sin Usuario";
-                        var orgT = UsuarioNuevo.OrgId ?? "Sin Organizacion";
-                        var corpT = UsuarioNuevo.Corporativo ?? "Sin Corporativo";
+                        string eTxt = $"Se genero un error al intentar crear un nuevo usuario {ex}";
+                        string userT = userId ?? "Sin Usuario";
+                        string orgT = UsuarioNuevo.OrgId ?? "Sin Organizacion";
+                        string corpT = UsuarioNuevo.Corporativo ?? "Sin Corporativo";
 
-                        await WriteBitacora(userT, orgT, eTxt, corpT, false);
+                        await WriteBitacora(userT, orgT, eTxt, corpT, orgT, true);
                         apiRespuesta.Exito = false;
                         apiRespuesta.MsnError.Add("Hubo un error al intenetar actualizar USUARIOS con el user nuevo");
                         return apiRespuesta;
@@ -99,19 +99,19 @@ namespace DashBoard.Modelos
 
                     try
                     {
-                        var txt = $"Se creo nuevo acceso {UsuarioNuevo.Mail} y password, ";
+                        string txt = $"Se creo nuevo acceso {UsuarioNuevo.Mail} y password, ";
                         txt += $"{UsuarioNuevo.Nombre} {UsuarioNuevo.Paterno} {UsuarioNuevo.OrgName}";
                         txt += UsuarioNuevo.OrgName == "" ? "El sistema" : UsuarioNuevo.OrgName;
                         await WriteBitacora(userId, UsuarioNuevo.OrgId, txt,
-                                            UsuarioNuevo.Corporativo, false);
+                                    UsuarioNuevo.Corporativo, UsuarioNuevo.OrgId, false);
                     }
                     catch (Exception ex)
                     {
-                        var eTxt = $"Se genero un error al intentar escribir en bitacora un nuevo usuario {ex}";
-                        var userT = userId ?? "Sin Usuario";
-                        var orgT = UsuarioNuevo.OrgId ?? "Sin Organizacion";
-                        var corpT = UsuarioNuevo.Corporativo ?? "Sin Corporativo";
-                        await WriteBitacora(userT, orgT, eTxt, corpT, true);
+                        string eTxt = $"Se genero un error al intentar escribir en bitacora un nuevo usuario {ex}";
+                        string userT = userId ?? "Sin Usuario";
+                        string orgT = UsuarioNuevo.OrgId ?? "Sin Organizacion";
+                        string corpT = UsuarioNuevo.Corporativo ?? "Sin Corporativo";
+                        await WriteBitacora(userT, orgT, eTxt, corpT, orgT, true);
                         apiRespuesta.Exito = false;
                         apiRespuesta.MsnError.Add(eTxt);
                         return apiRespuesta;
@@ -145,7 +145,7 @@ namespace DashBoard.Modelos
                         Constantes.UserNameMail01, Constantes.PasswordMail01);
 
 
-                    var mails = await EnviarMail(mailCampos);
+                    ApiRespuesta<MailCampos> mails = await EnviarMail(mailCampos);
                     if (!mails.Exito)
                     {
                         foreach (var e in mails.MsnError)
@@ -158,11 +158,11 @@ namespace DashBoard.Modelos
             }
             catch (Exception ex)
             {
-                var eTxt = $"Error al intentar generar un nuevo usuario {ex}";
+                string eTxt = $"Error al intentar generar un nuevo usuario {ex}";
                 string userIdTmp = UsuarioNuevo.UsuarioId ?? "Sin_Usuario_Error";
                 string orgIdTmp = UsuarioNuevo.OrgId ?? "Sin_Organizacion_Error";
                 string corpIdTmp = UsuarioNuevo.Corporativo ?? "Sin_Corporativo_Error";
-                await WriteBitacora(userIdTmp, orgIdTmp , eTxt, corpIdTmp, true);
+                await WriteBitacora(userIdTmp, orgIdTmp , eTxt, corpIdTmp, orgIdTmp, true);
                 apiRespuesta.Exito = false;
                 apiRespuesta.MsnError.Add(eTxt);
                 return apiRespuesta;
@@ -211,13 +211,13 @@ namespace DashBoard.Modelos
                 apiRespuesta.MsnError.Add("Email de prueba exitos!");
                 await WriteBitacora(mailCampos.UserId, mailCampos.OrgId,
                     "Se supespendio el envio de mail ya que es un correo de prueba!",
-                    mailCampos.Corporativo, true);
+                    mailCampos.Corporativo, mailCampos.OrgId, true);
                 return apiRespuesta;
             }
             #endregion
             try
             {
-                var email = new MimeMessage();
+                MimeMessage email = new MimeMessage();
                 email.From.Add(MailboxAddress.Parse(mailCampos.SenderEmail));
                 email.To.Add(MailboxAddress.Parse(mailCampos.Para));
                 email.Subject = mailCampos.Titulo;
@@ -230,17 +230,17 @@ namespace DashBoard.Modelos
 
                 await WriteBitacora(mailCampos.UserId, mailCampos.OrgId,
                     $"Se envio un Email a {mailCampos.Para} Titulo {mailCampos.Titulo}",
-                    mailCampos.Corporativo, false);
+                    mailCampos.Corporativo, mailCampos.OrgId, false);
                 apiRespuesta.Exito = true;
                 return apiRespuesta;
             }
             catch (Exception ex)
             {
                 apiRespuesta.MsnError.Add(ex.Message);
-                var text = $"Hubo un error al enviar MAIL {ex} Para {mailCampos.Para} ";
+                string text = $"Hubo un error al enviar MAIL {ex} Para {mailCampos.Para} ";
                 text += $"Titulo {mailCampos.Titulo} ";
                 await WriteBitacora(mailCampos.UserId, mailCampos.OrgId, text,
-                    mailCampos.Corporativo, true);
+                    mailCampos.Corporativo, mailCampos.OrgId, true);
                 return apiRespuesta;
             }
         }
@@ -267,36 +267,37 @@ namespace DashBoard.Modelos
             return (IUserEmailStore<IdentityUser>)_userStore;
         }
 
-        public async Task WriteBitacora(string uId, string oId, string d, string corp, bool s)
+        public async Task WriteBitacora(string uId, string oId,
+            string d, string corp, string e, bool s)
         {
             try
             {
                 if (s)
                 {
-                    var bitaLogTemp = MyFunc.MakeLog(uId, oId, d, corp, s);
+                    Z192_Logs bitaLogTemp = MyFunc.MakeLog(uId, oId, d, corp, e);
                     await _appDbContext.LogsBitacora.AddAsync(bitaLogTemp);
                 }
                 else
                 {
-                    var bitaTemp = MyFunc.MakeBitacora(uId, oId, d, corp, s);
+                    Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(uId, oId, d, corp, e);
                     await _appDbContext.Bitacora.AddAsync(bitaTemp);
                 }
                 await _appDbContext.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                var eTxt = $"Se genero un error al intentar escribir en la bitacora {ex}";
-                var user = uId ?? "Sin Usuario";
-                var org = oId ?? "Sin Organizacion";
-                var corporativo = corp ?? "Sin Corporativo"; 
+                string eTxt = $"Se genero un error al intentar escribir en la bitacora {ex}";
+                string user = uId ?? "Sin Usuario";
+                string org = oId ?? "Sin Organizacion";
+                string corporativo = corp ?? "Sin Corporativo"; 
                 if (s)
                 {
-                    var bLT = MyFunc.MakeLog(user, org, eTxt, corporativo, s);
+                    Z192_Logs bLT = MyFunc.MakeLog(user, org, eTxt, corporativo, e);
                     await _appDbContext.LogsBitacora.AddAsync(bLT);
                 }
                 else
                 {
-                    var bT = MyFunc.MakeBitacora(user, org, eTxt, corporativo, s);
+                    Z190_Bitacora bT = MyFunc.MakeBitacora(user, org, eTxt, corporativo, e);
                     await _appDbContext.Bitacora.AddAsync(bT);
                 }
                 await _appDbContext.SaveChangesAsync();

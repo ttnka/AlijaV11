@@ -4,26 +4,26 @@ namespace DashBoard.Modelos
 	public class MyFunc
 	{
         public Z190_Bitacora MakeBitacora(string userId, string orgId, string desc,
-            string corporativo, bool sistema)
+            string corporativo, string empresaId)
         {
             Z190_Bitacora bitacora = new();
             bitacora.UserId = userId;
             bitacora.OrgId = orgId;
             bitacora.Desc = desc;
             bitacora.Corporativo = corporativo;
-            bitacora.Sistema = sistema;
+            bitacora.EmpresaId = empresaId;
 
             return bitacora;
         }
         public Z192_Logs MakeLog(string userId, string orgId, string desc,
-            string corporativo, bool sistema)
+            string corporativo, string empresaId)
         {
             Z192_Logs bitalog = new();
             bitalog.UserId = userId;
             bitalog.OrgId = orgId;
             bitalog.Desc = desc;
             bitalog.Corporativo = corporativo;
-            bitalog.Sistema = sistema;
+            bitalog.EmpresaId = empresaId;
 
             return bitalog;
         }

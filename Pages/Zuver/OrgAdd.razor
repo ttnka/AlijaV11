@@ -172,7 +172,7 @@
                 txt = $"{TBita}, Creo una nueva organizacion {org.Comercial} " + txt;
 
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
-                        Corporativo, false);
+                        Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
 
                 ShowNotification(ElMsn("Ok", "Nuevo administrador",
@@ -181,7 +181,7 @@
                         $"Email:{org.UserOldEmail}, nombre {org.UserNombre} {org.UserPaterno} {org.UserMaterno}";
 
                 Z190_Bitacora bitaTemp1 = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt1,
-                        Corporativo, false);
+                        Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp1);
                 await LeerOrgAndUserAll.InvokeAsync();
 
@@ -196,7 +196,7 @@
                 {
                     txt += e;
                 }
-                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, true);
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(logTemp);
             }
             BotonNuevo = false;
@@ -205,7 +205,7 @@
         {
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible agregar una organizacion, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
             await LogRepo.Insert(logTemp);
         }
 

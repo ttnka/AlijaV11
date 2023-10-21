@@ -63,14 +63,14 @@ namespace DashBoard.Pages.Zuver
                 FiltraUsers();
                 FiltraNiveles();
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
-                    $"Consulto listado, {TBita}", Corporativo, false);
+                    $"Consulto listado, {TBita}", Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar leer los registros de {TBita} {ex}",
-                        Corporativo, true);
+                        Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
             
@@ -80,10 +80,13 @@ namespace DashBoard.Pages.Zuver
         {
             if (LosUsuarios.Any())
             {
+                /*
                 LosUsersTmp = ElUser.Nivel < 5 ?
-                    LosUsuarios.Where(x => x.Corporativo == ElUser.Corporativo)
+                    LosUsuarios.Where(x => x.Corporativo == Corporativo)
                     .Select(x => x).ToList() :
                     LosUsuarios;
+                */
+                LosUsersTmp = LosUsuarios;
             }
         }
 
@@ -145,7 +148,7 @@ namespace DashBoard.Pages.Zuver
                 resp.MsnError.Add(ex.Message);
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar {tipo} los registros de {TBita} {ex}",
-                        Corporativo, true);
+                        Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
                 return resp;
             }
@@ -205,7 +208,7 @@ namespace DashBoard.Pages.Zuver
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar escribir BITACORA, {TBita},{ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
 

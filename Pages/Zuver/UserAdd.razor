@@ -149,7 +149,7 @@
                         $"Estamos creado un nuevo Usuario {datos.Nombre} {datos.Paterno}!!! ", 0));
             txt = $"{TBita}, Creo un nuevo Usuario  " + txt;
             Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
-                Corporativo, false);
+                Corporativo, ElUser.OrgId);
             await BitacoraAll(bitaTemp);
             NuevoUser = null;
         }
@@ -158,7 +158,8 @@
             ShowNotification(ElMsn("Error", "Error",
                         $"No pudo crearse un nuevo usuario {datos.Nombre} {datos.Mail}", 0));
             txt = $"{TBita}, No se creo el nuevo Usuario " + txt;
-            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, true);
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
             await LogRepo.Insert(logTemp);
         }
 

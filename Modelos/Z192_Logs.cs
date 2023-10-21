@@ -17,6 +17,8 @@ namespace DashBoard.Modelos
         public string OrgId { get; set; } = "";
         [StringLength(50)]
         public string Corporativo { get; set; } = "All";
+        [StringLength(50)]
+        public string EmpresaId { get; set; } = "Tbd";
     }
 }
 

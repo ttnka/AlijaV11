@@ -90,7 +90,7 @@ namespace DashBoard.Pages.Zuver
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al leer los niveles para los usuarios, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -101,14 +101,15 @@ namespace DashBoard.Pages.Zuver
             {
                 if (LasOrgs.Any())
                 
-                    LasOrgsTmp = LasOrgs.Where(x => x.Corporativo == (ElUser.Nivel < 5 ? ElUser.Corporativo : x.Corporativo))
-                                        .Select(x => x).ToList();          
+                    LasOrgsTmp = LasOrgs.Where(x => x.Corporativo ==
+                                    (ElUser.Nivel < 5 ? ElUser.OrgId : x.Corporativo))
+                                    .Select(x => x).ToList();          
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al leer las organizaciones, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -117,19 +118,21 @@ namespace DashBoard.Pages.Zuver
         {
             try
             {
+                /*
                 if (LasOrgs.Any())
                     LasOrgsTmp = ElUser.Nivel < 5 ? 
                             LasOrgs.Where(x => x.Corporativo == ElUser.Corporativo).GroupBy(x=>x.Corporativo)
                             .Select(x => x.First()).ToList() :
 
                             LasOrgs.Where(x => x.Estado == 1).GroupBy(x=>x.Corporativo).Select(x => x.First()).ToList();
-
+                */
+                LasOrgsTmp = LasOrgs;
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al leer las organizaciones de corporativo, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -145,7 +148,7 @@ namespace DashBoard.Pages.Zuver
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al leer las organizaciones y Usuarios en un solo comando, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -170,7 +173,7 @@ namespace DashBoard.Pages.Zuver
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al leer los tipos de organizaciones, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -187,7 +190,7 @@ namespace DashBoard.Pages.Zuver
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al checar el Email nuevo, YA EXISTE, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
             
@@ -245,7 +248,7 @@ namespace DashBoard.Pages.Zuver
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al checar el password nuevo, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -263,7 +266,7 @@ namespace DashBoard.Pages.Zuver
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al checar la confirmacion del password, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -300,7 +303,7 @@ namespace DashBoard.Pages.Zuver
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar AGREGAR un nuevo USER, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
                 resp.Exito = false;
                 return resp;
@@ -397,7 +400,7 @@ namespace DashBoard.Pages.Zuver
                     */
                     else
                     {
-                        Corporativo = ElUser!.Corporativo;
+                        Corporativo = ElUser.OrgId;
                         await Leer();
                     }
 
@@ -411,7 +414,8 @@ namespace DashBoard.Pages.Zuver
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                 $"{TBita}, Error al intentar leer EL USER USUARIO de la bitacora {ex}", "All", true);
+                        $"Error al intentar leer EL USER USUARIO de la bitacora, {TBita}, {ex}",
+                        "All", ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }

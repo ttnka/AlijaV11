@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "4B+Edn6EEJ6jD0sm+WoadH/WhC+P0uFFSqI8aYYgOI0=",
+  "Hash": "dwYNxJ3AKRjlIwb0DbDI9G92bIlisMD1rKEa9dfeHBQ=",
   "Source": "DashBoard",
   "BasePath": "_content/DashBoard",
   "Mode": "Default",
@@ -10,7 +10,7 @@
     {
       "Name": "DashBoard/wwwroot",
       "Source": "DashBoard",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "Pattern": "**"
     }
@@ -1598,10 +1598,10 @@
       "OriginalItemSpec": "/Users/ivanuhernandez/.nuget/packages/radzen.blazor/4.16.4/staticwebassets/Radzen.Blazor.js"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/obj/Debug/net7.0/scopedcss/bundle/DashBoard.styles.css",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/obj/Debug/net7.0/scopedcss/bundle/DashBoard.styles.css",
       "SourceId": "DashBoard",
       "SourceType": "Computed",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/obj/Debug/net7.0/scopedcss/bundle/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/obj/Debug/net7.0/scopedcss/bundle/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "DashBoard.styles.css",
       "AssetKind": "All",
@@ -1612,13 +1612,13 @@
       "AssetTraitValue": "ApplicationBundle",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/obj/Debug/net7.0/scopedcss/bundle/DashBoard.styles.css"
+      "OriginalItemSpec": "/Users/ivanuhernandez/Projects/AlijaV11/obj/Debug/net7.0/scopedcss/bundle/DashBoard.styles.css"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/obj/Debug/net7.0/scopedcss/projectbundle/DashBoard.bundle.scp.css",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/obj/Debug/net7.0/scopedcss/projectbundle/DashBoard.bundle.scp.css",
       "SourceId": "DashBoard",
       "SourceType": "Computed",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/obj/Debug/net7.0/scopedcss/projectbundle/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/obj/Debug/net7.0/scopedcss/projectbundle/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "DashBoard.bundle.scp.css",
       "AssetKind": "All",
@@ -1629,13 +1629,13 @@
       "AssetTraitValue": "ProjectBundle",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/obj/Debug/net7.0/scopedcss/projectbundle/DashBoard.bundle.scp.css"
+      "OriginalItemSpec": "/Users/ivanuhernandez/Projects/AlijaV11/obj/Debug/net7.0/scopedcss/projectbundle/DashBoard.bundle.scp.css"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/bootstrap/bootstrap.min.css",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/bootstrap/bootstrap.min.css",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/bootstrap/bootstrap.min.css",
       "AssetKind": "All",
@@ -1649,10 +1649,10 @@
       "OriginalItemSpec": "wwwroot/css/bootstrap/bootstrap.min.css"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/bootstrap/bootstrap.min.css.map",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/bootstrap/bootstrap.min.css.map",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/bootstrap/bootstrap.min.css.map",
       "AssetKind": "All",
@@ -1666,10 +1666,10 @@
       "OriginalItemSpec": "wwwroot/css/bootstrap/bootstrap.min.css.map"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/open-iconic/FONT-LICENSE",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/open-iconic/FONT-LICENSE",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/open-iconic/FONT-LICENSE",
       "AssetKind": "All",
@@ -1683,10 +1683,10 @@
       "OriginalItemSpec": "wwwroot/css/open-iconic/FONT-LICENSE"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/open-iconic/font/css/open-iconic-bootstrap.min.css",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/open-iconic/font/css/open-iconic-bootstrap.min.css",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/open-iconic/font/css/open-iconic-bootstrap.min.css",
       "AssetKind": "All",
@@ -1700,10 +1700,10 @@
       "OriginalItemSpec": "wwwroot/css/open-iconic/font/css/open-iconic-bootstrap.min.css"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/open-iconic/font/fonts/open-iconic.eot",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/open-iconic/font/fonts/open-iconic.eot",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/open-iconic/font/fonts/open-iconic.eot",
       "AssetKind": "All",
@@ -1717,10 +1717,10 @@
       "OriginalItemSpec": "wwwroot/css/open-iconic/font/fonts/open-iconic.eot"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/open-iconic/font/fonts/open-iconic.otf",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/open-iconic/font/fonts/open-iconic.otf",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/open-iconic/font/fonts/open-iconic.otf",
       "AssetKind": "All",
@@ -1734,10 +1734,10 @@
       "OriginalItemSpec": "wwwroot/css/open-iconic/font/fonts/open-iconic.otf"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/open-iconic/font/fonts/open-iconic.svg",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/open-iconic/font/fonts/open-iconic.svg",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/open-iconic/font/fonts/open-iconic.svg",
       "AssetKind": "All",
@@ -1751,10 +1751,10 @@
       "OriginalItemSpec": "wwwroot/css/open-iconic/font/fonts/open-iconic.svg"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/open-iconic/font/fonts/open-iconic.ttf",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/open-iconic/font/fonts/open-iconic.ttf",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/open-iconic/font/fonts/open-iconic.ttf",
       "AssetKind": "All",
@@ -1768,10 +1768,10 @@
       "OriginalItemSpec": "wwwroot/css/open-iconic/font/fonts/open-iconic.ttf"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/open-iconic/font/fonts/open-iconic.woff",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/open-iconic/font/fonts/open-iconic.woff",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/open-iconic/font/fonts/open-iconic.woff",
       "AssetKind": "All",
@@ -1785,10 +1785,10 @@
       "OriginalItemSpec": "wwwroot/css/open-iconic/font/fonts/open-iconic.woff"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/open-iconic/ICON-LICENSE",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/open-iconic/ICON-LICENSE",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/open-iconic/ICON-LICENSE",
       "AssetKind": "All",
@@ -1802,10 +1802,10 @@
       "OriginalItemSpec": "wwwroot/css/open-iconic/ICON-LICENSE"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/open-iconic/README.md",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/open-iconic/README.md",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/open-iconic/README.md",
       "AssetKind": "All",
@@ -1819,10 +1819,10 @@
       "OriginalItemSpec": "wwwroot/css/open-iconic/README.md"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/css/site.css",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/site.css",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "css/site.css",
       "AssetKind": "All",
@@ -1836,10 +1836,10 @@
       "OriginalItemSpec": "wwwroot/css/site.css"
     },
     {
-      "Identity": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/favicon.png",
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/favicon.png",
       "SourceId": "DashBoard",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/wwwroot/",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
       "BasePath": "_content/DashBoard",
       "RelativePath": "favicon.png",
       "AssetKind": "All",

@@ -52,20 +52,25 @@ builder.Services.AddScoped<AuthenticationStateProvider,
 builder.Services.AddTransient<IAddUser, RAddUser>();
 builder.Services.AddTransient<IEnviarMail, REnviarMail>();
 
+builder.Services.AddTransient<Repo<ZConfig, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z100_Org, ApplicationDbContext>>();
-//builder.Services.AddTransient<Repo<Z102_RP, ApplicationDbContext>>();
+
 //builder.Services.AddTransient<Repo<Z104_Domicilio, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z110_User, ApplicationDbContext>>();
 //builder.Services.AddTransient<Repo<Z180_File, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z190_Bitacora, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z192_Logs, ApplicationDbContext>>();
 
-//builder.Services.AddTransient<Repo<Z200_Emision, ApplicationDbContext>>();
-//builder.Services.AddTransient<Repo<Z202_EVA, ApplicationDbContext>>();
-//builder.Services.AddTransient<Repo<Z204_Sua, ApplicationDbContext>>();
-//builder.Services.AddTransient<Repo<Z210_EvaData, ApplicationDbContext>>();
-//builder.Services.AddTransient<Repo<Z212_SuaData, ApplicationDbContext>>();
-//builder.Services.AddTransient<Repo<Z230_Empleado, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z200_Folio, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z203_Transporte, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z204_Empleado, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z205_Carro, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z210_Concepto, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z220_Factura, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z222_FactDet, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z230_Pago, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z232_PagoDet, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z280_Producto, ApplicationDbContext>>();
 //builder.Services.AddTransient<Repo<Z232_EmpAlta, ApplicationDbContext>>();
 //builder.Services.AddTransient<Repo<Z300_RUno, ApplicationDbContext>>();
 

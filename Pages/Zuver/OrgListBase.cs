@@ -62,14 +62,14 @@ namespace DashBoard.Pages.Zuver
                 await PoblarLasOrgsCorp();
 
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
-                    $"El usuario consulto listado de {TBita}", Corporativo, false);
+                    $"El usuario consulto listado de {TBita}", Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar generar LEER inicio, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -78,6 +78,7 @@ namespace DashBoard.Pages.Zuver
         {
             try
             {
+                /*
                 if (LasOrgs.Any())
                 {
                     LasOrgsCorp = ElUser.Nivel < 5 ?
@@ -85,12 +86,14 @@ namespace DashBoard.Pages.Zuver
                         .Select(x => x).ToList() :
                         LasOrgs;
                 }
+                */
+                LasOrgsCorp = LasOrgs;
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar generar el listado de corporativos, {TBita}, {ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
@@ -171,7 +174,7 @@ namespace DashBoard.Pages.Zuver
                 resp.MsnError.Add(ex.Message);
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar {tipo} los registros de {TBita} {ex}",
-                        Corporativo, true);
+                        Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
                 return resp;
             }
@@ -231,7 +234,7 @@ namespace DashBoard.Pages.Zuver
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar escribir BITACORA, {TBita},{ex}",
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
             

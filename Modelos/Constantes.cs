@@ -6,24 +6,24 @@ namespace DashBoard.Modelos
 {
 	public class Constantes
 	{
-        public const string ElDominio = "Datason.com.mx";
+        public const string ElDominio = "Alijadores.com";
         // Mail 01
 
         public const string DeNombreMail01 = "WebMaster";
-        public const string DeMail01 = "info@datason.com.mx";
-        public const string ServerMail01 = "datason.com.mx";
+        public const string DeMail01 = "webmaster@alijadores.com";
+        public const string ServerMail01 = "alijadores.com";
         public const int PortMail01 = 587;
         public const int Nivel01 = 1;
-        public const string UserNameMail01 = "info@datason.com.mx";
-        public const string PasswordMail01 = "2468022Ih.";
+        public const string UserNameMail01 = "info@alijadores.com";
+        public const string PasswordMail01 = "Wb.2468022";
 
         // Mail 02
-        public const string DeNombreMail02 = "WebMaster";
-        public const string DeMail02 = "@datason.com.mx";
-        public const string ServerMail02 = "datason.com.mx";
+        public const string DeNombreMail02 = "Administrador";
+        public const string DeMail02 = "@zuverworks.com";
+        public const string ServerMail02 = "zuverworks.com";
         public const int PortMail02 = 587;
-        public const string UserNameMail02 = "@datason.com.mx";
-        public const string PasswordMail02 = "";
+        public const string UserNameMail02 = "info@zuverworks.com";
+        public const string PasswordMail02 = "2468022Ih.";
 
         // Registro Inicial Publico en GENERAL Organizacion
 
@@ -36,29 +36,33 @@ namespace DashBoard.Modelos
         // Registro Usuario Publico en GENERAL
 
         public const string DeNombreMailPublico = "Publico";
-        public const string DeMailPublico = "publico@datason.com.mx";
+        public const string DeMailPublico = "publico@alijadores.com";
         public const int EstadoPublico = 3;
         public const int NivelPublico = 1;
-        public const string UserNameMailPublico = "publico@datason.com.mx";
+        public const string UserNameMailPublico = "publico@alijadores.com";
         public const string PasswordMailPublico = "PublicoLibre1.";
 
-
         // Registro de Sistema
-        public const string SyRfc = "WEB010101MAS";
-        public const string SyRazonSocial = "WEBMASTER";
+        public const string SyRfc = "ZME130621FFA";
+        public const string SyRazonSocial = "Zuverworks de Mexico";
         public const int SyEstado = 2;
         public const bool SyStatus = true;
-        public const string SyMail = "info@datason.com.mx";
+        public const string SyMail = "info@zuverworks.com";
         public const string SysPassword = "24680212Ih.";
 
+        // Configuracion
         public const string Arranque = "2.468022";
 
         public const string OrgTipo = "Administracion,Cliente,Proveedor";
-        public const string Niveles = "Registrado,Proveedor,Cliente,Cliente_Admin,Zuver,Zuver_Admin";
+        public const string Niveles = "Registrado,Proveedor,Cliente,Cliente_Admin,Alijadores,Alijadores_Admin";
 
         public const bool EsNecesarioConfirmarMail = false;
-        public const string ConfirmarMailTxt = "https://datason.com.mx/Account/ConfirmEmail/Id=";
+        public const string ConfirmarMailTxt = "https://alijadores.com/Account/ConfirmEmail/Id=";
         public const string SitioDesc = "Este sitio genera informacion sobre los reportes de Seguro Social e Infonavit";
+
+        // Registro de Estado de Folios
+        public const string FolioEstado = "Nuevo,Ejecutado,Facturado,Pagado,Cancelado";
+        public const string EmpresaActiva = "Empresa Activa";
     }
 }
 

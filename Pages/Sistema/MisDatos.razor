@@ -114,38 +114,6 @@
                 </div>
             </div>
 
-            <div class="row" style="background:gray">
-                <div class="col-md-4 align-items-center d-flex">
-                    <RadzenLabel Text="Corporativo o grupo" />
-
-                </div>
-                <div class="col-md-8">
-
-                    @if (ElUser.Nivel < 5)
-                    {
-                        @if (LasOrg.Any(x => x.OrgId == ElUser.Corporativo))
-                        {
-                            <RadzenLabel>
-                                @LasOrg.FirstOrDefault(x => x.OrgId == ElUser.Corporativo)!.ComercialRfc
-
-                            </RadzenLabel>
-                        }
-                        else
-                        {
-                            <RadzenLabel>
-                                No hay corporativo!
-                            </RadzenLabel>
-                        }
-                    }
-                    else
-                    {
-                        <RadzenDropDown Name="Corporativo" Data=LasOrgCorp @bind-Value=@ElUser.Corporativo
-                                        ValueProperty="OrgId" TextProperty="ComercialRfc"
-                                        Style="width: 90%;" />
-                    }
-                </div>
-            </div>
-
             <div class="row">
                 <div class="col-md-4 align-items-center d-flex">
                     <RadzenLabel>Actualizar</RadzenLabel>
@@ -155,7 +123,7 @@
                 <div class="col-md-4">
 
                     <RadzenButton Icon="update" ButtonStyle="ButtonStyle.Success"
-                                  Class="m-1" ButtonType="ButtonType.Submit" Disabled="Editando" >
+                                  Class="m-1" ButtonType="ButtonType.Submit" Disabled="Editando">
                         Actualizar
                     </RadzenButton>
 
@@ -189,7 +157,7 @@
                 string txt = txtOld.Substring(0, 5) == "Error" || txtNew.Substring(0, 5) == "Error" ? 
                     "Error al intentar leer datos" : txtOld + " " + txtNew;
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
-                Corporativo, false);
+                Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
                 await LeerElUser();
 
@@ -204,7 +172,7 @@
                 {
                     txt += e;
                 }
-                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, true);
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(logTemp);
             }
             Editando = !Editando;
@@ -215,7 +183,7 @@
         {
             Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar actualizar los datos USER, {TBita},{ex}",
-                   Corporativo, true);
+                   Corporativo, ElUser.OrgId);
             await LogRepo.Insert(LogT);
         }
     }

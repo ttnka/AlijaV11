@@ -1,7 +1,8 @@
 ﻿
-@page "/indexz"
-@using DashBoard.Pages.Sistema
+@page "/indexa"
 @inherits IndexZBase
+@using DashBoard.Pages.Sistema
+@using DashBoard.Pages.Alija
 
 <h3>Administracion DashBoard RH</h3>
 <AuthorizeView>
@@ -12,7 +13,13 @@
                 {
                     <RadzenTabs>
                         <Tabs>
-                            <RadzenTabsItem Text="Organizaciones">
+                            <RadzenTabsItem Text="Folios">
+                                <FolioList ReadLasOrgsAll="LeerOrgAll" DicData="DicDataAll" 
+                                            LasOrgs="LasOrgAll"
+                                           LosClientes="LosClientesAll"/>
+                            </RadzenTabsItem>
+
+                            <RadzenTabsItem Text="Empresas">
                                 <OrgList LeerOrgAll="LeerOrgAll" LeerUsersAll="LeerUsersAll"
                                          LasOrgs="LasOrgAll" LosUsuarios="LosUsersAll"
                                          NivelesEdit="NivelesAll" TipoOrgs="TipoOrgsAll" />
@@ -23,23 +30,36 @@
                                            LasOrgs="LasOrgAll" LosUsuarios="LosUsersAll"
                                            NivelesEdit="NivelesAll" TipoOrgs="TipoOrgsAll" />
                             </RadzenTabsItem>
-                            
+
                             <RadzenTabsItem Text="Informacion">
                                 <RadzenAccordion>
                                     <Items>
                                         <RadzenAccordionItem Text="Mis Datos" Icon="account_box">
                                             <MisDatos Niveles="NivelesAll" LasOrg="LasOrgAll" />
                                         </RadzenAccordionItem>
-                                        <RadzenAccordionItem Text="Bitacora" Icon="book">
-                                            <Bitacora />
+
+                                        @if(LasAlijadorasAll.Count > 1)
+                                        {
+                                            <RadzenAccordionItem Text="Empresa Activa" Icon="home">
+                                                <EmpresaActiva LasOrgs="LasOrgAll" LasAlijadoras="LasAlijadorasAll" />
+                                            </RadzenAccordionItem>
+                                        }
+
+                                        <RadzenAccordionItem Text="Productos" Icon="money">
+                                            <PreciosList LasOrgs="LasOrgAll" />
                                         </RadzenAccordionItem>
+
+                                        <RadzenAccordionItem Text="Bitacora" Icon="book">
+                                            <Bitacora LasOrgs="LasOrgAll" />
+                                        </RadzenAccordionItem>
+
 
                                         <RadzenAccordionItem Text="Configuracion" Icon="note">
                                             <RadzenLabel>Falta desarrollar</RadzenLabel>
                                         </RadzenAccordionItem>
                                     </Items>
                                 </RadzenAccordion>
-                                
+
                             </RadzenTabsItem>
                         </Tabs>
                     </RadzenTabs>

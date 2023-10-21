@@ -1,0 +1,389 @@
+﻿
+@inherits FolioListBase
+@inject NotificationService NS
+@using DashBoard.Modelos
+
+
+
+@if (LosFolios != null && !Leyendo)
+{
+    <RadzenDataGrid @ref="FoliosGrid"
+                    AllowFiltering="true" AllowPaging="true" PageSize="50"
+                    AllowSorting="true" AllowColumnResize="true"
+                    ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                    EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
+                    Data="@LosFolios" TItem="Z200_Folio"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            @if (ElUser.Nivel > 4 && EmpresaActivaAll.OrgId.Length > 30)
+            {
+                <RadzenButton Icon="plus" style="margin-bottom: 10px"
+                              ButtonStyle="ButtonStyle.Info" Click="InsertRow">
+                    Nuevo Folio
+                </RadzenButton>
+            }
+            else if (EmpresaActivaAll.OrgId.Length < 30)
+            {
+                <RadzenLabel>Es necesario que seleciones una empresa activa en Informacion>Empresa Activa</RadzenLabel>
+            }
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                          ButtonStyle="ButtonStyle.Success" Click="LeerFolios">
+                Actualizar
+            </RadzenButton>
+            <div style="white-space:pre-wrap; line-height: initial">
+                <RadzenLabel>
+                    @EstadoEtiqueta
+                </RadzenLabel>
+            </div>
+        </HeaderTemplate>
+
+        <Template Context="datos1">
+            <CascadingValue Value="datos1" Name="ElFolioAll">
+                <CascadingValue Value="EmpresaActivaAll" Name="EmpresaActivaAll">
+
+                    <RadzenTabs>
+                        <Tabs>
+                            <RadzenTabsItem Text="Concepto">
+                                <ConceptoList />
+                            </RadzenTabsItem>
+
+                            <RadzenTabsItem Text="Transportista">
+
+                                <TransporteList />
+                            </RadzenTabsItem>
+
+                            <RadzenTabsItem Text="Carro">
+                                <CarroList />
+                            </RadzenTabsItem>
+
+                            <RadzenTabsItem Text="Encargado">
+                                <EncargadoList />
+                            </RadzenTabsItem>
+
+                        </Tabs>
+                    </RadzenTabs>
+                </CascadingValue>
+            </CascadingValue>
+        </Template>
+        <!-- AQUI EMPIEZA REPORTE-->
+
+        <Columns>
+
+            <RadzenDataGridColumn TItem="Z200_Folio" Title="Edo" Filterable="true" Property="Estado"
+                                  Width="60px">
+                <Template Context="datos">
+                    <div>
+                        @if (EstadoArray.Length >= datos.Estado - 1)
+                        {
+                            <RadzenLabel>
+                                @EstadoArray[datos.Estado - 1].Substring(0, 1)
+                            </RadzenLabel>
+                        }
+                        else
+                        {
+                            <RadzenLabel>
+                                E
+                            </RadzenLabel>
+                        }
+
+                    </div>
+                </Template>
+
+                <EditTemplate>
+                    <RadzenLabel>
+                        N
+                    </RadzenLabel>
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z200_Folio" Title="Fecha" Filterable="true" Property="Fecha"
+                                  Width="150px">
+                <Template Context="datos">
+                    <RadzenLabel>@($"{@MyFunc.FormatoFecha("DD/MMM/AA", datos.Fecha)}")</RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDatePicker Name="Fecha" @bind-Value="datos.Fecha" ShowTime="false"
+                                      DateFormat="dd/MM/yyyy" Style="width: 100%;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z200_Folio" Title="Folio" Property="Folio"
+                                  Filterable="true" Width="90px">
+                <Template Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @datos.FolioNum
+                        </RadzenLabel>
+                    </div>
+                </Template>
+                <EditTemplate Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @FolioSiguiente
+                        </RadzenLabel>
+                    </div>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z200_Folio" Title="Cliente"
+                                  Filterable="false" Resizable="true" Width="250px">
+
+                <Template Context="datos">
+                    <RadzenLabel style="white-space:pre-wrap; line-height: initial">
+                        @if (LasOrgs.Any(x => x.OrgId == datos.OrgId))
+                        {
+                            <RadzenLabel>
+                                @LasOrgs.FirstOrDefault(X => X.OrgId == datos.OrgId)!.ComercialRfc
+                            </RadzenLabel>
+                        }
+                        else
+                        {
+                            <RadzenLabel>
+                                Sin Cliente
+                            </RadzenLabel>
+                        }
+                    </RadzenLabel>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="OrgId" Data=LosClientes @bind-Value=@datos.OrgId
+                                    ValueProperty="OrgId" TextProperty="ComercialRfc"
+                                    Style="width: 90%;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z200_Folio" Title="Titulo" Property="Titulo"
+                                  Filterable="true" Resizable="true" Width="150px">
+
+                <Template Context="datos">
+                    <RadzenLabel style="white-space:pre-wrap; line-height: initial">
+                        @datos.Titulo
+                    </RadzenLabel>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Titulo" @bind-Value="datos.Titulo"
+                                   Placeholder="Titulo" Style="width:100%;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z200_Folio" Title="Comentario" Property="obs"
+                                  Filterable="true" Resizable="true" Width="200px">
+
+                <Template Context="datos">
+                    <RadzenLabel style="white-space:pre-wrap; line-height: initial">
+                        @datos.Obs
+                    </RadzenLabel>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenTextArea Name="Obs" @bind-Value="datos.Obs"
+                                    Placeholder="Comentarios" Style="width: 100%" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+
+            <RadzenDataGridColumn TItem="Z200_Folio" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+                    @if (datos.Estado > 3)
+                    {
+                        <label></label>
+                    }
+                    else
+                    {
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
+                                      Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
+
+                    }
+                    @if (datos.Status)
+                    {
+                        <b>Activo</b>
+                    }
+                    else
+                    {
+                        <b>Suspendido</b>
+                    }
+
+
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    @if (datos.Estado == 2 && ElUser.Nivel > 4)
+                    {
+                        <div style="white-space:pre-wrap">
+                            Borrar este registro?
+                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                             Placeholder="Borrar este registro?">
+                                <Items>
+                                    <RadzenSelectBarItem Text="No" Value="true" />
+                                    <RadzenSelectBarItem Text="Si" Value="false" />
+                                </Items>
+                            </RadzenSelectBar>
+                        </div>
+                    }
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" Click="@((args) => SaveRow(datos))" />
+
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+else
+{
+    <div class="spinner">
+        @Leyendo
+    </div>
+}
+
+@code {
+
+
+    void Cancelar()
+    {
+        //OrgNew = new();
+        FolioToInsert = new();
+    }
+
+    Z200_Folio FolioToInsert = new();
+    Z200_Folio OldFolioToUpdate = new();
+
+    async Task EditRow(Z200_Folio folio)
+    {
+        OldFolioToUpdate = PassToOldFolio(folio);
+        await FoliosGrid!.EditRow(folio);
+        Editando = !Editando;
+    }
+
+    async void OnUpdateRow(Z200_Folio folio)
+    {
+        try
+        {
+            if (folio == FolioToInsert) FolioToInsert = null!;
+
+
+            Editando = !Editando;
+            ApiRespuesta<Z200_Folio> resultado = await Servicio("Update", folio);
+
+            string txtOld = "Se modifico este registro: " + (await FolioTxt(OldFolioToUpdate));
+            string txtNew = "nuevos datos: " + (await FolioTxt(folio));
+            string txt = "";
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("info", "Actualizo",
+                    $"Se actualizo la info de {folio.FolioNum} {folio.Titulo}", 0));
+                txt = $"{TBita}, " + txtOld + " " + txtNew;
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+            }
+            else
+            {
+                string etxt = $"Error No Se actualizo la info de {folio.FolioNum} {folio.Titulo}";
+                foreach (var e in resultado.MsnError)
+                { etxt += $", {e}"; }
+
+                ShowNotification(ElMsn("Error", "Error", etxt, 0));
+                txt = $"{TBita}, No se actualizo un registro " + txtOld + ", ";
+                txt += etxt;
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await LogRepo.Insert(logTemp);
+            }
+            //await FoliosGrid!.Reload();
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible actualizar el FOLIO, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+            await LogRepo.Insert(logTemp);
+        }
+
+    }
+
+    async Task SaveRow(Z200_Folio folio)
+    {
+        OldFolioToUpdate = null;
+        await FoliosGrid!.UpdateRow(folio);
+    }
+
+    void CancelEdit(Z200_Folio folio)
+    {
+        if (folio == FolioToInsert) FolioToInsert = null!;
+        OldFolioToUpdate = null;
+        Editando = !Editando;
+        FoliosGrid!.CancelEditRow(folio);
+    }
+
+    async Task InsertRow()
+    {
+        FolioToInsert = new Z200_Folio();
+        FolioToInsert.FolioId = Guid.NewGuid().ToString();
+        FolioToInsert.Estado = 1;
+        Editando = !Editando;
+        await FoliosGrid!.InsertRow(FolioToInsert);
+
+    }
+    async void OnCreateRow(Z200_Folio folio)
+    {
+        try
+        {
+            if (folio == FolioToInsert) FolioToInsert = null!;
+
+            Editando = !Editando;
+            ApiRespuesta<Z200_Folio> resultado = await Servicio("Insert", folio);
+
+            string txt = "nuevos datos: " + (await FolioTxt(folio));
+           
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("Exito", "Nuevo Folio",
+                    $"Se creo un nuevo folio {folio.FolioNum} {folio.Titulo}", 0));
+                
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, $"{TBita}, {txt}",
+                    Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+            }
+            else
+            {
+                string etxt = $"Error NO se creo el nuevo folio {folio.FolioNum} {folio.Titulo}";
+                foreach (var e in resultado.MsnError)
+                { etxt += $", {e}"; }
+
+                ShowNotification(ElMsn("Error", "Error", etxt, 0));
+                txt = $"{TBita}, No se creo un nuevo folio " + txt + ", ";
+                txt += etxt;
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await LogRepo.Insert(logTemp);
+            }
+            //await FoliosGrid!.Reload();
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible crear un FOLIO, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+            await LogRepo.Insert(logTemp);
+        }
+
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+
+}

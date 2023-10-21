@@ -17,11 +17,17 @@ namespace DashBoard.Pages.Zuver
         public Repo<Z100_Org, ApplicationDbContext> OrgRepo { get; set; } = default!;
         [Inject]
         public Repo<Z110_User, ApplicationDbContext> UsersRepo { get; set; } = default!;
-        
+        [Inject]
+        public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
 
+        
         public List<Z110_User> LosUsersAll { get; set; } = new List<Z110_User>();
         public List<Z100_Org> LasOrgAll { get; set; } = new List<Z100_Org>();
-        
+        public List<Z100_Org> LosClientesAll { get; set; } = new List<Z100_Org>();
+        public List<Z100_Org> LasAlijadorasAll { get; set; } = new List<Z100_Org>();
+        public Dictionary<string, string> DicDataAll { get; set; } = new Dictionary<string, string>();
+
+        public Z100_Org EmpresaActivaAll { get; set; } = new();
         
         protected string CorporativoAll { get; set; } = "All";
         protected List<KeyValuePair<string, string>> TipoOrgsAll { get; set; } =
@@ -45,18 +51,22 @@ namespace DashBoard.Pages.Zuver
             {
                 await LeerTiposAll();
                 await LeerNiveles();
-                await LeerOrgAll();
+                await LeerOrgAll(); // Aqui mismo se lee LosClientesAll()
+
                 await LeerUsersAll();
+                await LeerEmpActiva();
+                
     
                 //await LeerNrpsAll();
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
-                     $"Consulto la seccion de {TBita}", CorporativoAll, false);
+                     $"Consulto la seccion de {TBita}", CorporativoAll, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
             }
             catch (Exception ex)
             {
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                     $"Error al entrar a la funcion LEER de {TBita}, {ex}", CorporativoAll, true);
+                     $"Error al entrar a la funcion LEER de {TBita}, {ex}",
+                     CorporativoAll, ElUser.OrgId);
                 await LogAll(logTemp);
             }
         }
@@ -67,7 +77,7 @@ namespace DashBoard.Pages.Zuver
                 IEnumerable<Z110_User> resp = new List<Z110_User>();
                 if (ElUser.Nivel < 5)
                 {
-                    resp = await UserRepo.Get(x => x.Corporativo == CorporativoAll);
+                    resp = await UserRepo.Get(x => x.OrgId == ElUser.OrgId);
                 }
                 else
                 {
@@ -78,7 +88,8 @@ namespace DashBoard.Pages.Zuver
             catch (Exception ex)
             {
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error, No fue posible leer los usuarios {TBita}, {ex}", "All", true);
+                        $"Error, No fue posible leer los usuarios {TBita}, {ex}",
+                        "All", ElUser.OrgId);
                 await LogAll(logTemp);
             }
         }
@@ -99,12 +110,18 @@ namespace DashBoard.Pages.Zuver
 
                 LasOrgAll = res.Any() ? res.ToList() : LasOrgAll;
 
+                LosClientesAll = res.Any(x => x.Tipo == "Cliente") ?
+                    res.Where(x => x.Tipo == "Cliente").ToList() : LosClientesAll;
+
+                LasAlijadorasAll = res.Where(x => x.Tipo == "Administracion" && x.Estado == 1 &&
+                                x.Status == true).ToList();
+                
             }
             catch (Exception ex)
             {
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error No fue posible leer las organizaciones, {TBita}, {ex}",
-                    CorporativoAll, true);
+                    CorporativoAll, ElUser.OrgId);
                 await LogAll(logTemp);
             }
         }
@@ -128,7 +145,7 @@ namespace DashBoard.Pages.Zuver
             {
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible leer los TIPOS de organizaciones {TBita}, {ex}",
-                    CorporativoAll, true);
+                    CorporativoAll, ElUser.OrgId);
                 await LogAll(logTemp);
             }
         }
@@ -151,7 +168,27 @@ namespace DashBoard.Pages.Zuver
             {
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible leer los niveles de los usuarios, {TBita}, {ex}",
-                    "All", true);
+                    "All", ElUser.OrgId);
+                await LogAll(logTemp);
+            }
+        }
+
+        public async Task LeerEmpActiva()
+        {
+            try
+            {
+                IEnumerable<ZConfig> resp = await ConfRepo.Get(x => x.Usuario == ElUser.UserId);
+
+                ZConfig? reg = resp.Any(x => x.Usuario == ElUser.UserId) ? resp.Where(x => x.Usuario == ElUser.UserId)
+                                    .OrderByDescending(x => x.Fecha1).FirstOrDefault() : new();
+
+                EmpresaActivaAll = reg != null ? LasOrgAll.FirstOrDefault(x => x.OrgId == reg.Txt)! : new();
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error No fue posible leer la empresa ACTIVA, {TBita}, {ex}",
+                    CorporativoAll, ElUser.OrgId);
                 await LogAll(logTemp);
             }
         }
@@ -233,21 +270,21 @@ namespace DashBoard.Pages.Zuver
                     string elId = UserMger.GetUserId(user) ?? "Vacio";
                     if (elId == null || elId == "Vacio") NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
                     ElUser = await UserRepo.GetById(elId!);
-
+        //Niveles = "1Registrado,2Proveedor,3Cliente,4Cliente_Admin,5Alija,6Alija_Admin";
                     if (ElUser == null)
                     {
                         NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
                     }
-                    /*
+                    
                     else if (ElUser.Nivel < 5)
                     {
                         
                         NM.NavigateTo("/indexc", true);
                     }
-                    */
+                    
                     else
                     { 
-                        CorporativoAll = ElUser!.Corporativo;
+                        CorporativoAll = ElUser.OrgId;
                         await Leer();
                     }
                 }
@@ -260,7 +297,7 @@ namespace DashBoard.Pages.Zuver
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                 $" Error al intentar leer EL USER USUARIO {TBita}, {ex}", "All", true);
+                 $" Error al intentar leer EL USER USUARIO {TBita}, {ex}", "All", ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }

@@ -12911,11 +12911,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/DashBoard.csproj",
+      "projectUniqueName": "/Users/ivanuhernandez/Projects/AlijaV11/DashBoard.csproj",
       "projectName": "DashBoard",
-      "projectPath": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/DashBoard.csproj",
+      "projectPath": "/Users/ivanuhernandez/Projects/AlijaV11/DashBoard.csproj",
       "packagesPath": "/Users/ivanuhernandez/.nuget/packages/",
-      "outputPath": "/Users/ivanuhernandez/Projects/SiDbV4/DashBoard/obj/",
+      "outputPath": "/Users/ivanuhernandez/Projects/AlijaV11/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/ivanuhernandez/.nuget/NuGet/NuGet.Config"

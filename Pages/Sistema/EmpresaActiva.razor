@@ -1,0 +1,229 @@
+﻿
+@inherits EmpresaActivaBase
+@inject NotificationService NS
+@using DashBoard.Modelos
+
+
+
+@if (LasConfig != null && !Leyendo)
+{
+    <RadzenDataGrid @ref="ConfigGrid"
+                    AllowFiltering="true" AllowPaging="true" PageSize="50"
+                    AllowSorting="true" AllowColumnResize="true"
+                    ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                    EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
+                    Data="@LasConfig" TItem="ZConfig"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            
+            <RadzenButton Icon="plus" style="margin-bottom: 10px"
+                            ButtonStyle="ButtonStyle.Info" Click="InsertRow">
+                Cambio de Empresa
+            </RadzenButton>
+            
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                          ButtonStyle="ButtonStyle.Success" Click="LeerConfigs">
+                Actualizar
+            </RadzenButton>
+        </HeaderTemplate>
+
+        <Columns>
+
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Fecha" Filterable="false"
+                                  Width="160px">
+                <Template Context="datos">
+                    <RadzenLabel>
+                        @($"{@MyFunc.FormatoFecha("DD/MMM/AA", datos.Fecha1)}")
+                    </RadzenLabel>
+                    <RadzenLabel>
+                        @($"{@MyFunc.LaHora(datos.Fecha1, "S")}")
+                    </RadzenLabel>
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenLabel>@($"{@MyFunc.FormatoFecha("DD/MMM/AA", DateTime.Now)}")</RadzenLabel>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Empresa"
+                                  Filterable="false" Width="250px">
+                <Template Context="datos">
+                    @if (LasOrgs.Any(x => x.OrgId == datos.Txt))
+                    {
+                        <RadzenLabel>
+                            @LasOrgs.FirstOrDefault(x => x.OrgId == datos.Txt)!.ComercialRfc
+                        </RadzenLabel>
+
+                    }
+                    else
+                    {
+                        <RadzenLabel>No hay empresa registrada</RadzenLabel>
+                    }
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="Txt" Data=LasAlijadoras @bind-Value=@datos.Txt
+                                    ValueProperty="OrgId" TextProperty="ComercialRfc" AllowClear="false"
+                                    Style="width: 100%;" Change="YaCambio" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Usuario"
+                                  Filterable="false" Width="250px">
+                <Template Context="datos">
+                    <RadzenLabel>
+                        @ElUser.Completo
+                    </RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenLabel>
+                        @ElUser.Completo
+                    </RadzenLabel>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+                    <RadzenLabel>Confirmado</RadzenLabel>
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Disabled="!cambio"
+                                  Class="m-1" Click="@((args) => SaveRow(datos))" />
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+
+
+
+        </Columns>
+    </RadzenDataGrid>
+}
+else
+{
+    <div class="spinner">
+        
+    </div>
+}
+
+@code {
+
+    bool cambio = false;
+
+    void YaCambio()
+    {
+        cambio = true;
+    }
+
+    void Cancelar()
+    {
+        //OrgNew = new();
+        cambio = false;
+        ZConfToInsert = new();
+    }
+
+    ZConfig ZConfToInsert = new();
+
+
+    async Task EditRow(ZConfig conf)
+    {
+
+        await ConfigGrid!.EditRow(conf);
+        Editando = !Editando;
+    }
+
+    async void OnUpdateRow(ZConfig conf)
+    {
+        try
+        {
+            // No hay servicio de actualizacion
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible actualizar una organizacion, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+            await LogRepo.Insert(logTemp);
+        }
+
+    }
+
+    async Task SaveRow(ZConfig conf)
+    {
+        await ConfigGrid!.UpdateRow(conf);
+    }
+
+    void CancelEdit(ZConfig conf)
+    {
+        if (conf == ZConfToInsert) ZConfToInsert = null!;
+        Editando = !Editando;
+        ConfigGrid!.CancelEditRow(conf);
+    }
+
+    async Task InsertRow()
+    {
+        ZConfToInsert = new ZConfig();
+        Editando = !Editando;
+        cambio = false;
+        await ConfigGrid!.InsertRow(ZConfToInsert);
+    }
+
+    async void OnCreateRow(ZConfig conf)
+    {
+        try
+        {
+            if (conf == ZConfToInsert) ZConfToInsert = null!;
+
+            Editando = !Editando;
+            ApiRespuesta<ZConfig> resultado = await Servicio("Insert", conf);
+
+            string txtEmp = LasAlijadoras.FirstOrDefault(x => x.OrgId == conf.Txt)!.ComercialRfc;
+            string txt = $"Se registro cambio de empresa activa {ElUser.Completo} {txtEmp}";
+            txt += $"fecha: {conf.Fecha1}";
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("Exito", "Nuevo Folio", txt, 0));
+
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, $"{txt} ,{TBita}",
+                    Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+            }
+            else
+            {
+                string etxt = $"Error NO se registro el cambio de empresa activa {ElUser.Completo} {txtEmp}";
+                foreach (var e in resultado.MsnError)
+                { etxt += $", {e}"; }
+
+                ShowNotification(ElMsn("Error", "Error", etxt, 0));
+                txt = $"{TBita}, No se registro el cambio de empresa " + txt + ", ";
+                txt += etxt;
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await LogRepo.Insert(logTemp);
+            }
+            await ConfigGrid!.Reload();
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible actualizar la empresa activa, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+            await LogRepo.Insert(logTemp);
+        }
+
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+
+}
+

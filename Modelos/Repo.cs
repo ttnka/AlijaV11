@@ -44,7 +44,7 @@ namespace DashBoard.Modelos
             {
                 string etxt = $"Error al intentar Borrar un registro REPO<> {ex}";
                 var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId",etxt ,
-                    "SistemaCorp", true);
+                    "SistemaCorp", "Sistema");
                 await _appDbContext.LogsBitacora.AddAsync(logTmp);
                 await _appDbContext.SaveChangesAsync();
                 throw;
@@ -52,8 +52,7 @@ namespace DashBoard.Modelos
 
         }
 
-        public virtual async Task<IEnumerable<TEntity>>
-            Get(Expression<Func<TEntity, bool>> filtro = null,
+        public virtual async Task<IEnumerable<TEntity>>Get(Expression<Func<TEntity, bool>> filtro = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>
             orderby = null, string propiedades = "")
         {
@@ -82,7 +81,7 @@ namespace DashBoard.Modelos
             {
                 string etxt = $"Error al intentar LEER REPO.GET()  {ex}";
                 var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", true);
+                    "SistemaCorp", "Sistema");
                 await _appDbContext.LogsBitacora.AddAsync(logTmp);
                 await _appDbContext.SaveChangesAsync();
                 throw;
@@ -102,7 +101,7 @@ namespace DashBoard.Modelos
             {
                 string etxt = $"Error al intentar LEER GETALL REPO<> {ex}";
                 var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", true);
+                    "SistemaCorp", "Sistema");
                 await _appDbContext.LogsBitacora.AddAsync(logTmp);
                 await _appDbContext.SaveChangesAsync();
                 throw;
@@ -120,7 +119,7 @@ namespace DashBoard.Modelos
             {
                 string etxt = $"Error al intentar LEER GETid REPO<> {ex}";
                 var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", true);
+                    "SistemaCorp", "Sistema");
                 await _appDbContext.LogsBitacora.AddAsync(logTmp);
                 await _appDbContext.SaveChangesAsync();
                 throw;
@@ -140,14 +139,14 @@ namespace DashBoard.Modelos
             {
                 string etxt = $"Error al intentar INSERTAR un registro REPO<> {ex}";
                 var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", true);
-                await _appDbContext.LogsBitacora.AddAsync(logTmp);
+                    "SistemaCorp", "Sistema");
+                    await _appDbContext.LogsBitacora.AddAsync(logTmp);
                 await _appDbContext.SaveChangesAsync();
                 throw;
             }
         }
 
-        public async Task<IEnumerable<TEntity>> InsertPlus(IEnumerable<TEntity> entities)
+        public virtual async Task<IEnumerable<TEntity>> InsertPlus(IEnumerable<TEntity> entities)
         {
             try
             {
@@ -159,7 +158,7 @@ namespace DashBoard.Modelos
             {
                 string etxt = $"Error al intentar INSERTAR UN GRUPO de registros REPO<> {ex}";
                 var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", true);
+                    "SistemaCorp", "Sistema");
                 await _appDbContext.LogsBitacora.AddAsync(logTmp);
                 await _appDbContext.SaveChangesAsync();
                 throw;
@@ -180,7 +179,7 @@ namespace DashBoard.Modelos
             {
                 string etxt = $"Error al intentar ACTUALIZAR un registro REPO<> {ex}";
                 var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", true);
+                    "SistemaCorp", "Sistema");
                 await _appDbContext.LogsBitacora.AddAsync(logTmp);
                 await _appDbContext.SaveChangesAsync();
                 throw;
@@ -210,7 +209,7 @@ namespace DashBoard.Modelos
             {
                 string etxt = $"Error al intentar ACTUALIZAR un GRUPO de REGISTROS REPO<> {ex}";
                 var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", true);
+                    "SistemaCorp", "Sistema");
                 await _appDbContext.LogsBitacora.AddAsync(logTmp);
                 await _appDbContext.SaveChangesAsync();
                 throw;
@@ -236,14 +235,37 @@ namespace DashBoard.Modelos
             {
                 string etxt = $"Error al intentar Borrar un GRUPO de REGISTROS REPO<> {ex}";
                 var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", true);
+                    "SistemaCorp", "Sistema");
                 await _appDbContext.LogsBitacora.AddAsync(logTmp);
                 await _appDbContext.SaveChangesAsync();
                 throw;
             }
         }
 
+        public virtual async Task<int> GetCount(Expression<Func<TEntity, bool>> filtro = null)
+        {
+            try
+            {
+                IQueryable<TEntity> querry = dbset;
+                if (filtro != null)
+                {
+                    querry = querry.Where(filtro);
+                }
 
+                int count = await querry.CountAsync();
+                return count;
+            }
+            catch (Exception ex)
+            {
+                string etxt = $"Error al intentar LEER REPO.GetCount() {ex}";
+                var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt, "SistemaCorp", "Sistema");
+                await _appDbContext.LogsBitacora.AddAsync(logTmp);
+                await _appDbContext.SaveChangesAsync();
+                throw;
+            }
+        }
+
+        
     }
 }
 

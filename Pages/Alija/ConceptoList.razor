@@ -1,0 +1,405 @@
+﻿
+@inherits ConceptoListBase
+@inject NotificationService NS
+@using DashBoard.Modelos
+
+
+@if (LosConceptos != null && !Leyendo)
+{
+    <RadzenDataGrid @ref="ConceptoGrid"
+                    AllowFiltering="true" AllowPaging="true" PageSize="50"
+                    AllowSorting="true" AllowColumnResize="true"
+                    ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                    EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
+                    Data="@LosConceptos" TItem="Z210_Concepto"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30)
+            {
+                <RadzenButton Icon="plus" style="margin-bottom: 10px"
+                              ButtonStyle="ButtonStyle.Info" Click="InsertRow">
+                    Agregar conceptos
+                </RadzenButton>
+            }
+            else if (EmpresaActiva.OrgId.Length < 30)
+            {
+                <RadzenLabel>Es necesario que seleciones una empresa activa en Informacion>Empresa Activa</RadzenLabel>
+            }
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                          ButtonStyle="ButtonStyle.Success" Click="LeerConceptos">
+                Actualizar
+            </RadzenButton>
+        </HeaderTemplate>
+
+        <Columns>
+
+
+            <RadzenDataGridColumn TItem="Z210_Concepto" Title="Id" Filterable="false"
+                                  Width="40px">
+                <Template Context="datos">
+                    <RadzenLabel>@(LosConceptos.IndexOf(datos) + 1)</RadzenLabel>
+
+                </Template>
+
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z210_Concepto" Title="Cantidad" Property="Cantidad"
+                                  Filterable="true" Width="120px">
+                <Template Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>@datos.Cantidad</RadzenLabel>
+                    </div>
+                </Template>
+                <EditTemplate Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenNumeric Name="Cantidad" @bind-Value="datos.Cantidad"
+                                       Style="width: 100%; text-align: right;" ShowUpDown="false" />
+                    </div>
+                </EditTemplate>
+                <FooterTemplate>
+                    <RadzenText TextAlign="TextAlign.Right">
+                        TOTAL:
+                    </RadzenText>
+                </FooterTemplate>
+
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z210_Concepto" Title="Producto / Servicio"
+                                  Filterable="false" Resizable="true" Width="250px">
+
+                <Template Context="datos">
+                    <div style="white-space:pre-wrap; line-height: initial">
+                        @if (LosProductos.Any(x => x.ProductoId == datos.Producto))
+                        {
+                            <RadzenLabel>
+                                @LosProductos.FirstOrDefault(x => x.ProductoId == datos.Producto)!.Titulo
+                            </RadzenLabel>
+                        }
+                        else
+                        {
+                            <RadzenLabel>
+                                No hay Producto
+                            </RadzenLabel>
+                        }
+                    </div>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="Producto" Data=LosProductos @bind-Value=@datos.Producto
+                                    ValueProperty="ProductoId" TextProperty="Titulo"
+                                    Style="width: 90%;" Change="CalImporte" />
+                </EditTemplate>
+                <FooterTemplate>
+                    <RadzenText TextAlign="TextAlign.Right">
+                        @if (LosConceptos.Count > 0)
+                        {
+                            @($"Conceptos {ConceptoGrid.View.Count()}")
+                        }
+                    </RadzenText>
+                </FooterTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z210_Concepto" Title="Precio"
+                                  Filterable="false" Resizable="true" Width="150px">
+
+                <Template Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @datos.Precio)}")
+                            
+                        </RadzenLabel>
+                    </div>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @datos.Precio)}")
+                            
+                        </RadzenLabel>
+                    </div>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z210_Concepto" Title="Importe"
+                                  Filterable="false" Resizable="true" Width="150px">
+
+                <Template Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @datos.Importe)}")
+
+                        </RadzenLabel>
+                    </div>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @datos.Importe)}")
+
+                        </RadzenLabel>
+                    </div>
+                </EditTemplate>
+                <FooterTemplate>
+                    @if(LosConceptos.Count > 0)
+                    { 
+                            <RadzenText TextAlign="TextAlign.Right">
+                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @ConceptoGrid.View.Select(x => x.Importe).Sum())}")
+
+                        </RadzenText>
+                    }
+                </FooterTemplate>
+                
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z210_Concepto" Title="Comentarios"
+                                  Filterable="false" Resizable="true" Width="150px">
+
+                <Template Context="datos">
+                    <RadzenLabel style="white-space:pre-wrap; line-height: initial">
+                        @datos.Obs
+                    </RadzenLabel>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenTextArea Name="Identificacion" @bind-Value="datos.Obs" Placeholder="Comentarios" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+
+            <RadzenDataGridColumn TItem="Z210_Concepto" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+                    @if (datos.Estado > 3)
+                    {
+                        <label></label>
+                    }
+                    else
+                    {
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
+                                      Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
+
+                    }
+                    @if (datos.Status)
+                    {
+                        <b>Activo</b>
+                    }
+                    else
+                    {
+                        <b>Suspendido</b>
+                    }
+
+
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    @if (datos.Estado == 2 && ElUser.Nivel > 4)
+                    {
+                        <div style="white-space:pre-wrap">
+                            Borrar este registro?
+                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                             Placeholder="Borrar este registro?">
+                                <Items>
+                                    <RadzenSelectBarItem Text="No" Value="true" />
+                                    <RadzenSelectBarItem Text="Si" Value="false" />
+                                </Items>
+                            </RadzenSelectBar>
+                        </div>
+                    }
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" Click="@((args) => SaveRow(datos))" />
+
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+else
+{
+    <div class="spinner">
+
+    </div>
+}
+
+@code
+{
+
+    void CalImporte()
+    {
+        if (ConceptoToInsert.Producto.Length > 15)
+        {
+            if (LosProductos.Any(x => x.ProductoId == ConceptoToInsert.Producto))
+            {
+                ConceptoToInsert.Precio = LosProductos.FirstOrDefault(x =>
+                                                x.ProductoId == ConceptoToInsert.Producto)!.Precio;
+            }
+        }
+        if (ConceptoToInsert.Cantidad != 0 && ConceptoToInsert.Producto.Length > 15)
+        {
+            ConceptoToInsert.Importe = ConceptoToInsert.Cantidad * ConceptoToInsert.Precio;
+        }
+    }
+
+    void Cancelar()
+    {
+        //OrgNew = new();
+        ConceptoToInsert = new();
+    }
+
+    Z210_Concepto ConceptoToInsert = new();
+
+    async Task EditRow(Z210_Concepto concepto)
+    {
+
+        await ConceptoGrid!.EditRow(concepto);
+        Editando = !Editando;
+    }
+
+    async void OnUpdateRow(Z210_Concepto concepto)
+    {
+        try
+        {
+            if (concepto == ConceptoToInsert) ConceptoToInsert = null!;
+
+
+            Editando = !Editando;
+            ApiRespuesta<Z210_Concepto> resultado = await Servicio("Update", concepto);
+            string producto = "";
+            string precio = "";
+            string importe = "";
+            string txt = $"{TBita}, Folio: {ElFolio.FolioId} Renglon: {concepto.Renglon},";
+            txt += $"cantidad: {concepto.Cantidad} producto: {producto}, precio: {precio}, importe: {importe}";
+            txt += string.IsNullOrEmpty(concepto.Obs) ? "" : $"Comentarios: {concepto.Obs}";
+
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("info", "Actualizo",
+                    $"Se actualizo la info de Folio {ElFolio.FolioNum} {producto}", 0));
+                txt = $"Se actualizo la informacion " + txt;
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+            }
+            else
+            {
+                string etxt = $"Error No Se actualizo la info de ";
+                foreach (var e in resultado.MsnError)
+                { etxt += $", {e}"; }
+
+                ShowNotification(ElMsn("Error", "Error", etxt, 0));
+                txt = $"Error, No se actualizo un registro del concepto {txt} {etxt}";
+
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await LogRepo.Insert(logTemp);
+            }
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible actualizar la info de Concepto, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+            await LogRepo.Insert(logTemp);
+        }
+
+    }
+
+    async Task SaveRow(Z210_Concepto concepto)
+    {
+        await ConceptoGrid!.UpdateRow(concepto);
+    }
+
+    void CancelEdit(Z210_Concepto concepto)
+    {
+        if (concepto == ConceptoToInsert) ConceptoToInsert = null!;
+
+        Editando = !Editando;
+        ConceptoGrid!.CancelEditRow(concepto);
+    }
+
+    async Task InsertRow()
+    {
+        ConceptoToInsert = new Z210_Concepto()
+        {
+            FolioId = ElFolio.FolioId,
+            Estado = 1
+        };
+
+        Editando = !Editando;
+        await ConceptoGrid!.InsertRow(ConceptoToInsert);
+
+    }
+    async void OnCreateRow(Z210_Concepto concepto)
+    {
+        try
+        {
+            if (concepto == ConceptoToInsert) ConceptoToInsert = null!;
+
+            Editando = !Editando;
+            ApiRespuesta<Z210_Concepto> resultado = await Servicio("Insert", concepto);
+
+            string producto = "";
+            string precio = "";
+            string importe = "";
+            string txt = $"{TBita}, Folio: {ElFolio.FolioId} Renglon: {concepto.Renglon},";
+            txt += $"cantidad: {concepto.Cantidad} producto: {producto}, precio: {precio}, importe: {importe}";
+            txt += string.IsNullOrEmpty(concepto.Obs) ? "" : $"Comentarios: {concepto.Obs}";
+            txt += "Estado: Nuevo, Estatus: Activo";
+
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("Exito", "Nuevo Concepto",
+                    $"Se creo un nuevo registro de concepto FOLIIO: {ElFolio.FolioNum} producto: {producto}", 0));
+
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+            }
+            else
+            {
+                string etxt = $"Error NO se creo el nuevo registro de CONCEPTO ";
+                foreach (var e in resultado.MsnError)
+                { etxt += $", {e}"; }
+
+                ShowNotification(ElMsn("Error", "Error", etxt, 0));
+                txt = $"{TBita}, Error, No se creo un nuevo registro de Transportista " + txt + ", ";
+                txt += etxt;
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await LogRepo.Insert(logTemp);
+            }
+            //await ConceptoGrid!.Reload();
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible crear el registro concepto, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+            await LogRepo.Insert(logTemp);
+        }
+
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+    /*
+
+
+    
+     @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @ConceptoGrid.View.Select(x => x.Importe).Sum())}")
+
+
+    */
+
+}

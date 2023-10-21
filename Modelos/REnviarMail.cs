@@ -33,7 +33,8 @@ namespace DashBoard.Modelos
                 apiRespuesta.Exito = false;
                 apiRespuesta.MsnError.Add("No hay datos para enviar mail!");
                 apiRespuesta.Data = mailCampos;
-                await WriteBitacora("vacio", "vacio", "No hay datos para enviar mail", "vacio", true);
+                await WriteBitacora("Sistema", "Sistema", "No hay datos para enviar mail",
+                    "Sistema", "Sistema", true);
                 return apiRespuesta;
             }
             if (string.IsNullOrEmpty(mailCampos.SenderEmail))
@@ -48,12 +49,13 @@ namespace DashBoard.Modelos
 
             if (apiRespuesta.MsnError.Count > 0)
             {
-                var texto = "";
+                string texto = "";
                 foreach (var me in apiRespuesta.MsnError)
                 {
                     texto += me.ToString() + " ";
                 }
-                await WriteBitacora(mailCampos.UserId, mailCampos.OrgId, texto, mailCampos.OrgId, true);
+                await WriteBitacora(mailCampos.UserId, mailCampos.OrgId, texto,
+                    mailCampos.OrgId, mailCampos.OrgId, true);
                 return apiRespuesta;
             }
 
@@ -67,13 +69,13 @@ namespace DashBoard.Modelos
                 apiRespuesta.MsnError.Add("Email de prueba exitos!");
                 await WriteBitacora(mailCampos.UserId, mailCampos.OrgId,
                     "Se supespendio el envio de mail ya que es un correo de prueba!",
-                    mailCampos.OrgId, true);
+                    mailCampos.OrgId, mailCampos.OrgId, true);
                 return apiRespuesta;
             }
             #endregion
             try
             {
-                var email = new MimeMessage();
+                MimeMessage email = new MimeMessage();
                 email.From.Add(MailboxAddress.Parse(mailCampos.SenderEmail));
                 email.To.Add(MailboxAddress.Parse(mailCampos.Para));
                 email.Subject = mailCampos.Titulo;
@@ -86,7 +88,7 @@ namespace DashBoard.Modelos
 
                 await WriteBitacora(mailCampos.UserId, mailCampos.OrgId,
                     $"Se envio un Email a {mailCampos.Para} Titulo {mailCampos.Titulo}",
-                    mailCampos.OrgId, true);
+                    mailCampos.OrgId, mailCampos.OrgId, true);
                 apiRespuesta.Exito = true;
                 return apiRespuesta;
 
@@ -94,37 +96,40 @@ namespace DashBoard.Modelos
             catch (Exception ex)
             {
                 apiRespuesta.MsnError.Add(ex.Message);
-                var text = $"Hubo un error al enviar MAIL {ex} Para {mailCampos.Para} ";
+                string text = $"Hubo un error al enviar MAIL {ex} Para {mailCampos.Para} ";
                 text += $"Titulo {mailCampos.Titulo} ";
-                await WriteBitacora(mailCampos.UserId, mailCampos.OrgId, text, mailCampos.OrgId, true);
+                await WriteBitacora(mailCampos.UserId, mailCampos.OrgId, text,
+                    mailCampos.OrgId, mailCampos.OrgId, true);
 
                 return apiRespuesta;
             }
 
         }
         public MyFunc MyFunc { get; set; } = new MyFunc();
-        protected async Task WriteBitacora(string userId, string orgId, string desc, string corp, bool sistema)
+        protected async Task WriteBitacora(string userId, string orgId,
+            string desc, string corp, string emp, bool sistema)
         {
             try
             {
                 if (sistema)
                 {
-                    var logT = MyFunc.MakeLog(userId, orgId, desc, corp, sistema);
+                    Z192_Logs logT = MyFunc.MakeLog(userId, orgId, desc, corp, orgId);
                     await logRepo.Insert(logT);
                 }
                 else
                 {
-                    var bitaTemp = MyFunc.MakeBitacora(userId, orgId, desc, corp, sistema);
+                    Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(userId, orgId, desc,
+                        corp, orgId);
                     await bitacoraRepo.Insert(bitaTemp);
                 }
             }
             catch (Exception ex)
             {
-                var eTxt = $"Se genero un error al intentar escribir en bitacora un nuevo usuario {ex}";
-                var userT = userId ?? "Sin Usuario";
-                var orgT = orgId ?? "Sin Organizacion";
-                var corpT = corp ?? "Sin Corporativo";
-                await WriteBitacora(userT, orgT, eTxt, corpT, true);
+                string eTxt = $"Se genero un error al intentar escribir en bitacora un nuevo usuario {ex}";
+                string userT = userId ?? "Sin Usuario";
+                string orgT = orgId ?? "Sin Organizacion";
+                string corpT = corp ?? "Sin Corporativo";
+                await WriteBitacora(userT, orgT, eTxt, corpT, orgT, true);
             }
 
         }

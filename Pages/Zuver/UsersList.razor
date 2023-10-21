@@ -112,12 +112,6 @@
                     {
                         <RadzenLabel>
                             @LasOrgs.FirstOrDefault(x => x.OrgId == datos.OrgId)!.Comercial
-                            @if (datos.Corporativo != datos.OrgId &&
-                                       datos.Corporativo.Length > 30 &&
-                                       LasOrgs.Any(x=>x.OrgId==datos.Corporativo))
-                                {
-                                       @(" - " + LasOrgs.FirstOrDefault(x => x.OrgId == datos.Corporativo)!.Comercial)
-                                }
                         </RadzenLabel>
                     }
                     else
@@ -245,7 +239,7 @@ else
                     $"Se actualizo la info de {user.Nombre} {user.Paterno}", 0));
                 txt = $"{TBita}, Se actualizo un registro de {user.Nombre} {user.Paterno} " + txt;
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
-                    Corporativo, false);
+                    Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
             }
             else
@@ -258,14 +252,17 @@ else
                     txt += e;
                 }
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
-                    Corporativo, true);
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(logTemp);
             }
-            await UserGrid!.Reload();
+            //await UserGrid!.Reload();
         }
         catch (Exception ex)
         {
-
+            string txt = $"Error al actualizar los datos de un usuario {ex}";
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+            await LogRepo.Insert(logTemp);
         }
 
     }
