@@ -47,7 +47,7 @@ namespace DashBoard.Modelos
                     "SistemaCorp", "Sistema");
                 await _appDbContext.LogsBitacora.AddAsync(logTmp);
                 await _appDbContext.SaveChangesAsync();
-                throw;
+                return false;
             }
 
         }
@@ -77,15 +77,9 @@ namespace DashBoard.Modelos
                     return await querry.ToListAsync();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                string etxt = $"Error al intentar LEER REPO.GET()  {ex}";
-                var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", "Sistema");
-                await _appDbContext.LogsBitacora.AddAsync(logTmp);
-                await _appDbContext.SaveChangesAsync();
                 throw;
-
             }
         }
 
@@ -97,13 +91,8 @@ namespace DashBoard.Modelos
                 //await Task.Delay(1);
                 //return dbset;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                string etxt = $"Error al intentar LEER GETALL REPO<> {ex}";
-                var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", "Sistema");
-                await _appDbContext.LogsBitacora.AddAsync(logTmp);
-                await _appDbContext.SaveChangesAsync();
                 throw;
             }
 
@@ -115,13 +104,8 @@ namespace DashBoard.Modelos
             {
                 return await dbset.FindAsync(id);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                string etxt = $"Error al intentar LEER GETid REPO<> {ex}";
-                var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", "Sistema");
-                await _appDbContext.LogsBitacora.AddAsync(logTmp);
-                await _appDbContext.SaveChangesAsync();
                 throw;
             }
 
@@ -135,13 +119,8 @@ namespace DashBoard.Modelos
                 await context.SaveChangesAsync();
                 return entity;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                string etxt = $"Error al intentar INSERTAR un registro REPO<> {ex}";
-                var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", "Sistema");
-                    await _appDbContext.LogsBitacora.AddAsync(logTmp);
-                await _appDbContext.SaveChangesAsync();
                 throw;
             }
         }
@@ -154,16 +133,11 @@ namespace DashBoard.Modelos
                 await context.SaveChangesAsync();
                 return entities;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                string etxt = $"Error al intentar INSERTAR UN GRUPO de registros REPO<> {ex}";
-                var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", "Sistema");
-                await _appDbContext.LogsBitacora.AddAsync(logTmp);
-                await _appDbContext.SaveChangesAsync();
                 throw;
             }
-            
+
         }
         public virtual async Task<TEntity> Update(TEntity entityToUpdate)
         {
@@ -175,16 +149,10 @@ namespace DashBoard.Modelos
                 await context.SaveChangesAsync();
                 return entityToUpdate;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                string etxt = $"Error al intentar ACTUALIZAR un registro REPO<> {ex}";
-                var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", "Sistema");
-                await _appDbContext.LogsBitacora.AddAsync(logTmp);
-                await _appDbContext.SaveChangesAsync();
                 throw;
             }
-
         }
 
         // Aqui agregue las funciones que yo hice
@@ -194,26 +162,19 @@ namespace DashBoard.Modelos
             try
             {
                 var dbSet = context.Set<TEntity>();
-
                 foreach (var entityToUpdate in entitiesToUpdate)
                 {
                     dbSet.Attach(entityToUpdate);
                     context.Entry(entityToUpdate).State = EntityState.Modified;
                 }
-
                 await context.SaveChangesAsync();
-
                 return entitiesToUpdate;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                string etxt = $"Error al intentar ACTUALIZAR un GRUPO de REGISTROS REPO<> {ex}";
-                var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", "Sistema");
-                await _appDbContext.LogsBitacora.AddAsync(logTmp);
-                await _appDbContext.SaveChangesAsync();
                 throw;
             }
+        
         }
 
         public virtual async Task<bool> DeletePlus(IEnumerable<TEntity> entitiesToDelete)
@@ -231,13 +192,8 @@ namespace DashBoard.Modelos
 
                 return await context.SaveChangesAsync() >= entitiesToDelete.Count();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                string etxt = $"Error al intentar Borrar un GRUPO de REGISTROS REPO<> {ex}";
-                var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
-                    "SistemaCorp", "Sistema");
-                await _appDbContext.LogsBitacora.AddAsync(logTmp);
-                await _appDbContext.SaveChangesAsync();
                 throw;
             }
         }
@@ -255,12 +211,8 @@ namespace DashBoard.Modelos
                 int count = await querry.CountAsync();
                 return count;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                string etxt = $"Error al intentar LEER REPO.GetCount() {ex}";
-                var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt, "SistemaCorp", "Sistema");
-                await _appDbContext.LogsBitacora.AddAsync(logTmp);
-                await _appDbContext.SaveChangesAsync();
                 throw;
             }
         }

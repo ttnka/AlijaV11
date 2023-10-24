@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DashBoard.Modelos
 {
@@ -17,6 +19,10 @@ namespace DashBoard.Modelos
         [StringLength(75)]
         public string Titulo { get; set; } = "";
         public string? Obs { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Importe { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Control { get; set; }
         [StringLength(50)]
         public string Corporativo { get; set; } = "";
         [StringLength(50)]

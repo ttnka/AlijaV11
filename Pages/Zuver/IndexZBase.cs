@@ -177,9 +177,11 @@ namespace DashBoard.Pages.Zuver
         {
             try
             {
+                if (ElUser == null && ElUser!.UserId.Length < 30)
+                    return;
                 IEnumerable<ZConfig> resp = await ConfRepo.Get(x => x.Usuario == ElUser.UserId);
 
-                ZConfig? reg = resp.Any(x => x.Usuario == ElUser.UserId) ? resp.Where(x => x.Usuario == ElUser.UserId)
+                ZConfig reg = resp.Any(x => x.Usuario == ElUser.UserId) ? resp.Where(x => x.Usuario == ElUser.UserId)
                                     .OrderByDescending(x => x.Fecha1).FirstOrDefault() : new();
 
                 EmpresaActivaAll = reg != null ? LasOrgAll.FirstOrDefault(x => x.OrgId == reg.Txt)! : new();

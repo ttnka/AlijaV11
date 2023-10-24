@@ -32,6 +32,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvRW5jYXJnYWRvTGlzdC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FactDetList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvRmFjdERldExpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FacturaList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvRmFjdHVyYUxpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FolioList.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvRm9saW9MaXN0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 

@@ -17,13 +17,16 @@
         <HeaderTemplate>
             @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30)
             {
+                @if(ElFolio.Estado < 2 || ElUser.Nivel > 5) 
+                { 
                 <RadzenButton Icon="plus" style="margin-bottom: 10px"
                               ButtonStyle="ButtonStyle.Info" Click="InsertRow">
                     Agregar conceptos
                 </RadzenButton>
+                }
             }
             else if (EmpresaActiva.OrgId.Length < 30)
-            {
+                {
                 <RadzenLabel>Es necesario que seleciones una empresa activa en Informacion>Empresa Activa</RadzenLabel>
             }
             <RadzenButton Icon="refresh" style="margin-bottom: 10px"
@@ -94,7 +97,7 @@
                     <RadzenText TextAlign="TextAlign.Right">
                         @if (LosConceptos.Count > 0)
                         {
-                            @($"Conceptos {ConceptoGrid.View.Count()}")
+                            @($"Conceptos {ConceptoGrid!.View.Count()}")
                         }
                     </RadzenText>
                 </FooterTemplate>
@@ -173,16 +176,12 @@
                                   Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
                                   Width="250px" Title="Estado">
                 <Template Context="datos">
-                    @if (datos.Estado > 3)
-                    {
-                        <label></label>
-                    }
-                    else
+                    @if (ElUser.Nivel > 5 || ( datos.Estado < 2 && ElFolio.Estado < 2))
                     {
                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
                                       Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
-
                     }
+
                     @if (datos.Status)
                     {
                         <b>Activo</b>
@@ -197,12 +196,11 @@
 
                 <EditTemplate Context="datos">
 
-                    @if (datos.Estado == 2 && ElUser.Nivel > 4)
+                    @if (datos.Estado > 0 && ElUser.Nivel > 4 && ElFolio.Estado < 2)
                     {
-                        <div style="white-space:pre-wrap">
-                            Borrar este registro?
-                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
-                                             Placeholder="Borrar este registro?">
+                        <div>
+                            <RadzenLabel> Borrar este registro? </RadzenLabel>
+                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool">
                                 <Items>
                                     <RadzenSelectBarItem Text="No" Value="true" />
                                     <RadzenSelectBarItem Text="Si" Value="false" />
@@ -270,24 +268,26 @@ else
         {
             if (concepto == ConceptoToInsert) ConceptoToInsert = null!;
 
-
             Editando = !Editando;
             ApiRespuesta<Z210_Concepto> resultado = await Servicio("Update", concepto);
-            string producto = "";
-            string precio = "";
-            string importe = "";
+
+            Z280_Producto prod = LosProductos.Any(x => x.ProductoId == concepto.Producto) ?
+                LosProductos.FirstOrDefault(x => x.ProductoId == concepto.Producto)! : new();
+            var imp = prod.Precio * concepto.Cantidad;
             string txt = $"{TBita}, Folio: {ElFolio.FolioId} Renglon: {concepto.Renglon},";
-            txt += $"cantidad: {concepto.Cantidad} producto: {producto}, precio: {precio}, importe: {importe}";
+            txt += $"cantidad: {concepto.Cantidad} producto: {prod.Clave} {prod.Titulo}, ";
+            txt += $"precio: {prod.Precio}, importe: {imp}";
             txt += string.IsNullOrEmpty(concepto.Obs) ? "" : $"Comentarios: {concepto.Obs}";
 
             if (resultado.Exito)
             {
                 ShowNotification(ElMsn("info", "Actualizo",
-                    $"Se actualizo la info de Folio {ElFolio.FolioNum} {producto}", 0));
+                    $"Se actualizo la info de Concpetos del Folio {ElFolio.FolioNum} {prod.Titulo}", 0));
                 txt = $"Se actualizo la informacion " + txt;
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
+                await Servicio("Importe", concepto);
             }
             else
             {
@@ -301,6 +301,7 @@ else
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(logTemp);
+                await ConceptoGrid!.Reload();
             }
         }
         catch (Exception ex)
@@ -331,7 +332,8 @@ else
         ConceptoToInsert = new Z210_Concepto()
         {
             FolioId = ElFolio.FolioId,
-            Estado = 1
+            Cantidad = 1,
+            Estado = 0
         };
 
         Editando = !Editando;
@@ -347,22 +349,24 @@ else
             Editando = !Editando;
             ApiRespuesta<Z210_Concepto> resultado = await Servicio("Insert", concepto);
 
-            string producto = "";
-            string precio = "";
-            string importe = "";
+
+            Z280_Producto prod = LosProductos.Any(x => x.ProductoId == concepto.Producto) ?
+                LosProductos.FirstOrDefault(x => x.ProductoId == concepto.Producto)! : new();
+            var imp = prod.Precio * concepto.Cantidad;
             string txt = $"{TBita}, Folio: {ElFolio.FolioId} Renglon: {concepto.Renglon},";
-            txt += $"cantidad: {concepto.Cantidad} producto: {producto}, precio: {precio}, importe: {importe}";
+            txt += $"cantidad: {concepto.Cantidad} producto: {prod.Clave} {prod.Titulo}, ";
+            txt += $"precio: {prod.Precio}, importe: {imp}";
             txt += string.IsNullOrEmpty(concepto.Obs) ? "" : $"Comentarios: {concepto.Obs}";
-            txt += "Estado: Nuevo, Estatus: Activo";
 
             if (resultado.Exito)
             {
                 ShowNotification(ElMsn("Exito", "Nuevo Concepto",
-                    $"Se creo un nuevo registro de concepto FOLIIO: {ElFolio.FolioNum} producto: {producto}", 0));
+                    $"Se creo un nuevo registro de CONCEPTO folio: {ElFolio.FolioNum} producto: {prod.Titulo}", 0));
 
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
+                await Servicio("Importe", concepto);
             }
             else
             {
@@ -376,8 +380,9 @@ else
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(logTemp);
+                await ConceptoGrid!.Reload();
             }
-            //await ConceptoGrid!.Reload();
+
         }
         catch (Exception ex)
         {

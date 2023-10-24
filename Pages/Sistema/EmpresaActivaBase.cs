@@ -2,6 +2,7 @@
 using DashBoard.Data;
 using DashBoard.Modelos;
 using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
 using Radzen;
 using Radzen.Blazor;
 
@@ -10,6 +11,8 @@ namespace DashBoard.Pages.Sistema
 	public class EmpresaActivaBase : ComponentBase
 	{
         public const string TBita = Constantes.EmpresaActiva;
+        
+
         [Inject]
         public Repo<ZConfig, ApplicationDbContext> ConfigRepo { get; set; } = default!;
 
@@ -19,9 +22,13 @@ namespace DashBoard.Pages.Sistema
         [Parameter]
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
         [Parameter]
-        public List<Z100_Org> LasAlijadoras { get; set; } = new List<Z100_Org>();
-
         public List<ZConfig> LasConfig { get; set; } = new List<ZConfig>();
+
+        [Parameter]
+        public EventCallback ReadEmpresaActivaAll { get; set; }
+
+        public List<Z100_Org> LasAlijadoras { get; set; } = new List<Z100_Org>();
+        
 
         public RadzenDataGrid<ZConfig>? ConfigGrid { get; set; } = new RadzenDataGrid<ZConfig>();
         protected bool Primera { get; set; } = true;
@@ -59,8 +66,7 @@ namespace DashBoard.Pages.Sistema
         {
             try
             {
-                LasAlijadoras = LasOrgs.Any(x =>x.Tipo == "Administracion" &&
-                                x.Estado == 1) ? 
+                LasAlijadoras = LasOrgs.Any(x =>x.Tipo == "Administracion" && x.Estado == 1) ? 
                     LasOrgs.Where(x => x.Tipo == "Administracion" &&
                                 x.Estado == 1).ToList() :
                     LasAlijadoras ;
@@ -79,9 +85,7 @@ namespace DashBoard.Pages.Sistema
         {
             try
             {
-                IEnumerable<ZConfig> resp = await ConfigRepo.Get(x => x.Usuario == ElUser.UserId && x.Titulo == TBita);
-                if (resp.Any())
-                    LasConfig = resp.Any() ? resp.OrderByDescending(x => x.Fecha1).ToList() : LasConfig;
+                await ReadEmpresaActivaAll.InvokeAsync();
             }
             catch (Exception ex)
             {
@@ -91,6 +95,7 @@ namespace DashBoard.Pages.Sistema
                 await LogRepo.Insert(logTemp);
             }
         }
+
 
         protected async Task<ApiRespuesta<ZConfig>> Servicio(string tipo, ZConfig zConf)
         {
@@ -168,7 +173,7 @@ namespace DashBoard.Pages.Sistema
         public NotificationMessage ElMsn(string tipo, string titulo, string mensaje, int duracion)
         {
             NotificationMessage respuesta = new();
-            switch (tipo.ToLower())
+            switch (tipo)
             {
                 case "Info":
                     respuesta.Severity = NotificationSeverity.Info;

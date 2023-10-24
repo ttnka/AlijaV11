@@ -1,60 +1,102 @@
-﻿@page "/indexc"
+﻿
+@page "/alijadores"
 @inherits IndexAlijaBase
 @using DashBoard.Modelos
 @using DashBoard.Pages.Zuver
 @using DashBoard.Pages.Sistema
 
 
-<h3>Administracion DashBoard RH</h3>
+<h2>Aplicacion de Alijadores</h2>
+@if (EmpresaActivaAll != null && EmpresaActivaAll.OrgId.Length > 30 && LasAlijadorasAll != null && LasAlijadorasAll.Any())
+{
+    @if (LasAlijadorasAll.Any(x => x.OrgId == EmpresaActivaAll.OrgId))
+    {
+        <!--
+        <RadzenDropDown Name="EmpresaActivaIdDrop" Data=LasAlijadorasAll @bind-Value=@EmpresaActivaId
+                        ValueProperty="OrgId" TextProperty="ComercialRfc"
+                        Style="width: 50%;" Change="CambiarEmpAct" />
+        -->
+        <h4>@LasOrgsAll.FirstOrDefault(x => x.OrgId == EmpresaActivaAll.OrgId)!.ComercialRfc</h4>
+    }
+}
 <AuthorizeView>
     <Authorized>
         <CascadingValue Value="ElUser" Name="ElUserAll">
-            <CascadingValue Value="CorporativoAll" Name="CorporativoAll">
-                @if (ElUser != null && ElUser.UserId.Length > 10 && CorporativoAll != "All")
-                {
-                    <RadzenTabs>
-                        <Tabs>
-                            <RadzenTabsItem Text="Folios">
-                                
-                            </RadzenTabsItem>
+            <CascadingValue Value="EmpresaActivaAll" Name="EmpresaActivaAll">
+                <CascadingValue Value="CorporativoAll" Name="CorporativoAll">
+
+                    @if (ElUser != null && ElUser.UserId.Length > 10 && CorporativoAll != "All")
+                    {
+                        @if (EmpresaActivaAll == null || EmpresaActivaAll.OrgId.Length < 30)
+                        {
+                            <EmpresaActiva LasOrgs="LasOrgsAll" />
+                        }
+                        else
+                        {
+                            <RadzenTabs>
+                                <Tabs>
+
+                                    <RadzenTabsItem Text="Factura">
+                                        <FacturaList ReadEmpresaActivaAll="LeerEmpresaActivaAll" ReadLasOrgsAll="LeerOrgAll"
+                                                     ReadLasFacturasAll="LeerFacturas" ReadLosFoliosAll="LeerFolios"
+                                                     LasOrgs="LasOrgsAll" LasFacturas="LasFacturasAll" LosFolios="LosFoliosAll" />
+                                    </RadzenTabsItem>
+
+                                    <RadzenTabsItem Text="Folios">
+                                        <FolioList ReadEmpresaActivaAll="LeerEmpresaActivaAll"
+                                                   ReadLosFoliosAll="LeerFolios" ReadLasOrgsAll="LeerOrgAll"
+                                                   LasOrgs="LasOrgsAll" LosFolios="LosFoliosAll" />
+                                    </RadzenTabsItem>
+
+                                    <RadzenTabsItem Text="Organizaciones">
+                                        <OrgList LeerOrgAll="LeerOrgAll" LeerUsersAll="LeerUsersAll"
+                                                 LasOrgs="LasOrgsAll" LosUsuarios="LosUsersAll"
+                                                 NivelesEdit="NivelesAll" TipoOrgs="TipoOrgsAll" />
+                                    </RadzenTabsItem>
+
+                                    <RadzenTabsItem Text="Usuarios">
+                                        <UsersList LeerOrgAll="LeerOrgAll" LeerUsersAll="LeerUsersAll"
+                                                   LasOrgs="LasOrgsAll" LosUsuarios="LosUsersAll"
+                                                   NivelesEdit="NivelesAll" TipoOrgs="TipoOrgsAll" />
+                                    </RadzenTabsItem>
+
+                                    <RadzenTabsItem Text="Informacion">
+                                        <RadzenAccordion>
+                                            <Items>
+                                                <RadzenAccordionItem Text="Mis Datos" Icon="account_box">
+                                                    <MisDatos Niveles="NivelesAll" LasOrg="LasOrgsAll" />
+                                                </RadzenAccordionItem>
+
+                                                @if (LasAlijadorasAll != null  && LasAlijadorasAll.Count > 1)
+                                                {
+                                                    <RadzenAccordionItem Text="Empresa Activa" Icon="home">
+                                                        <EmpresaActiva LasOrgs="LasOrgsAll"
+                                                                       ReadEmpresaActivaAll="LeerEmpresaActivaAll" />
+                                                    </RadzenAccordionItem>
+                                                }
+
+                                                <RadzenAccordionItem Text="Bitacora" Icon="book">
+                                                    <Bitacora LasOrgs="LasOrgsAll" />
+                                                </RadzenAccordionItem>
+
+                                                <RadzenAccordionItem Text="Configuracion" Icon="note">
+                                                    <RadzenLabel>Falta desarrollar</RadzenLabel>
+                                                </RadzenAccordionItem>
+                                            </Items>
+                                        </RadzenAccordion>
+
+                                    </RadzenTabsItem>
+                                </Tabs>
+                            </RadzenTabs>
+                        }
+                    }
+                    else
+                    {
+                        <div class="spinner">  </div>
+                    }
 
 
-                            <RadzenTabsItem Text="Organizaciones">
-                                <OrgList LeerOrgAll="LeerOrgAll" LeerUsersAll="LeerUsersAll"
-                                         LasOrgs="LasOrgAll" LosUsuarios="LosUsersAll"
-                                         NivelesEdit="NivelesAll" TipoOrgs="TipoOrgsAll" />
-                            </RadzenTabsItem>
-
-                            <RadzenTabsItem Text="Usuarios">
-                                <UsersList LeerOrgAll="LeerOrgAll" LeerUsersAll="LeerUsersAll"
-                                           LasOrgs="LasOrgAll" LosUsuarios="LosUsersAll"
-                                           NivelesEdit="NivelesAll" TipoOrgs="TipoOrgsAll" />
-                            </RadzenTabsItem>
-
-                            <RadzenTabsItem Text="Informacion">
-                                <RadzenAccordion>
-                                    <Items>
-                                        <RadzenAccordionItem Text="Mis Datos" Icon="account_box">
-                                            <MisDatos Niveles="NivelesAll" LasOrg="LasOrgAll" />
-                                        </RadzenAccordionItem>
-                                        <RadzenAccordionItem Text="Bitacora" Icon="book">
-                                            <Bitacora />
-                                        </RadzenAccordionItem>
-
-                                        <RadzenAccordionItem Text="Configuracion" Icon="note">
-                                            <RadzenLabel>Falta desarrollar</RadzenLabel>
-                                        </RadzenAccordionItem>
-                                    </Items>
-                                </RadzenAccordion>
-
-                            </RadzenTabsItem>
-                        </Tabs>
-                    </RadzenTabs>
-                }
-                else
-                {
-                    <div class="spinner">  </div>
-                }
+                </CascadingValue>
             </CascadingValue>
         </CascadingValue>
     </Authorized>

@@ -2,6 +2,7 @@
 using DashBoard.Data;
 using DashBoard.Modelos;
 using Microsoft.AspNetCore.Components;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Radzen;
 using Radzen.Blazor;
 
@@ -63,7 +64,7 @@ namespace DashBoard.Pages.Alija
                 {
                     resp = await CarroRepo.Get(x => x.FolioId == ElFolio.FolioId);
                 }
-                LosCarros = resp != null && resp.Any() ? resp.ToList() : LosCarros;
+                LosCarros = resp != null && resp.Any() ? resp.ToList() : new List<Z205_Carro>();
             }
             catch (Exception ex)
             {
@@ -74,24 +75,24 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        protected async Task<ApiRespuesta<Z205_Carro>> Servicio(string tipo, Z205_Carro car)
+        protected async Task<ApiRespuesta<Z205_Carro>> Servicio(string tipo, Z205_Carro carro)
         {
             ApiRespuesta<Z205_Carro> resp = new()
             {
                 Exito = false,
-                Data = car
+                Data = carro
             };
 
             try
             {
-                if (car != null)
+                if (carro != null)
                 {
-                    car.FolioId = ElFolio.FolioId;
                     if (tipo == "Insert")
                     {
-                        car.CarroId = Guid.NewGuid().ToString();
+                        carro.CarroId = Guid.NewGuid().ToString();
+                        carro.Estado= 1;
 
-                        Z205_Carro carInsert = await CarroRepo.Insert(car);
+                        Z205_Carro carInsert = await CarroRepo.Insert(carro);
                         if (carInsert != null)
                         {
                             resp.Exito = true;
@@ -99,13 +100,14 @@ namespace DashBoard.Pages.Alija
                         }
                         else
                         {
-                            resp.MsnError.Add($"No se Inserto el registro de Carro del folio {ElFolio.FolioNum}");
+                            resp.MsnError.Add($"No se Inserto el registro carro {carro.Tractor} pedimento:{carro.Pedimento}");
                         }
                         return resp;
                     }
-                    else if (tipo == "Update")
+                    else if( tipo == "Update")
                     {
-                        Z205_Carro carUpdate = await CarroRepo.Update(car);
+                        Z205_Carro carUpdate = await CarroRepo.Update(carro);
+                        
                         if (carUpdate != null)
                         {
                             resp.Exito = true;
@@ -113,7 +115,7 @@ namespace DashBoard.Pages.Alija
                         }
                         else
                         {
-                            resp.MsnError.Add($"No se Actualizo el registro carro {ElFolio.FolioNum}");
+                            resp.MsnError.Add($"No se Actualizo el registro carro {carro.Tractor} pedimento:{carro.Pedimento}");
                             resp.Exito = false;
                         }
                         return resp;
@@ -131,6 +133,7 @@ namespace DashBoard.Pages.Alija
                 await LogRepo.Insert(LogT);
                 return resp;
             }
+
         }
 
         #region Usuario y Bitacora
@@ -150,7 +153,7 @@ namespace DashBoard.Pages.Alija
         public NotificationMessage ElMsn(string tipo, string titulo, string mensaje, int duracion)
         {
             NotificationMessage respuesta = new();
-            switch (tipo.ToLower())
+            switch (tipo)
             {
                 case "Info":
                     respuesta.Severity = NotificationSeverity.Info;

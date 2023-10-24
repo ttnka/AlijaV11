@@ -61,7 +61,9 @@ namespace DashBoard.Modelos
         public const string SitioDesc = "Este sitio genera informacion sobre los reportes de Seguro Social e Infonavit";
 
         // Registro de Estado de Folios
-        public const string FolioEstado = "Nuevo,Ejecutado,Facturado,Pagado,Cancelado";
+        public const string FolioEstado = "Nuevo,Ejecutado,Facturado,XCancelado";
+        public const string FacturaEstado = "Nueva,Publicada,Abonada,Pagada,XCancelada";
+        public const string PagoEstado = "Nuevo,Pagado,Conciliado,XCancelado";
         public const string EmpresaActiva = "Empresa Activa";
     }
 }

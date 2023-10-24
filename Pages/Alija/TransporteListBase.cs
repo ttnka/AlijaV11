@@ -90,7 +90,7 @@ namespace DashBoard.Pages.Alija
                     if (tipo == "Insert")
                     {
                         trans.TransporteId = Guid.NewGuid().ToString();
-                        
+                        trans.Estado = 1;
                         Z203_Transporte transInsert = await TransRepo.Insert(trans);
                         if (transInsert != null)
                         {
@@ -150,7 +150,7 @@ namespace DashBoard.Pages.Alija
         public NotificationMessage ElMsn(string tipo, string titulo, string mensaje, int duracion)
         {
             NotificationMessage respuesta = new();
-            switch (tipo.ToLower())
+            switch (tipo)
             {
                 case "Info":
                     respuesta.Severity = NotificationSeverity.Info;

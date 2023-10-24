@@ -169,7 +169,7 @@ namespace DashBoard.Pages.Zuver
         public NotificationMessage ElMsn(string tipo, string titulo, string mensaje, int duracion)
         {
             NotificationMessage respuesta = new();
-            switch (tipo.ToLower())
+            switch (tipo)
             {
                 case "Info":
                     respuesta.Severity = NotificationSeverity.Info;

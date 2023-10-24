@@ -4,61 +4,59 @@
 @using DashBoard.Modelos
 
 
-
-@if (LosFolios != null && !Leyendo)
+@if (LasFacturas != null && !Leyendo)
 {
-    <RadzenDataGrid @ref="FoliosGrid"
+    <RadzenDataGrid @ref="FacturaGrid"
                     AllowFiltering="true" AllowPaging="true" PageSize="50"
                     AllowSorting="true" AllowColumnResize="true"
                     ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
                     EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
-                    Data="@LosFolios" TItem="Z200_Folio"
+                    Data="@LasFacturas" TItem="Z220_Factura"
                     RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
 
         <HeaderTemplate>
-            @if (ElUser.Nivel > 4 && EmpresaActivaAll.OrgId.Length > 30)
+            @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30)
             {
                 <RadzenButton Icon="plus" style="margin-bottom: 10px"
                               ButtonStyle="ButtonStyle.Info" Click="InsertRow">
-                    Nuevo Folio
+                    Nueva factura
                 </RadzenButton>
             }
-            else if (EmpresaActivaAll.OrgId.Length < 30)
+            else if (EmpresaActiva.OrgId.Length < 30)
             {
                 <RadzenLabel>Es necesario que seleciones una empresa activa en Informacion>Empresa Activa</RadzenLabel>
             }
             <RadzenButton Icon="refresh" style="margin-bottom: 10px"
-                          ButtonStyle="ButtonStyle.Success" Click="LeerFolios">
+                          ButtonStyle="ButtonStyle.Success" Click="FiltroFacturacion">
                 Actualizar
             </RadzenButton>
+
+            <RadzenDropDown Name="ElCliente" Data=LosClientes @bind-Value=@ElCliente.OrgId
+                            ValueProperty="OrgId" TextProperty="ComercialRfc"
+                            Style="width: 100%;" Change="FiltroFacturacion"  />
+
             <div style="white-space:pre-wrap; line-height: initial">
                 <RadzenLabel>
-                    @EstadoEtiqueta
+                    @FactEtiqueta
                 </RadzenLabel>
             </div>
         </HeaderTemplate>
 
         <Template Context="datos1">
             <CascadingValue Value="datos1" Name="ElFolioAll">
-                <CascadingValue Value="EmpresaActivaAll" Name="EmpresaActivaAll">
+                <CascadingValue Value="EmpresaActiva" Name="EmpresaActivaAll">
 
                     <RadzenTabs>
                         <Tabs>
-                            <RadzenTabsItem Text="Concepto">
-                                <ConceptoList />
+                            <RadzenTabsItem Text="Detalle">
+                                <FactDetList ReadLosFolios="LeerFolios" LosFoliosAll="LosFolios" />
                             </RadzenTabsItem>
 
-                            <RadzenTabsItem Text="Transportista">
-
-                                <TransporteList />
+                            <RadzenTabsItem Text="Pagos">
+                                TBD
                             </RadzenTabsItem>
-
-                            <RadzenTabsItem Text="Carro">
-                                <CarroList />
-                            </RadzenTabsItem>
-
-                            <RadzenTabsItem Text="Encargado">
-                                <EncargadoList />
+                            <RadzenTabsItem Text="Archivos">
+                                TBD
                             </RadzenTabsItem>
 
                         </Tabs>
@@ -70,35 +68,22 @@
 
         <Columns>
 
-            <RadzenDataGridColumn TItem="Z200_Folio" Title="Edo" Filterable="true" Property="Estado"
-                                  Width="60px">
+            <RadzenDataGridColumn TItem="Z220_Factura" Title="Factura folio" Property="FacturaNum"
+                                  Filterable="true" Width="150px">
                 <Template Context="datos">
-                    <div>
-                        @if (EstadoArray.Length >= datos.Estado - 1)
-                        {
-                            <RadzenLabel>
-                                @EstadoArray[datos.Estado - 1].Substring(0, 1)
-                            </RadzenLabel>
-                        }
-                        else
-                        {
-                            <RadzenLabel>
-                                E
-                            </RadzenLabel>
-                        }
-
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @datos.FacturaNum
+                        </RadzenLabel>
                     </div>
                 </Template>
-
-                <EditTemplate>
-                    <RadzenLabel>
-                        N
-                    </RadzenLabel>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="FacturaNum" @bind-Value="datos.FacturaNum" Change="ElTitulo"
+                                   Placeholder="Folio Factura" Style="width:100%;" />
                 </EditTemplate>
-
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z200_Folio" Title="Fecha" Filterable="true" Property="Fecha"
+            <RadzenDataGridColumn TItem="Z220_Factura" Title="Fecha" Filterable="true" Property="Fecha"
                                   Width="150px">
                 <Template Context="datos">
                     <RadzenLabel>@($"{@MyFunc.FormatoFecha("DD/MMM/AA", datos.Fecha)}")</RadzenLabel>
@@ -110,25 +95,8 @@
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z200_Folio" Title="Folio" Property="Folio"
-                                  Filterable="true" Width="90px">
-                <Template Context="datos">
-                    <div style="text-align: right;">
-                        <RadzenLabel>
-                            @datos.FolioNum
-                        </RadzenLabel>
-                    </div>
-                </Template>
-                <EditTemplate Context="datos">
-                    <div style="text-align: right;">
-                        <RadzenLabel>
-                            @FolioSiguiente
-                        </RadzenLabel>
-                    </div>
-                </EditTemplate>
-            </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z200_Folio" Title="Cliente"
+            <RadzenDataGridColumn TItem="Z220_Factura" Title="Cliente"
                                   Filterable="false" Resizable="true" Width="250px">
 
                 <Template Context="datos">
@@ -151,11 +119,65 @@
                 <EditTemplate Context="datos">
                     <RadzenDropDown Name="OrgId" Data=LosClientes @bind-Value=@datos.OrgId
                                     ValueProperty="OrgId" TextProperty="ComercialRfc"
-                                    Style="width: 90%;" />
+                                    Style="width: 100%;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z200_Folio" Title="Titulo" Property="Titulo"
+            <RadzenDataGridColumn TItem="Z220_Factura" Title="Importe" Property="Importe"
+                                  Filterable="true" Resizable="true" Width="150px">
+
+                <Template Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", datos.Importe)}")
+
+                        </RadzenLabel>
+                    </div>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenNumeric Name="Importe" @bind-Value="datos.Importe" ShowUpDown="false"
+                                   Placeholder="Importe" Style="width:100%;text-align:right;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z220_Factura" Title="Estado" Property="Estado"
+                                  Filterable="true" Resizable="true" Width="150px">
+
+                <Template Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @if (FactEstadoArray.Length >= datos.Estado - 1)
+                            {
+                                <RadzenLabel>
+                                    @FactEstadoArray[datos.Estado - 1]
+                                </RadzenLabel>
+                            }
+                            else
+                            {
+                                <RadzenLabel>
+                                    Error
+                                </RadzenLabel>
+                            }
+                        </RadzenLabel>
+                    </div>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    @if (datos.Estado == 0)
+                    {
+                        <RadzenLabel>Nueva</RadzenLabel>
+                    }
+                    else
+                    {
+                        <RadzenDropDown Name="Estado" Data=LosEdos @bind-Value=@datos.Estado
+                                        ValueProperty="Key" TextProperty="Value"
+                                        Style="width: 100%;" />
+                    }
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z220_Factura" Title="Titulo" Property="Titulo"
                                   Filterable="true" Resizable="true" Width="150px">
 
                 <Template Context="datos">
@@ -170,7 +192,7 @@
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z200_Folio" Title="Comentario" Property="obs"
+            <RadzenDataGridColumn TItem="Z220_Factura" Title="Comentario" Property="obs"
                                   Filterable="true" Resizable="true" Width="200px">
 
                 <Template Context="datos">
@@ -185,47 +207,40 @@
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-
-            <RadzenDataGridColumn TItem="Z200_Folio" Context="sampleBlazorModelsSampleOrder"
+            <RadzenDataGridColumn TItem="Z220_Factura" Context="sampleBlazorModelsSampleOrder"
                                   Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
                                   Width="250px" Title="Estado">
                 <Template Context="datos">
-                    @if (datos.Estado > 3)
-                    {
-                        <label></label>
-                    }
-                    else
+                    @if (ElUser.Nivel > 5 || datos.Estado < 2)
                     {
                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
                                       Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
-
                     }
                     @if (datos.Status)
                     {
-                        <b>Activo</b>
+                        <RadzenLabel>Activo</RadzenLabel>
                     }
                     else
                     {
-                        <b>Suspendido</b>
+                        <RadzenLabel>Suspendido</RadzenLabel>
                     }
-
-
                 </Template>
 
                 <EditTemplate Context="datos">
 
-                    @if (datos.Estado == 2 && ElUser.Nivel > 4)
+                    @if (datos.Estado < 2 && ElUser.Nivel > 4)
                     {
-                        <div style="white-space:pre-wrap">
+                        <RadzenLabel>
                             Borrar este registro?
-                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
-                                             Placeholder="Borrar este registro?">
-                                <Items>
-                                    <RadzenSelectBarItem Text="No" Value="true" />
-                                    <RadzenSelectBarItem Text="Si" Value="false" />
-                                </Items>
-                            </RadzenSelectBar>
-                        </div>
+                        </RadzenLabel>
+                        <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                         Placeholder="Borrar este registro?">
+                            <Items>
+                                <RadzenSelectBarItem Text="No" Value="true" />
+                                <RadzenSelectBarItem Text="Si" Value="false" />
+                            </Items>
+                        </RadzenSelectBar>
+
                     }
 
                     <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
@@ -243,7 +258,7 @@
 else
 {
     <div class="spinner">
-        @Leyendo
+        
     </div>
 }
 
@@ -253,104 +268,147 @@ else
     void Cancelar()
     {
         //OrgNew = new();
-        FolioToInsert = new();
+        FacturaToInsert = new();
     }
 
-    Z200_Folio FolioToInsert = new();
-    Z200_Folio OldFolioToUpdate = new();
-
-    async Task EditRow(Z200_Folio folio)
+    async void FiltroFacturacion()
     {
-        OldFolioToUpdate = PassToOldFolio(folio);
-        await FoliosGrid!.EditRow(folio);
+        FiltroFactura nf = new()
+        {
+            Datos =true,
+            EmpresaId = EmpresaActiva.OrgId
+        };
+
+        if (ElCliente != null && ElCliente!.OrgId.Length > 30)
+        {
+            nf.OrgId = ElCliente.OrgId;
+        }
+
+        await ReadLasFacturasAll.InvokeAsync(nf);
+    }
+
+    void ElTitulo()
+    {
+        if (string.IsNullOrEmpty(FacturaToInsert.Titulo))
+            FacturaToInsert.Titulo = FacturaToInsert.FacturaNum;
+    }
+
+
+    Z220_Factura FacturaToInsert = new();
+
+
+    async Task EditRow(Z220_Factura fact)
+    {
+        await FacturaGrid!.EditRow(fact);
         Editando = !Editando;
     }
 
-    async void OnUpdateRow(Z200_Folio folio)
+    async void OnUpdateRow(Z220_Factura fact)
     {
         try
         {
-            if (folio == FolioToInsert) FolioToInsert = null!;
+            if (fact == FacturaToInsert) FacturaToInsert = null!;
 
+            string emp = LasOrgs.Any(x => x.OrgId == fact.OrgId) ?
+                LasOrgs.FirstOrDefault(x => x.OrgId == fact.OrgId)!.Comercial :
+                "";
+            string txt = $"Factura: {fact.FacturaNum}, fecha: {fact.Fecha}, Titulo:{fact.Titulo} ";
+            txt += string.IsNullOrEmpty(fact.Obs) ? "" : emp;
+            txt += string.IsNullOrEmpty(emp) ? "" : $"Cliente: {emp}";
+            txt += $"importe: {fact.Importe}, Estado: {FactEstadoArray[fact.Estado - 1]} Estatus:";
+            txt += fact.Status ? "Activo" : "Suspendido";
 
             Editando = !Editando;
-            ApiRespuesta<Z200_Folio> resultado = await Servicio("Update", folio);
+            ApiRespuesta<Z220_Factura> resultado = await Servicio("Update", fact);
 
-            string txtOld = "Se modifico este registro: " + (await FolioTxt(OldFolioToUpdate));
-            string txtNew = "nuevos datos: " + (await FolioTxt(folio));
-            string txt = "";
             if (resultado.Exito)
             {
                 ShowNotification(ElMsn("info", "Actualizo",
-                    $"Se actualizo la info de {folio.FolioNum} {folio.Titulo}", 0));
-                txt = $"{TBita}, " + txtOld + " " + txtNew;
+                    $"Se actualizo la info de FACTURA {fact.FacturaNum} Titulo:{fact.Titulo}", 0));
+                txt = $"Se actualizo la factura en la pagina {TBita}, " + txt;
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
             }
             else
             {
-                string etxt = $"Error No Se actualizo la info de {folio.FolioNum} {folio.Titulo}";
+                string etxt = $"Error No Se actualizo la FACTURA de {fact.FacturaNum} {fact.Titulo}";
                 foreach (var e in resultado.MsnError)
                 { etxt += $", {e}"; }
 
                 ShowNotification(ElMsn("Error", "Error", etxt, 0));
-                txt = $"{TBita}, No se actualizo un registro " + txtOld + ", ";
+                txt = $"{TBita}, No se actualizo un registro " + txt + ", ";
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(logTemp);
             }
-            //await FoliosGrid!.Reload();
+            //await FacturaGrid!.Reload();
         }
         catch (Exception ex)
         {
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                    $"Error, No fue posible actualizar el FOLIO, {TBita}, {ex}",
+                    $"Error, No fue posible actualizar el FACTURA, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
             await LogRepo.Insert(logTemp);
         }
-
     }
 
-    async Task SaveRow(Z200_Folio folio)
+    async Task SaveRow(Z220_Factura fact)
     {
-        OldFolioToUpdate = null;
-        await FoliosGrid!.UpdateRow(folio);
+        if (fact.Estado == 2)
+        {
+            bool avanzar = await SigEdoFactura(fact);
+            if (!avanzar)
+            {
+                string txt = "No fue posible modificar el registro ";
+                txt += "La FACTURA no cuenta con la informacion de FOLIOS a cobrar, ";
+                ShowNotification(ElMsn("Error", "Error", txt, 4000));
+                FacturaGrid!.CancelEditRow(fact);
+                return;
+            }
+        }
+        await FacturaGrid!.UpdateRow(fact);
     }
 
-    void CancelEdit(Z200_Folio folio)
+    void CancelEdit(Z220_Factura fact)
     {
-        if (folio == FolioToInsert) FolioToInsert = null!;
-        OldFolioToUpdate = null;
+        if (fact == FacturaToInsert) FacturaToInsert = null!;
+
         Editando = !Editando;
-        FoliosGrid!.CancelEditRow(folio);
+        FacturaGrid!.CancelEditRow(fact);
     }
 
     async Task InsertRow()
     {
-        FolioToInsert = new Z200_Folio();
-        FolioToInsert.FolioId = Guid.NewGuid().ToString();
-        FolioToInsert.Estado = 1;
+        FacturaToInsert = new Z220_Factura();
+
+        FacturaToInsert.Estado = 0;
         Editando = !Editando;
-        await FoliosGrid!.InsertRow(FolioToInsert);
+        await FacturaGrid!.InsertRow(FacturaToInsert);
 
     }
-    async void OnCreateRow(Z200_Folio folio)
+    async void OnCreateRow(Z220_Factura fact)
     {
         try
         {
-            if (folio == FolioToInsert) FolioToInsert = null!;
+            if (fact == FacturaToInsert) FacturaToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z200_Folio> resultado = await Servicio("Insert", folio);
+            ApiRespuesta<Z220_Factura> resultado = await Servicio("Insert", fact);
 
-            string txt = "nuevos datos: " + (await FolioTxt(folio));
+            string emp = LasOrgs.Any(x => x.OrgId == fact.OrgId) ? LasOrgs.FirstOrDefault(x => x.OrgId == fact.OrgId)!.Comercial :
+                "";
+            string txt = $"Factura: {fact.FacturaNum}, fecha: {fact.Fecha}, Titulo:{fact.Titulo} ";
+            txt += string.IsNullOrEmpty(fact.Obs) ? "" : emp;
+            txt += string.IsNullOrEmpty(emp) ? "" : $"Cliente: {emp}";
+            txt += $"importe: {fact.Importe}, Estado: {FactEstadoArray[fact.Estado - 1]} Estatus:";
+            txt += fact.Status ? "Activo" : "Suspendido";
 
             if (resultado.Exito)
             {
-                ShowNotification(ElMsn("Exito", "Nuevo Folio",
-                    $"Se creo un nuevo folio {folio.FolioNum} {folio.Titulo}", 0));
+                ShowNotification(ElMsn("Exito", "Nueva factura",
+                    $"Se creo un nueva factura {fact.FacturaNum} {fact.Titulo}", 0));
 
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, $"{TBita}, {txt}",
                     Corporativo, ElUser.OrgId);
@@ -358,23 +416,23 @@ else
             }
             else
             {
-                string etxt = $"Error NO se creo el nuevo folio {folio.FolioNum} {folio.Titulo}";
+                string etxt = $"Error NO se creo el nuevo factura {fact.FacturaNum} {fact.Titulo}";
                 foreach (var e in resultado.MsnError)
                 { etxt += $", {e}"; }
 
                 ShowNotification(ElMsn("Error", "Error", etxt, 0));
-                txt = $"{TBita}, No se creo un nuevo folio " + txt + ", ";
+                txt = $"{TBita}, No se creo un nueva factura " + txt + ", ";
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(logTemp);
             }
-            //await FoliosGrid!.Reload();
+            //await FacturaGrid!.Reload();
         }
         catch (Exception ex)
         {
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                    $"Error, No fue posible crear un FOLIO, {TBita}, {ex}",
+                    $"Error, No fue posible crear un FACTURA, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
             await LogRepo.Insert(logTemp);
         }

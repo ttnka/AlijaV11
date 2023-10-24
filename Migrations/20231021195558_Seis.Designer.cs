@@ -3,6 +3,7 @@ using System;
 using DashBoard.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DashBoard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231021195558_Seis")]
+    partial class Seis
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,9 +220,6 @@ namespace DashBoard.Migrations
                     b.Property<int>("FolioNum")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Importe")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("Obs")
                         .HasColumnType("longtext");
 
@@ -406,9 +406,6 @@ namespace DashBoard.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
-                    b.Property<decimal>("Control")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("Corporativo")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -429,9 +426,6 @@ namespace DashBoard.Migrations
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<decimal>("Importe")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Obs")
                         .HasColumnType("longtext");

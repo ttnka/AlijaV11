@@ -194,6 +194,7 @@ else
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, $"{txt} ,{TBita}",
                     Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
+                await ReadEmpresaActivaAll.InvokeAsync();
             }
             else
             {
@@ -208,7 +209,7 @@ else
                     Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(logTemp);
             }
-            await ConfigGrid!.Reload();
+            StateHasChanged();
         }
         catch (Exception ex)
         {

@@ -155,20 +155,14 @@
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Z190_Bitacora" Filterable="false"
-                                          Title="Organizacion / Grupo" Width="200px" TextAlign="TextAlign.Left">
+                                          Title="Empresa" Width="200px" TextAlign="TextAlign.Left">
                         <Template Context=DBita>
                             <div style="white-space:pre-wrap">
                                 @if (LasOrgs.Any(x => x.OrgId == DBita.OrgId))
                                 {
                                     <RadzenLabel>
                                         @LasOrgs.FirstOrDefault(x => x.OrgId == DBita.OrgId)!.Comercial
-                                        @if ( DBita.Corporativo.Length > 30 &&
-                                                DBita.OrgId != DBita.Corporativo &&
-                                                LasOrgs.Any(x=>x.OrgId == DBita.Corporativo) )
-                                            {
-                                                @("-" +
-                                                    LasOrgs.FirstOrDefault(x=>x.OrgId == DBita.Corporativo)!.Comercial)
-                                            }
+                                        
                                     </RadzenLabel>
                                 }
                                 else

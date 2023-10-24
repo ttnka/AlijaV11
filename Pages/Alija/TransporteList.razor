@@ -1,4 +1,4 @@
-﻿
+﻿    
 @inherits TransporteListBase
 @inject NotificationService NS
 @using DashBoard.Modelos
@@ -105,23 +105,18 @@
                                   Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
                                   Width="250px" Title="Estado">
                 <Template Context="datos">
-                    @if (datos.Estado > 3)
-                    {
-                        <label></label>
-                    }
-                    else
+                    @if (ElUser.Nivel > 5 || (datos.Estado < 2 && ElFolio.Estado < 2))
                     {
                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
                                       Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
-
                     }
                     @if (datos.Status)
                     {
-                        <b>Activo</b>
+                        <RadzenLabel>Activo</RadzenLabel>
                     }
                     else
                     {
-                        <b>Suspendido</b>
+                        <RadzenLabel>Suspendido</RadzenLabel>
                     }
 
 
@@ -129,23 +124,22 @@
 
                 <EditTemplate Context="datos">
 
-                    @if (datos.Estado == 2 && ElUser.Nivel > 4)
+                    @if (datos.Estado > 0 && ElUser.Nivel > 4 && ElFolio.Estado < 2)
                     {
-                        <div style="white-space:pre-wrap">
-                            Borrar este registro?
-                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
-                                             Placeholder="Borrar este registro?">
-                                <Items>
-                                    <RadzenSelectBarItem Text="No" Value="true" />
-                                    <RadzenSelectBarItem Text="Si" Value="false" />
-                                </Items>
-                            </RadzenSelectBar>
-                        </div>
+                        <RadzenLabel>
+                            Borrar este registro
+                        </RadzenLabel>
+                        <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                            Placeholder="Borrar este registro?">
+                            <Items>
+                                <RadzenSelectBarItem Text="No" Value="true" />
+                                <RadzenSelectBarItem Text="Si" Value="false" />
+                            </Items>
+                        </RadzenSelectBar>
                     }
 
                     <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
                                   Class="m-1" Click="@((args) => SaveRow(datos))" />
-
 
                     <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
                                   Click="@((args) => CancelEdit(datos))" />
@@ -210,7 +204,7 @@ else
 
                 ShowNotification(ElMsn("Error", "Error", etxt, 0));
                 txt = $"Error, No se actualizo un registro de Transportista {txt} {etxt}";
-                
+
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(logTemp);
@@ -234,7 +228,7 @@ else
     void CancelEdit(Z203_Transporte trans)
     {
         if (trans == TransToInsert) TransToInsert = null!;
-        
+
         Editando = !Editando;
         TransGrid!.CancelEditRow(trans);
     }
@@ -243,7 +237,7 @@ else
     {
         TransToInsert = new Z203_Transporte();
         TransToInsert.FolioId = ElFolio.FolioId;
-        TransToInsert.Estado = 1;
+        TransToInsert.Estado = 0;
         Editando = !Editando;
         await TransGrid!.InsertRow(TransToInsert);
 
@@ -282,8 +276,9 @@ else
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(logTemp);
+                await TransGrid!.Reload();
             }
-            //await TransGrid!.Reload();
+
         }
         catch (Exception ex)
         {

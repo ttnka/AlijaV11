@@ -244,3 +244,46 @@ esta en la base de datos Omins - Austeridad
         orderToInsert = null;
     }
 }
+
+
+public class Repo<TEntity, TDataContext> : ApiFiltroGet<TEntity>
+        where TEntity : class
+        where TDataContext : DbContext
+    {
+        protected readonly TDataContext context;
+        internal DbSet<TEntity> dbset;
+
+        private readonly ApplicationDbContext _appDbContext;
+        MyFunc myFunc = new();
+        
+        public Repo(TDataContext dataContext,
+            ApplicationDbContext appDbContext)
+        {
+            context = dataContext;
+            dbset = context.Set<TEntity>();
+            _appDbContext = appDbContext;
+        }
+
+        public virtual async Task<TEntity> Insert(TEntity entity)
+        {
+            try
+            {
+                await dbset.AddAsync(entity);
+                await context.SaveChangesAsync();
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                string etxt = $"Error al intentar INSERTAR un registro REPO<> {ex}";
+                var logTmp = myFunc.MakeLog("SistemaUserID", "SistemaOrgId", etxt,
+                    "SistemaCorp", "Sistema");
+                    await _appDbContext.LogsBitacora.AddAsync(logTmp);
+                await _appDbContext.SaveChangesAsync();
+                throw;
+            }
+        }        
+    }
+}
+
+
+ 

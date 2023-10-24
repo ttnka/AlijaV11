@@ -20,12 +20,17 @@ namespace DashBoard.Pages.Sistema
         public Repo<Z100_Org, ApplicationDbContext> OrgsRepo { get; set; } = default!;
         [Inject]
         public Repo<Z110_User, ApplicationDbContext> UserRepo { get; set; } = default!;
+
+        [Parameter]
+        public List<Z100_Org> LasOrgs { get; set; } = new();
+        [Parameter]
+        public EventCallback ReadLasOrgsAll { get; set; } = new();
+
         public List<Z110_User> LosUsers { get; set; } = new List<Z110_User>();
 
         public List<Z190_Bitacora> LasBitas { get; set; } = new();
         public Filtro SearchBita { get; set; } = new();
-        [Parameter]
-        public List<Z100_Org> LasOrgs { get; set; } = new();
+        
         public List<Z100_Org> OrgsFiltro { get; set; } = new();
         public List<Z100_Org> CorpsFiltro { get; set; } = new();
         public List<Z110_User> UsersFiltro { get; set; } = new();
@@ -59,7 +64,12 @@ namespace DashBoard.Pages.Sistema
         {
             try
             {
-                await ReadOrg();
+                if (!LasOrgs.Any())
+                    await LeerLasOrgs();
+
+                CorpsFiltro = LasOrgs.Any() ? LasOrgs.GroupBy(x => x.Corporativo)
+                        .Select(x => x.First()).ToList() : new List<Z100_Org>();
+
                 await LeerUsers();
                 await LeerBitacoras(SearchBita);
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
@@ -76,33 +86,18 @@ namespace DashBoard.Pages.Sistema
             }
         }
 
-        public async Task ReadOrg()
+        public async Task LeerLasOrgs()
         {
             try
             {
+                await ReadLasOrgsAll.InvokeAsync();
+
                 if (LasOrgs.Any())
-                { 
-                OrgsFiltro = ElUser.Nivel < 5 ?
-                        LasOrgs.Where(x => x.OrgId == ElUser.OrgId)
-                        .Select(x => x).ToList() :
-                        LasOrgs.ToList();
-                CorpsFiltro = LasOrgs.GroupBy(x => x.Corporativo)
-                        .Select(x => x.First()).ToList();
-                }
-                /*
-                var resultado = await OrgsRepo.GetAll();
-                if (resultado.Any())
                 {
-                    OrgsFiltro = ElUser.Nivel < 5 ?
-                        resultado.Where(x => x.OrgId == ElUser.OrgId)
-                        .Select(x => x).ToList() :
-                        resultado.ToList();
 
-                    LasOrgs = resultado.ToList();
-
-                    CorpsFiltro = resultado.GroupBy(x => x.Corporativo)
-                        .Select(x => x.First()).ToList();
-                }*/
+                    
+                }
+                
             }
             catch (Exception ex)
             {

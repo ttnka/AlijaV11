@@ -15,13 +15,16 @@
         <HeaderTemplate>
             @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30)
             {
-                <RadzenButton Icon="plus" style="margin-bottom: 10px"
+                @if (ElFolio.Estado < 2 || ElUser.Nivel > 5)
+                { 
+                    <RadzenButton Icon="plus" style="margin-bottom: 10px"
                               ButtonStyle="ButtonStyle.Info" Click="InsertRow">
-                    Agregar encargado
-                </RadzenButton>
+                        Agregar encargado
+                    </RadzenButton>
+                }
             }
             else if (EmpresaActiva.OrgId.Length < 30)
-            {
+                {
                 <RadzenLabel>Es necesario que seleciones una empresa activa en Informacion>Empresa Activa</RadzenLabel>
             }
             <RadzenButton Icon="refresh" style="margin-bottom: 10px"
@@ -73,11 +76,7 @@
                                   Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
                                   Width="250px" Title="Estado">
                 <Template Context="datos">
-                    @if (datos.Estado > 3)
-                    {
-                        <label></label>
-                    }
-                    else
+                    @if (ElUser.Nivel > 5  || (datos.Estado <2 && ElFolio.Estado < 2))
                     {
                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
                                       Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
@@ -85,22 +84,21 @@
                     }
                     @if (datos.Status)
                     {
-                        <b>Activo</b>
+                        <RadzenLabel>Activo</RadzenLabel>
                     }
                     else
                     {
-                        <b>Suspendido</b>
+                        <RadzenLabel>Suspendido</RadzenLabel>
                     }
 
-
-                </Template>
+                </Template> 
 
                 <EditTemplate Context="datos">
 
-                    @if (datos.Estado == 2 && ElUser.Nivel > 4)
+                    @if (datos.Estado > 0 && ElUser.Nivel > 4 && ElFolio.Estado < 2)
                     {
-                        <div style="white-space:pre-wrap">
-                            Borrar este registro?
+                        <div>
+                            <RadzenLabel>Borrar este registro?</RadzenLabel>
                             <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
                                              Placeholder="Borrar este registro?">
                                 <Items>
@@ -210,7 +208,7 @@ else
     {
         EncargadoToInsert = new Z204_Empleado();
         EncargadoToInsert.FolioId = ElFolio.FolioId;
-        EncargadoToInsert.Estado = 1;
+        EncargadoToInsert.Estado = 0;
         Editando = !Editando;
         await EncargadoGrid!.InsertRow(EncargadoToInsert);
 

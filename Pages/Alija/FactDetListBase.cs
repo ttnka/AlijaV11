@@ -7,26 +7,34 @@ using Radzen.Blazor;
 
 namespace DashBoard.Pages.Alija
 {
-	public class ConceptoListBase : ComponentBase 
+	public class FactDetListBase : ComponentBase
 	{
-        public const string TBita = "Conceptos";
+        public const string TBita = "Factura Detalle";
 
         [Inject]
-        public Repo<Z200_Folio, ApplicationDbContext> FolioRepo { get; set; } = default!;
+        public Repo<Z220_Factura, ApplicationDbContext> FacturaRepo { get; set; } = default!;
         [Inject]
-        public Repo<Z210_Concepto, ApplicationDbContext> ConceptoRepo { get; set; } = default!;
-        [Inject]
-        public Repo<Z280_Producto, ApplicationDbContext> ProductoRepo { get; set; } = default!;
+        public Repo<Z222_FactDet, ApplicationDbContext> DetRepo { get; set; } = default!;
+                                    
 
-        public List<Z210_Concepto> LosConceptos { get; set; } = new List<Z210_Concepto>();
-        public List<Z280_Producto> LosProductos { get; set; } = new List<Z280_Producto>();
-
-        [CascadingParameter(Name = "ElFolioAll")]
-        public Z200_Folio ElFolio { get; set; } = new();
+        [CascadingParameter(Name = "LaFacturaAll")]
+        public Z220_Factura LaFactura { get; set; } = new();
         [CascadingParameter(Name = "EmpresaActivaAll")]
         public Z100_Org EmpresaActiva { get; set; } = new();
 
-        public RadzenDataGrid<Z210_Concepto>? ConceptoGrid { get; set; } = new RadzenDataGrid<Z210_Concepto>();
+        [Parameter]
+        public List<Z200_Folio> LosFoliosAll { get; set; } = new List<Z200_Folio>();
+
+
+        [Parameter]
+        public EventCallback<FiltroFolio> ReadLosFolios { get; set; }
+
+        public List<Z222_FactDet> LosDets { get; set; } = new List<Z222_FactDet>();
+        public List<Z200_Folio> LosFolios { get; set; } = new List<Z200_Folio>();
+
+
+
+        public RadzenDataGrid<Z222_FactDet>? DetalleGrid { get; set; } = new RadzenDataGrid<Z222_FactDet>();
 
         protected bool Primera { get; set; } = true;
         protected bool Leyendo { get; set; } = false;
@@ -38,7 +46,8 @@ namespace DashBoard.Pages.Alija
             if (Primera)
             {
                 Primera = false;
-                await LeerConceptos();
+                if (LosDets != null  && !LosDets.Any())
+                    await LeerFactDets();
             }
 
             await Leer();
@@ -48,7 +57,7 @@ namespace DashBoard.Pages.Alija
         {
             try
             {
-                await LeerProductos();
+                await LeerFolios();
             }
             catch (Exception ex)
             {
@@ -59,40 +68,44 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        protected async Task LeerConceptos()
+        protected async Task LeerFactDets()
         {
             try
             {
-                IEnumerable<Z210_Concepto> resp = new List<Z210_Concepto>();
-                if (ElFolio != null && ElFolio.FolioId.Length > 30)
+                IEnumerable<Z222_FactDet> resp = new List<Z222_FactDet>();
+                if (LaFactura != null && LaFactura.FacturaId.Length > 30)
                 {
-                    resp = await ConceptoRepo.Get(x => x.FolioId == ElFolio.FolioId);
+                    resp = await DetRepo.Get(x => x.FacturaId == LaFactura.FacturaId);
                 }
-                LosConceptos = resp != null && resp.Any() ? resp.ToList() : new List<Z210_Concepto>();
+                LosDets = resp != null && resp.Any() ? resp.ToList() : new List<Z222_FactDet>();
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer datos de los conceptos de este folio {ElFolio.FolioNum}, {TBita}, {ex}",
+                $"Error al intentar Leer datos de folios cobrados en la factura {LaFactura.FacturaNum}, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
         }
 
-        protected async Task LeerProductos()
+        protected async Task LeerFolios()
         {
             try
             {
-                IEnumerable<Z280_Producto> resp = new List<Z280_Producto>();
-                if (ElUser.Nivel == 6)
+                IEnumerable<Z200_Folio> res = new List<Z200_Folio>();
+                FiltroFolio nfo = new()
                 {
-                    resp = await ProductoRepo.GetAll();
-                }
-                else
-                {
-                    resp = await ProductoRepo.Get(x => x.Estado == 1 && x.Status == true);
-                }
-                LosProductos = resp != null && resp.Any() ? resp.ToList() : new List<Z280_Producto>(); 
+                    EmpresaId = EmpresaActiva.OrgId
+                };
+                if (LosFoliosAll != null && !LosFoliosAll.Any())
+                
+                    await ReadLosFolios.InvokeAsync(nfo);
+
+                LosFolios = LosFoliosAll != null && LosFoliosAll.Any(x => x.Status == true && x.Estado == 2 &&
+                    x.EmpresaId == LaFactura.EmpresaId && x.OrgId == LaFactura.OrgId) ?
+                                LosFoliosAll.Where(x => x.Status == true && x.Estado == 2 &&
+                                x.EmpresaId == LaFactura.EmpresaId && x.OrgId == LaFactura.OrgId).ToList() :
+                                new List<Z200_Folio>();
             }
             catch (Exception ex)
             {
@@ -103,65 +116,75 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        protected async Task<ApiRespuesta<Z210_Concepto>> Servicio(string tipo, Z210_Concepto concepto)
+        protected async Task<ApiRespuesta<Z222_FactDet>> Servicio(string tipo, Z222_FactDet det)
         {
-            ApiRespuesta<Z210_Concepto> resp = new()
+            ApiRespuesta<Z222_FactDet> resp = new()
             {
                 Exito = false,
-                Data = concepto
+                Data = det
             };
+
             try
             {
-                if (concepto != null)
+                if (det != null)
                 {
-                    concepto.FolioId = ElFolio.FolioId;
+                    det.FacturaId = LaFactura.FacturaId;
                     if (tipo == "Insert")
                     {
-                        concepto.ConceptoId = Guid.NewGuid().ToString();
-                        concepto.Estado = 1;
-                        Z210_Concepto conceptoInsert = await ConceptoRepo.Insert(concepto);
-                        if (conceptoInsert != null)
+                        det.FactDetId = Guid.NewGuid().ToString();
+                        det.Estado = 1;
+                        Z222_FactDet detInsert = await DetRepo.Insert(det);
+                        if (detInsert != null)
                         {
                             resp.Exito = true;
-                            resp.Data = conceptoInsert;
+                            resp.Data = detInsert;
                         }
                         else
                         {
-                            resp.MsnError.Add($"No se Inserto el registro de Concepto del folio {ElFolio.FolioNum}");
+                            resp.MsnError.Add($"No se Inserto el registro de detalle de la factura {LaFactura.FacturaNum}");
                         }
                         return resp;
                     }
                     else if (tipo == "Update")
                     {
-                        Z210_Concepto conceptoUpdate = await ConceptoRepo.Update(concepto);
-                        if (conceptoUpdate != null)
+                        Z222_FactDet detUpdate = await DetRepo.Update(det);
+                        if (detUpdate != null)
                         {
                             resp.Exito = true;
-                            resp.Data = conceptoUpdate;
+                            resp.Data = detUpdate;
                         }
                         else
                         {
-                            resp.MsnError.Add($"No se Actualizo el registro CONCEPTO {ElFolio.FolioNum}");
+                            resp.MsnError.Add($"No se Actualizo el registro DETALLE DE FATURA {LaFactura.FacturaNum}");
                             resp.Exito = false;
                         }
                         return resp;
                     }
-                    else if(tipo == "Importe")
+                    else if (tipo == "Importe")
                     {
-                        ElFolio.Importe += concepto.Status ? concepto.Importe : (concepto.Importe * -1);
-
-                        Z200_Folio folioNewT = await FolioRepo.Update(ElFolio);
-                        if (folioNewT != null)
+                        Z200_Folio folioTmp = LosFolios.Any(x => x.FolioId == det.FolioId) ?
+                            LosFolios.FirstOrDefault(x => x.FolioId == det.FolioId)! : new();
+                        if (folioTmp == null || folioTmp.FolioId.Length < 30)
+                        {
+                            resp.Exito = false;
+                            resp.Data = det;
+                            return resp;
+                        }
+                        LaFactura.Control += det.Status ? folioTmp.Importe : (folioTmp.Importe * -1);
+                        Z220_Factura factTmp = await FacturaRepo.Update(LaFactura);
+                        if (factTmp != null)
                         {
                             resp.Exito = true;
-                            resp.Data = concepto;
+                            resp.Data = det;
                         }
                         else
                         {
                             resp.Exito = false;
-                            resp.Data = concepto;
+                            resp.Data = det;
+                            resp.MsnError.Add("No pudo actualizarse el importe");
                         }
                         return resp;
+
                     }
                 }
                 resp.MsnError.Add($"Ningua operacion se realizo! {TBita}");

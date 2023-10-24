@@ -28,6 +28,34 @@ namespace DashBoard.Modelos
             return bitalog;
         }
 
+        public static string GeneraEtiquetaEstados(string tipo)
+        {
+            List<string> lista = new List<string>();
+            string resp = "El ESTADO de ";
+            if (tipo == "Factura")
+            {
+                lista.AddRange(Constantes.FacturaEstado.Split(","));
+                resp = "las FACTURAS: ";
+            }
+            else if (tipo == "Pago")
+            {
+                lista.AddRange(Constantes.PagoEstado.Split(","));
+                resp = "los PAGOS: ";
+            }
+            else if (tipo == "Folio")
+            {
+                lista.AddRange(Constantes.FolioEstado.Split(","));
+                resp = "los FOLIOS: ";
+            }
+
+            for (var i = 0; i < lista.Count; i++)
+            {
+                resp += lista.ElementAt(i).Substring(0, 1) +
+                    " - " + lista.ElementAt(i) + ". ";
+            }
+            return resp;
+        }
+
         public static string DiaTitulo(int dia, int completo = 0)
         {
             string valores = "Dom,Lun,Mar,Mie,Jue,Vie,Sab,Domingo,Lunes,Martes,Miercoles,Jueves,Viernes,Sabado";

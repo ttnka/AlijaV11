@@ -91,7 +91,7 @@ namespace DashBoard.Pages.Alija
                     if (tipo == "Insert")
                     {
                         encargado.EmpleadoId = Guid.NewGuid().ToString();
-
+                        encargado.Estado = 1;
                         Z204_Empleado encargadoInsert = await EncargadoRepo.Insert(encargado);
                         if (encargadoInsert != null)
                         {
@@ -151,7 +151,7 @@ namespace DashBoard.Pages.Alija
         public NotificationMessage ElMsn(string tipo, string titulo, string mensaje, int duracion)
         {
             NotificationMessage respuesta = new();
-            switch (tipo.ToLower())
+            switch (tipo)
             {
                 case "Info":
                     respuesta.Severity = NotificationSeverity.Info;

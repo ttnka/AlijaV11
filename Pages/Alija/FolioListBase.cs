@@ -13,27 +13,48 @@ namespace DashBoard.Pages.Alija
     public class FolioListBase : ComponentBase
     {
         public const string TBita = "Folios";
+
         [Inject]
         public Repo<Z200_Folio, ApplicationDbContext> FolioRepo { get; set; } = default!;
         [Inject]
         public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z210_Concepto, ApplicationDbContext> ConceptoRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z203_Transporte, ApplicationDbContext> TransporteRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z205_Carro, ApplicationDbContext> CarroRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z204_Empleado, ApplicationDbContext> EmpleadoRepo { get; set; } = default!;
 
-        [Parameter]
-        public Dictionary<string, string> DicData { get; set; } = new Dictionary<string, string>();
+        // Cascading
+        [CascadingParameter(Name = "EmpresaActivaAll")]
+        public Z100_Org EmpresaActiva { get; set; } = new();
+
+        //[Parameter]
         [Parameter]
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
-        [Parameter]
-        public List<Z100_Org> LosClientes { get; set; } = new List<Z100_Org>();
-        [Parameter]
-        public EventCallback ReadLasOrgsAll { get; set; } 
 
+        // CallBack
+        [Parameter]
         public IEnumerable<Z200_Folio> LosFolios { get; set; } = new List<Z200_Folio>();
-        public Z100_Org EmpresaActivaAll { get; set; } = new();
-        public int FolioSiguiente { get; set; } 
+        [Parameter]
+        public EventCallback<FiltroFolio> ReadLosFoliosAll { get; set; }
+        [Parameter]
+        public EventCallback ReadEmpresaActivaAll { get; set; }
+        [Parameter]
+        public EventCallback ReadLasOrgsAll { get; set; }
+
+        // Listas y clases
+        protected List<KeyValuePair<int, string>> LosEdos { get; set; } =
+            new List<KeyValuePair<int, string>>();
+        public List<Z100_Org> LosClientes { get; set; } = new List<Z100_Org>();
+        protected Z100_Org ElCliente { get; set; } = new();
 
         public RadzenDataGrid<Z200_Folio>? FoliosGrid { get; set; } = new RadzenDataGrid<Z200_Folio>();
 
-        protected string EstadoEtiqueta { get; set; } = "";
+        
+        protected string EstadoEtiqueta { get; set; } = MyFunc.GeneraEtiquetaEstados("Folio");
         protected string[] EstadoArray { get; set; } = Constantes.FolioEstado.Split(",");
         protected bool Primera { get; set; } = true;
         protected bool Leyendo { get; set; } = false;
@@ -45,12 +66,10 @@ namespace DashBoard.Pages.Alija
             if (Primera)
             {
                 Primera = false;
-                if (EmpresaActivaAll == null || EmpresaActivaAll.OrgId.Length < 15)
-                    await EmpActiva();
-
+                if (EmpresaActiva == null || EmpresaActiva.OrgId.Length < 15)
+                    await ReadEmpresaActivaAll.InvokeAsync();
             }
-            if (!LasOrgs.Any())
-                await ReadLasOrgsAll.InvokeAsync();
+            
             await Leer();
         }
 
@@ -58,9 +77,19 @@ namespace DashBoard.Pages.Alija
         {
             try
             {
+
+                if (!LasOrgs.Any())
+                    await ReadLasOrgsAll.InvokeAsync();
                 await LeerClientes();
-                await LeerFolios();
-                GenerarEdoEtiqueta();
+                FiltroFolio nf = new();
+                if (!LosFolios.Any())
+                    await LeerFolios(nf);
+
+                await LeerEstadosFolios();
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
+                     $"Consulto la seccion de {TBita}", Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+                StateHasChanged();
             }
             catch (Exception ex)
             {
@@ -70,33 +99,35 @@ namespace DashBoard.Pages.Alija
                 await LogRepo.Insert(LogT);
             }
         }
-
-        protected void GenerarEdoEtiqueta()
-        {
-            EstadoEtiqueta = "El Estado de los Folios: ";
-            foreach (var e in EstadoArray)
-            {
-                EstadoEtiqueta += e.Substring(0, 1);
-                EstadoEtiqueta += " - ";
-                EstadoEtiqueta += e + ". ";
-            }
-        }
                                        
-        protected async Task LeerFolios()
+        protected async Task LeerFolios(FiltroFolio? ff)
         {
             try
             {
+                FiltroFolio nf = new()
+                {
+                    Datos = true,
+                    EmpresaId = EmpresaActiva.OrgId
+                };
                 Leyendo = true;
-                if (EmpresaActivaAll == null || EmpresaActivaAll.OrgId.Length < 15)
-                    await EmpActiva();
+                if (ff == null || !ff.Datos)
+                {
+                    if (ElCliente != null && ElCliente.OrgId.Length > 30)
+                    {
+                        nf.Datos = true;
+                        nf.OrgId = ElCliente.OrgId;
+                        nf.EmpresaId = EmpresaActiva.OrgId;
+                        await ReadLosFoliosAll.InvokeAsync(nf);
+                        Leyendo = false;
+                        StateHasChanged();
+                        return;
+                    }
+                    await ReadLosFoliosAll.InvokeAsync();
+                    Leyendo = false;
+                    StateHasChanged();
+                }
 
-                // busca folios por empresa para CLIENTES y Alijadores
-                IEnumerable<Z200_Folio> resp = await FolioRepo.Get(x=>x.EmpresaId == EmpresaActivaAll!.OrgId &&
-                    x.OrgId == (ElUser.Nivel < 5 ? ElUser.OrgId : x.OrgId));
-
-                if (resp.Any())
-                    LosFolios = resp.OrderByDescending(x => x.Fecha);
-                FolioSiguiente = await FolioRepo.GetCount() + 1;
+                await ReadLosFoliosAll.InvokeAsync(ff);
                 Leyendo = false;
                 StateHasChanged();
                 
@@ -110,48 +141,12 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        protected async Task<ApiRespuesta<Z100_Org>> EmpActiva()
-        {
-            Z100_Org OrgRespuesta = new();
-            ApiRespuesta<Z100_Org> respuesta = new()
-            {
-                Exito = false,
-            };
-            try
-            {
-                IEnumerable<ZConfig> reg = await ConfRepo.Get(x => x.Titulo == Constantes.EmpresaActiva &&
-                                x.Usuario == ElUser.UserId);
-                if (reg == null && !reg!.Any())
-                {
-                    respuesta.MsnError.Add( "No hay registros empresa activa para este usuario");
-                    respuesta.Exito = false;
-                }
-                else
-                {
-                    string orgIdT = reg!.OrderByDescending(x => x.Fecha1).FirstOrDefault()!.Txt;
-                    EmpresaActivaAll = LasOrgs.FirstOrDefault(x => x.OrgId == orgIdT)!;
-                    respuesta.Exito = true;
-                    
-                }
-                respuesta.Data = EmpresaActivaAll;
-                return respuesta;
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer Los Clientes, {TBita}, {ex}",
-                    Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
-                respuesta.MsnError.Add(ex.Message);
-                return respuesta;
-            }
-        }
-
         protected async Task LeerClientes()
         {
             try
             {
-                LosClientes = LasOrgs.Where(x => x.Tipo == "Cliente" && x.Status == true).ToList();  
+                if (LasOrgs.Any())
+                    LosClientes = LasOrgs.Where(x => x.Tipo == "Cliente" && x.Status == true).ToList();  
             }
             catch (Exception ex)
             {
@@ -166,7 +161,7 @@ namespace DashBoard.Pages.Alija
         {
             Z200_Folio resp = new();
             resp.FolioId = oldFolio.FolioId.ToString();
-            resp.FolioNum = oldFolio.FolioNum.ToString();
+            resp.FolioNum = oldFolio.FolioNum;
             resp.OrgId = oldFolio.OrgId.ToString();
             resp.Fecha = oldFolio.Fecha;
             resp.Titulo = oldFolio.Titulo.ToString();
@@ -179,45 +174,66 @@ namespace DashBoard.Pages.Alija
             return resp; 
         }
 
-        protected async Task<string> FolioTxt(Z200_Folio folio)
+
+        protected async Task LeerEstadosFolios()
         {
-            //FolioEstado = "Nuevo,Ejecutado,Facturado,Pagado,Cancelado";
             try
             {
-                string resp = $"Folio: {folio.FolioId}, Fecha: {folio.Fecha} Empresa: ";
-                resp += LasOrgs.Any(x => x.OrgId == folio.OrgId) ?
-                    LasOrgs.FirstOrDefault(x => x.OrgId == folio.OrgId)!.ComercialRfc : "Sin empresa";
-                resp += $"Titulo: {folio.Titulo}, Comentarios: {folio.Obs}";
-                var FolioEdo = Constantes.FolioEstado.Split(",");
-                resp += $"Estado: {FolioEdo[folio.Estado-1]} Estatus: ";
-                resp += folio.Status ? "Activo" : "Suspendido";
-                return resp;
+                for (var i = 0; i < EstadoArray.Length; i++)
+                {
+                    LosEdos.Add(new KeyValuePair<int, string>
+                        (i + 1, EstadoArray[i]));
+                    if (ElUser.Nivel < 6 && i == 1) break;
+                }
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                        $"Error al intentar generer TEXTO en funcion FolioTxt de la pagina {TBita}, {ex}",
-                        Corporativo, ElUser.OrgId);
+                $"Error al intentar Leer Los ESTADOS DE FOLIOS, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
-                return "Error";
             }
         }
 
-        protected async Task<string> NextFolio()
+        protected async Task<bool> SigEdoFolio(Z200_Folio folio)
         {
             try
             {
-                IEnumerable<Z200_Folio> resp = await FolioRepo.GetAll();
-                if (resp == null) return "Vacio";
-                return (resp.Count() + 1).ToString();
+                int valorMinimo = 1; int valor = 0;
+                if (folio != null)
+                {
+                    // Valor minimo es tener un CONCEPTO el cual ya no se podra AGREGAR o MODIFICAR
+                    IEnumerable<Z210_Concepto> conceptos = await ConceptoRepo.Get(x => x.FolioId == folio.FolioId &&
+                                                        x.Status == true);
+                    valor += conceptos != null && conceptos.Any() ? 1 : 0;
+                    if (valor == 1)
+                    {
+                        IEnumerable<Z203_Transporte> trans = await TransporteRepo.Get(x => x.FolioId == folio.FolioId &&
+                                                        x.Status == true);
+                        valor += trans != null && trans.Any() ? 1 : 0;
+                    }
+                    if (valor == 2)
+                    {
+                        IEnumerable<Z205_Carro> carro = await CarroRepo.Get(x => x.FolioId == folio.FolioId &&
+                                                        x.Status == true);
+                        valor += carro != null && carro.Any() ? 1 : 0;
+                    }
+                    if (valor == 3)
+                    {
+                        IEnumerable<Z204_Empleado> empleado = await EmpleadoRepo.Get(x => x.FolioId == folio.FolioId &&
+                                                            x.Status == true);
+                        valor += empleado != null && empleado.Any() ? 1 : 0;
+                    }
+                }
+                return valor >= valorMinimo;
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Generar el Siguiente FOLIO, {TBita}, {ex}",
+                $"Error al intentar EVALUAR SIGUIENTE ESTADO DE FOLIO {folio.FolioNum}, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
-                return "Vacio";
+                return false;
             }
         }
 
@@ -231,27 +247,15 @@ namespace DashBoard.Pages.Alija
 
             try
             {
-                if (folio != null)
+                if (folio != null && EmpresaActiva.OrgId.Length > 30)
                 {
-                    if (EmpresaActivaAll == null || EmpresaActivaAll.OrgId.Length < 15)
-                    {
-                        ApiRespuesta<Z100_Org> empAct = await EmpActiva();
-                        if (!empAct.Exito)
-                        {
-                            resp.MsnError.Add("No hay empresa activa");
-                            foreach (var e in empAct.MsnError)
-                            {
-                                resp.MsnError.Add(e);
-                            }
-                            return resp;
-                        }
-                    }
-                    
-                    folio.EmpresaId = EmpresaActivaAll!.OrgId;
+                    folio.EmpresaId = EmpresaActiva.OrgId;
                     if (tipo == "Insert")
                     {
                         folio.FolioId = Guid.NewGuid().ToString();
-                        folio.FolioNum = await NextFolio();
+                        folio.FolioNum = await FolioRepo.GetCount() + 1;
+                        folio.Estado = 1;
+                        
                         folio.Corporativo = LasOrgs.FirstOrDefault(x => x.OrgId == folio.OrgId)!.Corporativo;
                         
                         Z200_Folio folioInsert = await FolioRepo.Insert(folio);
@@ -268,7 +272,9 @@ namespace DashBoard.Pages.Alija
                     }
                     else if (tipo == "Update")
                     {
-                        Z200_Folio folioUpdate = await FolioRepo.Update(folio);
+                        
+                        //Z200_Folio folioUpdate = await FolioRepo.Update(folio);
+                        Z200_Folio folioUpdate = new();
                         if (folioUpdate != null)
                         {
                             resp.Exito = true;
@@ -314,7 +320,7 @@ namespace DashBoard.Pages.Alija
         public NotificationMessage ElMsn(string tipo, string titulo, string mensaje, int duracion)
         {
             NotificationMessage respuesta = new();
-            switch (tipo.ToLower())
+            switch (tipo)
             {
                 case "Info":
                     respuesta.Severity = NotificationSeverity.Info;

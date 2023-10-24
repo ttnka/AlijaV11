@@ -1,31 +1,25 @@
 ﻿<Properties StartupConfiguration="{B0F2F48F-367B-4CDE-BE11-032DC9FE8C2A}|https">
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.DashBoard PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Modelos/REnviarMail.cs" relfile="Modelos/REnviarMail.cs" line="93" column="1" />
-      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Modelos/REnviarMail.cs" relfile="Modelos/REnviarMail.cs" line="77" column="1" />
-    </BreakpointStore>
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Pages/Alija/ConceptoList.razor">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Pages/Alija/FolioList.razor">
     <Files>
-      <File FileName="Pages/Alija/FolioList.razor" Line="121" Column="79" />
-      <File FileName="Pages/Alija/FolioListBase.cs" Line="1" Column="1" />
-      <File FileName="Pages/Alija/ConceptoList.razor" Line="14" Column="48" />
+      <File FileName="Pages/Alija/FolioList.razor" Line="324" Column="56" />
+      <File FileName="Pages/Alija/FolioListBase.cs" Line="176" Column="1" />
+      <File FileName="Modelos/Z190_Bitacora.cs" Line="1" Column="1" />
+      <File FileName="Modelos/Z192_Logs.cs" Line="1" Column="1" />
+      <File FileName="Pages/Sistema/BitacoraBase.cs" Line="1" Column="1" />
+      <File FileName="Modelos/Z200_Folio.cs" Line="12" Column="50" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="DashBoard" expanded="True">
+          <Node name="DashBoard">
             <Node name="DashBoard">
               <Node name="Modelos" expanded="True" />
               <Node name="Pages" expanded="True">
                 <Node name="Alija" expanded="True">
-                  <Node name="ConceptoList.razor" selected="True" />
+                  <Node name="FolioList.razor" selected="True" />
                 </Node>
                 <Node name="Sistema" expanded="True" />
-                <Node name="Zuver" expanded="True" />
               </Node>
             </Node>
           </Node>
@@ -33,5 +27,14 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.DashBoard PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Modelos/REnviarMail.cs" relfile="Modelos/REnviarMail.cs" line="93" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Modelos/REnviarMail.cs" relfile="Modelos/REnviarMail.cs" line="77" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FolioList.razor" relfile="Pages/Alija/FolioList.razor" line="366" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

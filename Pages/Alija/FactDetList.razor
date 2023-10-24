@@ -1,0 +1,353 @@
+﻿@inherits FactDetListBase
+@inject NotificationService NS
+@using DashBoard.Modelos
+
+
+@if (LosDets != null && !Leyendo)
+{
+    <RadzenDataGrid @ref="DetalleGrid"
+                    AllowFiltering="true" AllowPaging="true" PageSize="50"
+                    AllowSorting="true" AllowColumnResize="true"
+                    ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                    EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
+                    Data="@LosDets" TItem="Z222_FactDet"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30)
+            {
+                @if (LaFactura.Estado < 2 || ElUser.Nivel > 5)
+                {
+                    <RadzenButton Icon="plus" style="margin-bottom: 10px"
+                                  ButtonStyle="ButtonStyle.Info" Click="InsertRow">
+                        Agregar folios
+                    </RadzenButton>
+                }
+            }
+            else if (EmpresaActiva.OrgId.Length < 30)
+            {
+                <RadzenLabel>Es necesario que seleciones una empresa activa en Informacion>Empresa Activa</RadzenLabel>
+            }
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                          ButtonStyle="ButtonStyle.Success" Click="LeerFactDets">
+                Actualizar
+            </RadzenButton>
+        </HeaderTemplate>
+
+        <Columns>
+
+
+            <RadzenDataGridColumn TItem="Z222_FactDet" Title="Id" Filterable="false"
+                                  Width="40px">
+                <Template Context="datos">
+                    <RadzenLabel>@(LosDets.IndexOf(datos) + 1)</RadzenLabel>
+
+                </Template>
+
+            </RadzenDataGridColumn>
+
+
+            <RadzenDataGridColumn TItem="Z222_FactDet" Title="Folio" Property="FolioId"
+                                  Filterable="false" Resizable="true" Width="250px">
+
+                <Template Context="datos">
+                    <div style="white-space:pre-wrap; line-height: initial">
+                        @datos.FolioId
+                    </div>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="FolioId" Data=LosFolios @bind-Value=@datos.FolioId
+                                    ValueProperty="FolioId" TextProperty="FactFolio"
+                                    Style="width: 90%;" Change="CalImporte" />
+                </EditTemplate>
+                <FooterTemplate>
+                    <RadzenText TextAlign="TextAlign.Right">
+                        @if (LosDets.Count > 0)
+                        {
+                            @($"Conceptos {DetalleGrid!.View.Count()}")
+                        }
+                    </RadzenText>
+                </FooterTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z222_FactDet" Title="Importe"
+                                  Filterable="false" Resizable="true" Width="150px">
+
+                <Template Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @(LosFolios.Any(x=>x.FolioId == datos.FolioId && x.Status == true))
+                        {
+                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @LosFolios.FirstOrDefault(x => x.FolioId == datos.FolioId && x.Status == true)!.Importe)}")
+                        }
+                            else
+                            {
+                            <RadzenLabel>No hay datos!</RadzenLabel>
+                            }
+                        </RadzenLabel>
+                    </div>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            Automatico
+                        </RadzenLabel>
+                    </div>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            
+
+            <RadzenDataGridColumn TItem="Z222_FactDet" Title="Comentarios"
+                                  Filterable="false" Resizable="true" Width="150px">
+
+                <Template Context="datos">
+                    <RadzenLabel style="white-space:pre-wrap; line-height: initial">
+                        @datos.Obs
+                    </RadzenLabel>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenTextArea Name="Identificacion" @bind-Value="datos.Obs" Placeholder="Comentarios" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+
+            <RadzenDataGridColumn TItem="Z222_FactDet" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+                    @if (ElUser.Nivel > 5 || (datos.Estado < 2 && LaFactura.Estado < 2))
+                    {
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
+                                      Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
+                    }
+
+                    @if (datos.Status)
+                    {
+                        <b>Activo</b>
+                    }
+                    else
+                    {
+                        <b>Suspendido</b>
+                    }
+
+
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    @if (datos.Estado > 0 && ElUser.Nivel > 4 && LaFactura.Estado < 2)
+                    {
+                        <div>
+                            <RadzenLabel> Borrar este registro? </RadzenLabel>
+                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool">
+                                <Items>
+                                    <RadzenSelectBarItem Text="No" Value="true" />
+                                    <RadzenSelectBarItem Text="Si" Value="false" />
+                                </Items>
+                            </RadzenSelectBar>
+                        </div>
+                    }
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" Click="@((args) => SaveRow(datos))" />
+
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+else
+{
+    <div class="spinner">
+
+    </div>
+}
+
+@code
+{
+
+    void CalImporte()
+    {
+        /*
+        if (FactDetToInsert.Producto.Length > 15)
+        {
+            if (LosProductos.Any(x => x.ProductoId == FactDetToInsert.Producto))
+            {
+                FactDetToInsert.Precio = LosProductos.FirstOrDefault(x =>
+                                                x.ProductoId == FactDetToInsert.Producto)!.Precio;
+            }
+        }
+        if (FactDetToInsert.Cantidad != 0 && FactDetToInsert.Producto.Length > 15)
+        {
+            FactDetToInsert.Importe = FactDetToInsert.Cantidad * FactDetToInsert.Precio;
+        }
+        */
+    }
+    Z222_FactDet FactDetToInsert = new();
+
+
+    void Cancelar()
+    {
+        //OrgNew = new();
+        FactDetToInsert = new();
+    }
+
+
+    async Task EditRow(Z222_FactDet det)
+    {
+
+        await DetalleGrid!.EditRow(det);
+        Editando = !Editando;
+    }
+
+    async void OnUpdateRow(Z222_FactDet det)
+    {
+        try
+        {
+            if (det == FactDetToInsert) FactDetToInsert = null!;
+
+            Editando = !Editando;
+            ApiRespuesta<Z222_FactDet> resultado = await Servicio("Update", det);
+            Z200_Folio elfolio = LosFolios.Any(x => x.FolioId == det.FolioId) ?
+                LosFolios.FirstOrDefault(x => x.FolioId == det.FolioId)! : new Z200_Folio();
+
+            string txt = $"{TBita}, Factura: {LaFactura.FacturaNum} Folio: {elfolio.FolioNum}, importe:$ {elfolio.Importe}";
+
+            txt += string.IsNullOrEmpty(det.Obs) ? "" : $"Comentarios: {det.Obs}";
+            txt += det.Status ? @" Estatus: Activo" : @" Estatus: Suspendido";
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("info", "Actualizo",
+                    $"Se actualizo la info de Factura {LaFactura.FacturaNum} {elfolio.FolioNum}", 0));
+                txt = $"Se actualizo la informacion " + txt;
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+                await Servicio("Importe", det);
+            }
+            else
+            {
+                string etxt = $"Error No Se actualizo la info de ";
+                foreach (var e in resultado.MsnError)
+                { etxt += $", {e}"; }
+
+                ShowNotification(ElMsn("Error", "Error", etxt, 0));
+                txt = $"Error, No se actualizo un registro del DETALLE FACTURA {txt} {etxt}";
+
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await LogRepo.Insert(logTemp);
+                await DetalleGrid!.Reload();
+            }
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible actualizar la info de Detalle de FATURA, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+            await LogRepo.Insert(logTemp);
+        }
+
+    }
+
+    async Task SaveRow(Z222_FactDet det)
+    {
+        await DetalleGrid!.UpdateRow(det);
+    }
+
+    void CancelEdit(Z222_FactDet det)
+    {
+        if (det == FactDetToInsert) FactDetToInsert = null!;
+
+        Editando = !Editando;
+        DetalleGrid!.CancelEditRow(det);
+    }
+
+    async Task InsertRow()
+    {
+        FactDetToInsert = new Z222_FactDet()
+        {
+            FacturaId = LaFactura.FacturaId,
+            Estado = 0
+        };
+
+        Editando = !Editando;
+        await DetalleGrid!.InsertRow(FactDetToInsert);
+
+    }
+    async void OnCreateRow(Z222_FactDet det)
+    {
+        try
+        {
+            if (det == FactDetToInsert) FactDetToInsert = null!;
+
+            Editando = !Editando;
+            ApiRespuesta<Z222_FactDet> resultado = await Servicio("Insert", det);
+
+            Z200_Folio elfolio = LosFolios.Any(x => x.FolioId == det.FolioId) ?
+                LosFolios.FirstOrDefault(x => x.FolioId == det.FolioId)! : new Z200_Folio();
+
+            string txt = $"{TBita}, Factura: {LaFactura.FacturaNum} Folio: {elfolio.FolioNum}, importe:$ {elfolio.Importe}";
+
+            txt += string.IsNullOrEmpty(det.Obs) ? "" : $"Comentarios: {det.Obs}";
+            txt += det.Status ? @" Estatus: Activo" : @" Estatus: Suspendido";
+
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("Exito", "Nuevo Concepto",
+                    $"Se creo un nuevo registro de concepto FACTURA: {LaFactura.FacturaNum} Folio: {elfolio.FolioNum}", 0));
+
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+                await Servicio("Importe", det);
+            }
+            else
+            {
+                string etxt = $"Error NO se creo el nuevo registro de CONCEPTO ";
+                foreach (var e in resultado.MsnError)
+                { etxt += $", {e}"; }
+
+                ShowNotification(ElMsn("Error", "Error", etxt, 0));
+                txt = $"{TBita}, Error, No se creo un nuevo registro de Transportista " + txt + ", ";
+                txt += etxt;
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await LogRepo.Insert(logTemp);
+                await DetalleGrid!.Reload();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible crear el registro concepto, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+            await LogRepo.Insert(logTemp);
+        }
+
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+    /*
+
+
+
+     @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @DetalleGrid.View.Select(x => x.Importe).Sum())}")
+
+
+    */
+
+    }
+

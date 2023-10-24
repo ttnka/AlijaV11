@@ -16,21 +16,37 @@ namespace DashBoard.Pages.Alija
         public Repo<Z100_Org, ApplicationDbContext> OrgRepo { get; set; } = default!;
         [Inject]
         public Repo<Z110_User, ApplicationDbContext> UsersRepo { get; set; } = default!;
+        [Inject]
+        public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z200_Folio, ApplicationDbContext> FolioRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z220_Factura, ApplicationDbContext> FacturaRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z230_Pago, ApplicationDbContext> PagoRepo { get; set; } = default!;
 
-        protected Dictionary<string, string> DicDataAll { get; set; } = new Dictionary<string, string>();  
+          
         protected List<Z110_User> LosUsersAll { get; set; } = new List<Z110_User>();
-        protected List<Z100_Org> LasOrgAll { get; set; } = new List<Z100_Org>();
-
+        protected List<Z100_Org> LasOrgsAll { get; set; } = new List<Z100_Org>();
+        protected List<Z200_Folio> LosFoliosAll { get; set; } = new List<Z200_Folio>();
+        protected List<Z220_Factura> LasFacturasAll { get; set; } = new List<Z220_Factura>();
+        protected List<Z230_Pago> LosPagosAll { get; set; } = new List<Z230_Pago>();
+        protected List<ZConfig> LasConfigsAll { get; set; } = new List<ZConfig>();
+        
 
         protected string CorporativoAll { get; set; } = "All";
+        protected Z100_Org EmpresaActivaAll { get; set; } = new();
+        protected string EmpresaActivaId { get; set; } = "";
+        protected List<Z100_Org> LasAlijadorasAll { get; set; } = new List<Z100_Org>();
+
         protected List<KeyValuePair<string, string>> TipoOrgsAll { get; set; } =
             new List<KeyValuePair<string, string>>();
         protected List<KeyValuePair<int, string>> NivelesAll { get; set; } =
             new List<KeyValuePair<int, string>>();
 
-        protected int LasAdmon { get; set; } = 0;
-
-        bool PrimeraVez = true;
+        protected int LasAdmonCANT { get; set; } = 0;
+        protected bool NohayEmpActiva { get; set; }
+        protected bool PrimeraVez { get; set; } = true;
         protected override async Task OnInitializedAsync()
         {
             if (PrimeraVez)
@@ -43,17 +59,21 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        public async Task Leer()
+        protected async Task Leer()
         {
             try
             {
+                await LeerOrgAll();
+
+                if (LasOrgsAll.Any() && EmpresaActivaAll != null && EmpresaActivaAll!.OrgId.Length < 30)
+                    await LeerEmpresaActivaAll();
 
                 await LeerTiposAll();
                 await LeerNiveles();
-                await LeerOrgAll();
+                
                 await LeerUsersAll();
 
-                LasAdmon = LasOrgAll.Count(x => x.Tipo == "Administracion" &&
+                LasAdmonCANT = LasOrgsAll.Count(x => x.Tipo == "Administracion" &&
                                            x.Estado == 1 && x.Status == true);
 
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
@@ -68,7 +88,7 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        public async Task LeerUsersAll()
+        protected async Task LeerUsersAll()
         {
             try
             {
@@ -81,7 +101,7 @@ namespace DashBoard.Pages.Alija
                 {
                     resp = await UserRepo.GetAll();
                 }
-                LosUsersAll = resp.Any() ? resp.ToList() : LosUsersAll;
+                LosUsersAll = resp.Any() ? resp.ToList() : new List<Z110_User>();
             }
             catch (Exception ex)
             {
@@ -91,7 +111,7 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        public async Task LeerOrgAll()
+        protected async Task LeerOrgAll()
         {
             try
             {
@@ -105,8 +125,11 @@ namespace DashBoard.Pages.Alija
                     res = await OrgRepo.GetAll();
                 }
 
-                LasOrgAll = res.Any() ? res.ToList() : LasOrgAll;
+                LasOrgsAll = res.Any() ? res.ToList() : new List<Z100_Org>();
+                LasAlijadorasAll = res.Any() ?  res.Where(x => x.Tipo == "Administracion" && x.Estado == 1 &&
+                                x.Status == true).ToList() : new List<Z100_Org>();
                 
+
             }
             catch (Exception ex)
             {
@@ -117,7 +140,7 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        public async Task LeerTiposAll()
+        protected async Task LeerTiposAll()
         {
             try
             {
@@ -141,7 +164,44 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        public async Task LeerNiveles()
+        protected async Task LeerEmpresaActivaAll()
+        {
+            try
+            {
+                if (ElUser == null || ElUser!.UserId.Length < 30)
+                {
+                    return;
+                }
+                else
+                {
+                    IEnumerable<ZConfig> reg = await ConfRepo.Get(x => x.Titulo == Constantes.EmpresaActiva &&
+                                x.Usuario == ElUser.UserId);
+
+                    if (reg == null && !reg!.Any())
+                    {
+                        NohayEmpActiva = true;
+                        LasConfigsAll = new List<ZConfig>();
+                    }
+                    else
+                    {
+                        LasConfigsAll = reg!.ToList();
+                        string orgIdT = reg!.OrderByDescending(x => x.Fecha1).FirstOrDefault()!.Txt;
+                        EmpresaActivaAll = LasOrgsAll.FirstOrDefault(x => x.OrgId == orgIdT)!;
+                        EmpresaActivaId = EmpresaActivaAll.OrgId.Length > 30 ? EmpresaActivaAll.OrgId : "";
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible leer el historial de la empresas activas, {TBita}, {ex}",
+                    "All", ElUser.OrgId);
+                await LogAll(logTemp);
+            }
+        }
+
+        protected async Task LeerNiveles()
         {
             try
             {
@@ -163,6 +223,123 @@ namespace DashBoard.Pages.Alija
                 await LogAll(logTemp);
             }
         }
+
+        protected async Task LeerFolios(FiltroFolio? ff)
+        {
+            try
+            {
+                IEnumerable<Z200_Folio> resp = new List<Z200_Folio>();
+                if(ff == null || !ff.Datos)
+                { 
+                    resp = await FolioRepo.Get(x => x.EmpresaId == EmpresaActivaAll!.OrgId &&
+                            x.OrgId == (ElUser.Nivel < 5 ? ElUser.OrgId : x.OrgId));
+                }
+                else
+                {
+                    resp = await FolioRepo.Get(x => x.EmpresaId == EmpresaActivaAll!.OrgId &&
+                            x.OrgId == ff.OrgId);
+                }
+                
+                LosFoliosAll = resp.Any() ? resp.OrderByDescending(x => x.Fecha).ToList() : new List<Z200_Folio>();
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible leer los folios, {TBita}, {ex}",
+                    "All", ElUser.OrgId);
+                await LogAll(logTemp);
+            }
+        }
+
+        protected async Task LeerFacturas(FiltroFactura? ff)
+        {
+            try
+            {
+                IEnumerable<Z220_Factura> resp = new List<Z220_Factura>();
+                if (ff == null || !ff.Datos)
+                {
+                    resp = await FacturaRepo.Get(x => x.EmpresaId == EmpresaActivaAll.OrgId &&
+                    x.OrgId == (ElUser.Nivel < 5 ? ElUser.OrgId : x.OrgId));
+                }
+                else 
+                {
+                    resp = await FacturaRepo.Get(x => x.EmpresaId == EmpresaActivaAll.OrgId &&
+                    x.OrgId == ff.OrgId);
+                }
+
+                
+                LasFacturasAll = resp.Any() ?  resp.OrderByDescending(x => x.Fecha).ToList() :
+                    new List<Z220_Factura>();
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible leer el historial de las facturas, {TBita}, {ex}",
+                    "All", ElUser.OrgId);
+                await LogAll(logTemp);
+            }
+        }
+
+        protected async Task LeerPagos(FiltroPago? ff)
+        {
+            try
+            {
+                IEnumerable<Z230_Pago> resp = new List<Z230_Pago>();
+                if (ff == null || !ff.Datos)
+                {
+                    resp = await PagoRepo.Get(x => x.EmpresaId == EmpresaActivaAll.OrgId &&
+                        x.OrgId == (ElUser.Nivel < 5 ? ElUser.OrgId : x.OrgId));
+                }
+                else
+                {
+                    resp = await PagoRepo.Get(x => x.EmpresaId == EmpresaActivaAll.OrgId &&
+                    x.OrgId == ff.OrgId);
+                }
+                
+                LosPagosAll = resp.Any() ? resp.OrderByDescending(x => x.Fecha).ToList() : new List<Z230_Pago>();
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible leer los Pagos registrados, {TBita}, {ex}",
+                    "All", ElUser.OrgId);
+                await LogAll(logTemp);
+            }
+        }
+
+        protected async Task CambiarEmpAct()
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(EmpresaActivaId))
+                {
+                    ZConfig nuevo = new()
+                    {
+                        ConfigId = Guid.NewGuid().ToString(),
+                        Usuario = ElUser.UserId,
+                        Txt = EmpresaActivaId,
+                        Fecha1 = DateTime.Now,
+                    };
+                    ZConfig resp = await ConfRepo.Insert(nuevo);
+                    if (resp != null && resp.ConfigId.Length > 30)
+                    {
+                        EmpresaActivaId = resp.Txt;
+                        EmpresaActivaAll = await OrgRepo.GetById(EmpresaActivaId);
+                        StateHasChanged();
+                    }
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible cambiar la empresa activa, {TBita}, {ex}",
+                    "All", ElUser.OrgId);
+                await LogAll(logTemp);
+            }
+        }
+
+        public ZFiltros MyFiltros { get; set; } = new();
 
         #region Usuario y Bitacora
 
