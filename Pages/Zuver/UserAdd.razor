@@ -1,5 +1,6 @@
 ﻿
 @inherits UserAddBase
+
 @inject NotificationService NS
 @using DashBoard.Modelos
 
@@ -101,7 +102,7 @@
 
             <div class="row" style="background:lightgray">
                 <div class="col-md-4 align-items-center d-flex">
-                    <RadzenLabel Text="Corporativo / grupo" />
+                    <RadzenLabel Text="Empresa Activa" />
                 </div>
                 <div class="col-md-8">
                     <RadzenDropDown Name="Corporativo" Data=LasCorpTmp @bind-Value=@NuevoUser.Corporativo
@@ -114,10 +115,11 @@
             <div class="row">
                 <div class="col-md-4 align-items-center d-flex">
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-8" style="text-align:right;">
                     <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
-                                  Class="m-1" ButtonType="ButtonType.Submit" Disabled="!BotonGo" />
-
+                                  Class="m-1" ButtonType="ButtonType.Submit" Disabled="!BotonGo">
+                    Agregar
+                    </RadzenButton>
                     <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Class="m-1"
                                   Click="Cancelar" />
                 </div>
@@ -134,24 +136,116 @@
     {
         //string nivelTxt = @DicData.ContainsKey($"Nivel_{ElUser.Nivel}") ?
         //    @DicData[$"Nivel_{ElUser.Nivel}"] : "Nivel no definido";
+        BotonGo = false;
+        datos.Mail = datos.Mail.ToLower();
+        datos.OldMail = string.IsNullOrEmpty(datos.OldMail) ? datos.OldMail : datos.OldMail.ToLower();
 
-
-        ApiRespuesta<AddUser> resultado = await Servicio("Insert", datos);
-
+        ApiRespuesta<AddUser> resultado = await Servicio("Create", datos);
+        datos.OrgName = LasOrgs.Any(x => x.OrgId == datos.OrgId) ?
+                LasOrgs.FirstOrDefault(x => x.OrgId == datos.OrgId)!.ComercialRfc : "";
         string nivelTxt = NivelesEdit.FirstOrDefault(x => x.Key == datos.Nivel).Value ??
             "Sin Nivel";
         string txt = $"{datos.Nombre} {datos.Paterno} {datos.Mail}, ";
-        txt += $"organizacion: {datos.OrgId} {datos.OrgName}, nivel: {nivelTxt}";
+        txt += $"empresa: {datos.OrgName}, nivel: {nivelTxt}";
 
         if (resultado.Exito)
         {
+            // Muestra en pantalla un mensaje de exito
+
             ShowNotification(ElMsn("Ok", "Nueva",
                         $"Estamos creado un nuevo Usuario {datos.Nombre} {datos.Paterno}!!! ", 0));
+
+            // Generamos un registro en bitacora
             txt = $"{TBita}, Creo un nuevo Usuario  " + txt;
             Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
                 Corporativo, ElUser.OrgId);
             await BitacoraAll(bitaTemp);
-            NuevoUser = null;
+
+            // Creamos un registro de empresa activa que factura a este cliente 
+            
+            ZConfig nZc = new ZConfig()
+            {
+                ConfigId = Guid.NewGuid().ToString(),
+                Txt = datos.Corporativo,
+                Titulo = Constantes.EmpresaActiva,
+                Usuario = resultado.Data.UserId
+            };
+
+            ApiRespuesta<ZConfig> nEa = await EmpActAddUser(nZc);
+            if (nEa.Exito)
+            {
+                txt = $"Se registro empresa activa {datos.Nombre} {datos.Paterno} {datos.OrgId}";
+                Z190_Bitacora bt = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt, Corporativo, ElUser.UserId);
+                await BitacoraAll(bt);
+            }
+            else
+            {
+                ShowNotification(ElMsn("Error", "Error",
+                        $"No pudo ser creada empresa activa!!! {datos.OrgId}", 0));
+                txt = $"{TBita}, NO se creo una EMPRESA ACTIVA {datos.Nombre} {datos.Paterno} {datos.OrgId}" + txt;
+                foreach (var e in resultado.MsnError)
+                {
+                    txt += e;
+                }
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, ElUser.OrgId);
+                await LogAll(logTemp);
+            }
+
+            // Enviar correo con la informacion de la nueva cuenta
+            NuevoUsuario nUser = new()
+            {
+                UserId = resultado.Data.UserId,
+                OldEmail = resultado.Data.Mail,
+                Nombre = resultado.Data.Nombre,
+                Paterno = resultado.Data.Paterno,
+                Materno = resultado.Data.Materno,
+                OrgId = resultado.Data.OrgId,
+                Nivel = resultado.Data.Nivel
+            };
+
+            MailCampos datosMail = new();
+            var x = resultado.Data;
+
+            string elCuerpo = $"<label>Hola, {datos.Nombre} {datos.Paterno},</label> <br /><br />";
+            elCuerpo += $"<label>Te escribimos de {Constantes.ElDominio} para darte la bienvenida a nuestra aplicación.</label><br />";
+            elCuerpo += $"<label>Tu dirección de correo electrónico ({datos.Mail}) ha sido registrada como tu acceso a nuestro sitio:</label><br />";
+            elCuerpo += $"<label><a href='https://alijadores.com'>Alijadores.com</a>, donde tendrás acceso a información personalizada sobre todos los servicios que brindamos a tu empresa.</label><br />";
+            elCuerpo += $"<label>Por favor, confirma tu cuenta de correo haciendo clic en el siguiente enlace:</label><br />";
+            elCuerpo += $"<a href={x.Mail}>Confirma tu Cuenta</a> <br /><br />";
+            elCuerpo += $"<label>Estamos emocionados de tenerte como parte de nuestra comunidad. Si tienes alguna pregunta o necesitas asistencia, no dudes en contactarnos en {Constantes.DeMail01}.</label> <br />";
+            elCuerpo += $"<label>Además, queremos proporcionarte algunos recursos útiles para que aproveches al máximo tu experiencia en Alijadores:</label> <br />";
+            elCuerpo += $"<label>Explora nuestra sección de Ayuda y Preguntas Frecuentes (FAQ) para obtener respuestas a las preguntas más comunes.</label> <br />";
+            elCuerpo += $"<label>Gracias por unirte a nosotros. Esperamos que tu experiencia en Alijadores sea excepcional y que encuentres todo lo que necesitas para hacer crecer tu empresa.</label>";
+            elCuerpo += $"<br /><br /><br /><label>Equipo de administracion {Constantes.ElDominio}</label>";
+
+
+            MailCampos datosMail2 = datosMail.PoblarMail(x.Mail, $"Bienvenido a {Constantes.ElDominio}", elCuerpo,
+        $"{x.Nombre} {x.Paterno} {x.Materno} ", x.UserId, x.OrgId, x.Corporativo, Constantes.DeNombreMail01,
+                Constantes.DeMail01, Constantes.ServerMail01, Constantes.PortMail01,
+                Constantes.UserNameMail01, Constantes.PasswordMail01);
+
+            //ApiRespuesta<MailCampos> respEmail = await SendMail2(datosMail2);
+            ApiRespuesta<MailCampos> respEMail = await SendMail.EnviarMail(datosMail2);
+            if (respEMail.Exito)
+            {
+                // Muestra en pantalla un mensaje de exito
+
+                ShowNotification(ElMsn("Ok", "Nuevo",
+                            $"Se envio un mail al nuevo Usuario {datos.Nombre} {datos.Paterno} {datos.Mail}!!! ", 0));
+
+                string txtM = $"{TBita}, Se envio un Email de bienvenida a {datos.Nombre} {datos.Paterno}";
+                txtM += $"Email: {datos.Mail} Empresa: {datos.OrgName}";
+                Z190_Bitacora bt = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txtM, Corporativo, ElUser.OrgId);
+                await BitacoraAll(bt);
+            }
+            else
+            {
+                ShowNotification(ElMsn("Error", "Error",
+                        $"No pudo enviarse el Email al usuario creado {datos.Nombre} {datos.Paterno} {datos.Mail}", 0));
+                string txtM = $"{TBita}, ERROR no fue posible enviar Email {datos.Nombre} {datos.Paterno} {datos.Mail}";
+                Z192_Logs lt = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txtM, Corporativo, ElUser.OrgId);
+            }
+            NuevoUser = new();
         }
         else
         {
@@ -160,7 +254,7 @@
             txt = $"{TBita}, No se creo el nuevo Usuario " + txt;
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
         await UpdateUsers();
@@ -172,11 +266,11 @@
         MailExiste = false;
         WrongPass = "";
         WrongConfirm = "";
-        
+
     }
 
     public void ShowNotification(NotificationMessage message)
     {
         NS.Notify(message);
     }
-}
+    }

@@ -16,20 +16,21 @@
         <HeaderTemplate>
             @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30)
             {
-                @if (LaFactura.Estado < 2 || ElUser.Nivel > 5)
-                {
-                    <RadzenButton Icon="plus" style="margin-bottom: 10px"
-                                  ButtonStyle="ButtonStyle.Info" Click="InsertRow">
-                        Agregar folios
-                    </RadzenButton>
-                }
+            @if (LaFactura.Estado < 2 || ElUser.Nivel > 5)
+            {
+                <label>ulises</label>
+                <RadzenButton Icon="plus" style="margin-bottom: 10px"
+                                ButtonStyle="ButtonStyle.Info" Click="InsertRow">
+                    Agregar folios
+                </RadzenButton>
+            }
             }
             else if (EmpresaActiva.OrgId.Length < 30)
             {
-                <RadzenLabel>Es necesario que seleciones una empresa activa en Informacion>Empresa Activa</RadzenLabel>
+            <RadzenLabel>Es necesario que seleciones una empresa activa en Informacion>Empresa Activa</RadzenLabel>
             }
             <RadzenButton Icon="refresh" style="margin-bottom: 10px"
-                          ButtonStyle="ButtonStyle.Success" Click="LeerFactDets">
+                            ButtonStyle="ButtonStyle.Success" Click="LeerFactDets">
                 Actualizar
             </RadzenButton>
         </HeaderTemplate>
@@ -244,7 +245,7 @@ else
 
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
                 await DetalleGrid!.Reload();
             }
         }
@@ -253,7 +254,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible actualizar la info de Detalle de FATURA, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }
@@ -321,7 +322,7 @@ else
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
                 await DetalleGrid!.Reload();
             }
 
@@ -331,7 +332,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible crear el registro concepto, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }

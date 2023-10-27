@@ -25,6 +25,8 @@ namespace DashBoard.Modelos
         
         public int Estado { get; set; } = 2;
         public bool Status { get; set; } = true;
+        public string ClaveNombre => $"{Clave} {Titulo}";
+        public string CNP => $"{Clave} {Titulo} {Precio}";
     }
 }
 

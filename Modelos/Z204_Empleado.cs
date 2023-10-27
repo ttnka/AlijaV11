@@ -9,9 +9,9 @@ namespace DashBoard.Modelos
         [StringLength(50)]
         public string EmpleadoId { get; set; } = "";
         [StringLength(50)]
-        public string FolioId { get; set; } = null!;
+        public string FolioId { get; set; } = "";
         [StringLength(75)]
-        public string Nombre { get; set; } = null!;
+        public string Nombre { get; set; } = "";
         public string? Obs { get; set; }
 
         public int Estado { get; set; } = 2;

@@ -12,25 +12,28 @@ namespace DashBoard.Pages.Sistema
 	{
         public const string TBita = Constantes.EmpresaActiva;
         
-
         [Inject]
-        public Repo<ZConfig, ApplicationDbContext> ConfigRepo { get; set; } = default!;
+        public Repo<Z180_EmpActiva, ApplicationDbContext> EmpActRepo { get; set; } = default!;
 
-        [CascadingParameter(Name = "CorporativoAll")]
-        public string Corporativo { get; set; } = "All";
 
         [Parameter]
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
         [Parameter]
-        public List<ZConfig> LasConfig { get; set; } = new List<ZConfig>();
+        public List<Z110_User> LosUsers { get; set; } = new List<Z110_User>();
+        [Parameter]
+        public List<Z180_EmpActiva> LasEmpHist { get; set; } = new List<Z180_EmpActiva>();
 
         [Parameter]
         public EventCallback ReadEmpresaActivaAll { get; set; }
+        [Parameter]
+        public EventCallback ReadLosUsersAll { get; set; }
+        [Parameter]
+        public EventCallback<Z180_EmpActiva> ReadHistEmpActivaAll { get; set; }
 
         public List<Z100_Org> LasAlijadoras { get; set; } = new List<Z100_Org>();
-        
+        public List<Z110_User> LosEmpleados { get; set; } = new List<Z110_User>();
 
-        public RadzenDataGrid<ZConfig>? ConfigGrid { get; set; } = new RadzenDataGrid<ZConfig>();
+        public RadzenDataGrid<Z180_EmpActiva>? EmpActGrid { get; set; } = new RadzenDataGrid<Z180_EmpActiva>();
         protected bool Primera { get; set; } = true;
         protected bool Leyendo { get; set; } = false;
         protected bool Editando { get; set; } = false;
@@ -40,8 +43,8 @@ namespace DashBoard.Pages.Sistema
             if (Primera)
             {
                 Primera = false;
-                if (!LasConfig.Any())
-                    await LeerConfigs();
+                if (!LasEmpHist.Any())
+                    await LeerHistEmps();
             }
             
             await Leer();
@@ -51,14 +54,16 @@ namespace DashBoard.Pages.Sistema
         {
             try
             {
+
                 await LeerAlijadores();
+                await LeerEmpAlijadores();
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar Leer datos INICIO, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -77,11 +82,33 @@ namespace DashBoard.Pages.Sistema
                 string txt = $"Error al intentar leer Alijadores de {TBita}, {ex} ";
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
         }
 
-        protected async Task LeerConfigs()
+        protected async Task LeerEmpAlijadores()
+        {
+            try
+            {
+                List<Z110_User> resp = new List<Z110_User>(); 
+                if (LosUsers.Any() && LasAlijadoras.Any())
+                {
+                    resp = LosUsers.Where(user =>
+                                    LasAlijadoras.Select(org => org.OrgId).Contains(user.OrgId)).ToList();
+
+                }
+                LosEmpleados = resp.Any() ? resp.ToList() : new List<Z110_User>();
+            }
+            catch (Exception ex)
+            {
+                string txt = $"Error al intentar leer historial de {TBita}, {ex} ";
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await LogAll(logTemp);
+            }
+        }
+
+        protected async Task LeerHistEmps()
         {
             try
             {
@@ -92,40 +119,34 @@ namespace DashBoard.Pages.Sistema
                 string txt = $"Error al intentar leer historial de {TBita}, {ex} ";
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
         }
 
 
-        protected async Task<ApiRespuesta<ZConfig>> Servicio(string tipo, ZConfig zConf)
+        protected async Task<ApiRespuesta<Z180_EmpActiva>> Servicio(string tipo, Z180_EmpActiva empAct)
         {
-            ApiRespuesta<ZConfig> resp = new()
-            {
-                Exito = false,
-                Data = zConf
-            };
+            ApiRespuesta<Z180_EmpActiva> resp = new() { Exito = false};
 
             try
             {
-                if (zConf != null)
+                if (empAct != null)
                 {
                     if (tipo == "Insert")
                     {
-                        zConf.ConfigId = Guid.NewGuid().ToString();
-                        zConf.Fecha1 = DateTime.Now;
-                        zConf.Usuario = ElUser.UserId;
-                        zConf.Titulo = TBita;
-
-                        ZConfig configInsert = await ConfigRepo.Insert(zConf);
-                        if (configInsert != null)
+                        empAct.EmpActId = Guid.NewGuid().ToString();
+                        empAct.Fecha = DateTime.Now;
+                        
+                        Z180_EmpActiva empActInsert = await EmpActRepo.Insert(empAct);
+                        if (empActInsert != null)
                         {
                             resp.Exito = true;
-                            resp.Data = configInsert;
+                            resp.Data = empActInsert;
                         }
                         else
                         {
                             resp.MsnError.Add($"No se Inserto el registro {TBita}");
-                            resp.Data = zConf;
+                            resp.Data = empAct;
                         }
                         return resp;
                     }
@@ -134,17 +155,9 @@ namespace DashBoard.Pages.Sistema
                         resp.MsnError.Add("No hay servicio de update");
                         // No hay servicio de update
                     }
-                    else if(tipo == "Read")
-                    {
-                        if(LasConfig.Any(x=>x.Titulo == TBita && x.Usuario == ElUser.UserId))
-                        {
-                            resp.Data = LasConfig.Where(x => x.Titulo == TBita && x.Usuario == ElUser.UserId)
-                                .OrderByDescending(x => x.Fecha1).FirstOrDefault()!;
-                            resp.Exito = true;
-                            return resp;
-                        }
-                    }
+                    
                 }
+                
                 resp.MsnError.Add("Ningua operacion se realizo!");
                 return resp;
             }
@@ -154,12 +167,15 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar {tipo} los registros de {TBita} {ex}",
                         Corporativo, ElUser.UserId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 return resp;
             }
         }
 
         #region Usuario y Bitacora
+
+        [CascadingParameter(Name = "CorporativoAll")]
+        public string Corporativo { get; set; } = "All";
 
         [CascadingParameter(Name = "ElUserAll")]
         public Z110_User ElUser { get; set; } = new();
@@ -196,13 +212,12 @@ namespace DashBoard.Pages.Sistema
         [Inject]
         public NavigationManager NM { get; set; } = default!;
         public Z190_Bitacora LastBita { get; set; } = new();
+        public Z192_Logs LastLog { get; set; } = new();
         public async Task BitacoraAll(Z190_Bitacora bita)
         {
             try
             {
-                if (bita.Fecha.Subtract(LastBita.Fecha).TotalSeconds > 15 ||
-                    LastBita.Desc != bita.Desc || LastBita.Sistema != bita.Sistema ||
-                    LastBita.UserId != bita.UserId || LastBita.OrgId != bita.OrgId)
+                if (bita.BitacoraId != LastBita.BitacoraId)
                 {
                     LastBita = bita;
                     await BitaRepo.Insert(bita);
@@ -212,12 +227,32 @@ namespace DashBoard.Pages.Sistema
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar escribir BITACORA, {TBita},{ex}",
-                    Corporativo, ElUser.UserId);
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+
+        public async Task LogAll(Z192_Logs log)
+        {
+            try
+            {
+                if (log.BitacoraId != LastLog.BitacoraId)
+                {
+                    LastLog = log;
+                    await LogRepo.Insert(log);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
 
         }
         #endregion
+
 
     }
 }

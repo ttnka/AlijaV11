@@ -59,7 +59,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar leer los datos USER, {TBita},{ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -80,7 +80,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar leer los datos de NIVELES, {TBita},{ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -101,7 +101,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar leer los datos de las corporaciones, {TBita},{ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -124,7 +124,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar leer los datos del USER, {TBita},{ex}",
                    Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
             
         }
@@ -159,7 +159,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar llevar los datos del USER a texto 'UserTxt', {TBita},{ex}",
                    Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 return resp;
             }
         }
@@ -199,7 +199,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar actualizar los datos del USER, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 resp.Exito = false;
                 return resp;
             }
@@ -242,26 +242,45 @@ namespace DashBoard.Pages.Sistema
         public Repo<Z192_Logs, ApplicationDbContext> LogRepo { get; set; } = default!;
 
         public Z190_Bitacora LastBita { get; set; } = new();
+        public Z192_Logs LastLog { get; set; } = new();
+
         public async Task BitacoraAll(Z190_Bitacora bita)
         {
-            if (bita.Fecha.Subtract(LastBita.Fecha).TotalSeconds > 15 ||
-                LastBita.Desc != bita.Desc || LastBita.Sistema != bita.Sistema ||
-                LastBita.UserId != bita.UserId || LastBita.OrgId != bita.OrgId)
+            try
             {
-                LastBita = bita;
-                await BitaRepo.Insert(bita);
+                if (bita.BitacoraId != LastBita.BitacoraId)
+                {
+                    LastBita = bita;
+                    await BitaRepo.Insert(bita);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
             }
         }
-        public Z192_Logs LastLog { get; set; } = new();
 
         public async Task LogAll(Z192_Logs log)
         {
-            if (LastLog.Desc != log.Desc || LastLog.Sistema != log.Sistema ||
-                LastLog.UserId != log.UserId || LastLog.OrgId != log.OrgId)
+            try
             {
-                LastLog = log;
-                await LogRepo.Insert(log);
+                if (log.BitacoraId != LastLog.BitacoraId)
+                {
+                    LastLog = log;
+                    await LogRepo.Insert(log);
+                }
             }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+
         }
 
         [Inject]
@@ -309,7 +328,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar leer EL USER USUARIO de la bitacora, {TBita}, {ex}",
                     "All", ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 

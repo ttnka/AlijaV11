@@ -27,23 +27,19 @@ namespace DashBoard.Pages.Sistema
         public EventCallback ReadLasOrgsAll { get; set; } = new();
 
         public List<Z110_User> LosUsers { get; set; } = new List<Z110_User>();
-
         public List<Z190_Bitacora> LasBitas { get; set; } = new();
-        public Filtro SearchBita { get; set; } = new();
         
         public List<Z100_Org> OrgsFiltro { get; set; } = new();
         public List<Z100_Org> CorpsFiltro { get; set; } = new();
         public List<Z110_User> UsersFiltro { get; set; } = new();
 
         public List<Z192_Logs> LosLogs { get; set; } = new();
+        public Filtro SearchBita { get; set; } = new();
 
         public RadzenDataGrid<Z190_Bitacora>? BitaGrid { get; set; } =
             new RadzenDataGrid<Z190_Bitacora>();
         public RadzenDataGrid<Z192_Logs>? LogGrid { get; set; } =
             new RadzenDataGrid<Z192_Logs>();
-
-        [CascadingParameter(Name = "CorportativoAll")]
-        public string Corporativo { get; set; } = "All";
 
         public Dictionary<string, string> DicData { get; set; } =
             new Dictionary<string, string>();
@@ -54,10 +50,7 @@ namespace DashBoard.Pages.Sistema
 
         protected override async Task OnInitializedAsync()
         {
-            if (ElUser == null || ElUser.UserId.Length < 15)
-                await LeerElUser();
-            else
-                await Leer();
+            await Leer();
         }
 
         public async Task Leer()
@@ -74,7 +67,7 @@ namespace DashBoard.Pages.Sistema
                 await LeerBitacoras(SearchBita);
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
                     $"Consulto listado de bitacora, {TBita}", Corporativo, ElUser.OrgId);
-                await BitaRepo.Insert(bitaTemp);
+                await BitacoraAll(bitaTemp);
 
             }
             catch (Exception ex)
@@ -82,7 +75,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar leer los valores iniciales funcion LEER, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -104,7 +97,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar leer organizaciones, {TBita},{ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -131,7 +124,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar leer los usuarios, {TBita},  {ex} de la bitacora",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 LosUsers = new();
             }
         }
@@ -205,7 +198,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar leer los registros de la bitacora, {TBita}, {ex}",
                         Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 LosUsers = new();
             }
         }
@@ -279,7 +272,7 @@ namespace DashBoard.Pages.Sistema
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar leer los registros de los Logs de errores, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 LosLogs = new();
             }
         }
@@ -300,12 +293,19 @@ namespace DashBoard.Pages.Sistema
             public bool Datos { get; set; } = false;
         }
 
-
         #region Usuario y Bitacora
 
+        [CascadingParameter(Name = "CorporativoAll")]
+        public string Corporativo { get; set; } = "All";
+
         [CascadingParameter(Name = "ElUserAll")]
-        protected Z110_User ElUser { get; set; } = new();
-        
+        public Z110_User ElUser { get; set; } = new();
+
+        [Inject]
+        public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z192_Logs, ApplicationDbContext> LogRepo { get; set; } = default!;
+
         public MyFunc MyFunc { get; set; } = new MyFunc();
         public NotificationMessage ElMsn(string tipo, string titulo, string mensaje, int duracion)
         {
@@ -332,85 +332,48 @@ namespace DashBoard.Pages.Sistema
         }
         [Inject]
         public NavigationManager NM { get; set; } = default!;
-        [Inject]
-        public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
-        [Inject]
-        public Repo<Z192_Logs, ApplicationDbContext> LogRepo { get; set; } = default!;
-
         public Z190_Bitacora LastBita { get; set; } = new();
-        public async Task BitacoraAll(Z190_Bitacora bita)
-        {
-            if (bita.Fecha.Subtract(LastBita.Fecha).TotalSeconds > 15 ||
-                LastBita.Desc != bita.Desc || LastBita.Sistema != bita.Sistema ||
-                LastBita.UserId != bita.UserId || LastBita.OrgId != bita.OrgId)
-            {
-                LastBita = bita;
-                await BitaRepo.Insert(bita);
-            }
-        }
         public Z192_Logs LastLog { get; set; } = new();
-
-        public async Task LogAll(Z192_Logs log)
-        {
-            if (LastLog.Desc != log.Desc || LastLog.Sistema != log.Sistema ||
-                LastLog.UserId != log.UserId || LastLog.OrgId != log.OrgId)
-            {
-                LastLog = log;
-                await LogRepo.Insert(log);
-            }
-        }
-
-        [Inject]
-        public UserManager<IdentityUser> UserMger { get; set; } = default!;
-
-        [CascadingParameter]
-        public Task<AuthenticationState> AuthStateTask { get; set; } = default!;
-
-        public async Task LeerElUser()
+        public async Task BitacoraAll(Z190_Bitacora bita)
         {
             try
             {
-                ClaimsPrincipal user = (await AuthStateTask).User;
-                if (user != null && user.Identity != null && user.Identity.IsAuthenticated)
+                if (bita.BitacoraId != LastBita.BitacoraId)
                 {
-                    string elId = UserMger.GetUserId(user) ?? "Vacio";
-                    if (elId == null || elId == "Vacio")
-                        NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
-                    ElUser = await UserRepo.GetById(elId!);
-
-                    if (ElUser == null)
-                    {
-                        NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
-                    }
-                    /*
-                    else if (ElUser.Nivel > 4)
-                    {
-                        NM.NavigateTo("/indexz", true);
-                    }
-                    */
-                    else
-                    {
-                        Corporativo = ElUser.OrgId;
-                        await Leer();
-                    }
+                    LastBita = bita;
+                    await BitaRepo.Insert(bita);
                 }
-                else
-                {
-                    NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
-                }
-
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                 $"Error al intentar leer EL USER USUARIO de la bitacora, {TBita}, {ex}",
-                 "All", ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
             }
         }
 
+        public async Task LogAll(Z192_Logs log)
+        {
+            try
+            {
+                if (log.BitacoraId != LastLog.BitacoraId)
+                {
+                    LastLog = log;
+                    await LogRepo.Insert(log);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
 
+        }
         #endregion
+
 
     }
 }

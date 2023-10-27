@@ -51,6 +51,10 @@
                                 <ConceptoList />
                             </RadzenTabsItem>
 
+                            <RadzenTabsItem Text="Campos">
+                                <CamposList />
+                            </RadzenTabsItem>
+
                             <RadzenTabsItem Text="Transportista">
 
                                 <TransporteList />
@@ -184,7 +188,15 @@
                     @if (EstadoArray.Length >= datos.Estado - 1)
                     {
                         <RadzenLabel>
-                            @EstadoArray[datos.Estado - 1]
+                            @if (datos.Estado == 0)
+                            {
+                                @EstadoArray[datos.Estado]
+                            }
+                            else
+                            {
+                                @EstadoArray[datos.Estado - 1]
+                            }
+
                         </RadzenLabel>
                     }
                     else
@@ -213,11 +225,8 @@
                                   Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
                                   Width="200px" Title="Estado">
                 <Template Context="datos">
-                    @if (datos.Estado > 3)
-                    {
-                        <label></label>
-                    }
-                    else
+                    @if (ElUser.Nivel > 5 || datos.Estado < 2)
+                    
                     {
                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
                                       Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
@@ -237,7 +246,7 @@
 
                 <EditTemplate Context="datos">
 
-                    @if (datos.Estado > 0 && ElUser.Nivel > 4)
+                    @if (datos.Estado > 0 && datos.Estado < 2 && ElUser.Nivel > 4)
                     {
                         <RadzenLabel>
                             Borrar este registro?
@@ -248,7 +257,7 @@
                                 <RadzenSelectBarItem Text="No" Value="true" />
                                 <RadzenSelectBarItem Text="Si" Value="false" />
                             </Items>
-                        </RadzenSelectBar>
+                        </RadzenSelectBar><br />
 
                     }
 
@@ -341,7 +350,7 @@ else
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
                 await FoliosGrid!.Reload();
             }
         }
@@ -350,7 +359,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible actualizar el FOLIO, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
     }
 
@@ -427,7 +436,7 @@ else
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
 
                 await FoliosGrid!.Reload();
 
@@ -439,7 +448,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible crear un FOLIO, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }

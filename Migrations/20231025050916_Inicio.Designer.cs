@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DashBoard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231021195558_Seis")]
-    partial class Seis
+    [Migration("20231025050916_Inicio")]
+    partial class Inicio
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -220,6 +220,9 @@ namespace DashBoard.Migrations
                     b.Property<int>("FolioNum")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("Importe")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Obs")
                         .HasColumnType("longtext");
 
@@ -406,6 +409,9 @@ namespace DashBoard.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
+                    b.Property<decimal>("Control")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Corporativo")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -426,6 +432,9 @@ namespace DashBoard.Migrations
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("Importe")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Obs")
                         .HasColumnType("longtext");

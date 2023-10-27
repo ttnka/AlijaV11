@@ -136,3 +136,11 @@ a, .btn-link {
     height: 100px;
     background-color: black;
 }
+.top-row1 {
+    display: flex; /* Usa un contenedor flexible para los elementos internos */
+    justify-content: space-between; /* Distribuye los elementos internos en el espacio disponible */
+    align-items: center; /* Centra verticalmente los elementos internos*/
+    
+    
+}
+

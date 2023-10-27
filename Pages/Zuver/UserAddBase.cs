@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Security.Claims;
+using System.Security.Policy;
 using DashBoard.Data;
 using DashBoard.Modelos;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using MimeKit;
 using Radzen;
 
 namespace DashBoard.Pages.Zuver
@@ -14,6 +18,12 @@ namespace DashBoard.Pages.Zuver
         public const string TBita = "Agregar Usuario";
         [Inject]
         public IAddUser AddUserRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z110_User, ApplicationDbContext> UserRepo { get; set; } = default!;
+        [Inject]
+        public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
+        [Inject]
+        public IEnviarMail SendMail { get; set; } = default!;
 
         [Parameter]
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
@@ -35,14 +45,12 @@ namespace DashBoard.Pages.Zuver
 
         public bool Editando { get; set; } = false;
 
-        [CascadingParameter(Name = "CorporativoAll")]
-        public string Corporativo { get; set; } = "All";
-
         [Parameter]
         public EventCallback ReadUsersAll  { get; set; }
         [Parameter]
         public EventCallback ReadOrgsAll { get; set; }
 
+        
         public bool BotonGo { get; set; } = false;
         protected bool MailExiste { get; set; } = false;
         protected string WrongPass { get; set; } = "";
@@ -91,7 +99,7 @@ namespace DashBoard.Pages.Zuver
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al leer los niveles para los usuarios, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -110,7 +118,7 @@ namespace DashBoard.Pages.Zuver
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al leer las organizaciones, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -118,22 +126,16 @@ namespace DashBoard.Pages.Zuver
         {
             try
             {
-                /*
-                if (LasOrgs.Any())
-                    LasOrgsTmp = ElUser.Nivel < 5 ? 
-                            LasOrgs.Where(x => x.Corporativo == ElUser.Corporativo).GroupBy(x=>x.Corporativo)
-                            .Select(x => x.First()).ToList() :
-
-                            LasOrgs.Where(x => x.Estado == 1).GroupBy(x=>x.Corporativo).Select(x => x.First()).ToList();
-                */
-                LasOrgsTmp = LasOrgs;
+                LasCorpTmp = LasOrgs.Any() ?
+                    LasOrgs.Where(x => x.Tipo == "Administracion" && x.Estado == 1 && x.Status == true).ToList() :
+                    new List<Z100_Org>();
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al leer las organizaciones de corporativo, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -149,8 +151,38 @@ namespace DashBoard.Pages.Zuver
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al leer las organizaciones y Usuarios en un solo comando, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
+        }
+
+        
+        public async Task<ApiRespuesta<ZConfig>> EmpActAddUser(ZConfig datos)
+        {
+            ApiRespuesta<ZConfig> resultado = new() { Exito = false };
+            try
+            {
+                if (datos == null)
+                {
+                    resultado.MsnError.Add($"No se agrego Empresa activa ");
+                }
+                else
+                {
+                    var resp = await ConfRepo.Insert(datos);
+                    if (resp != null)
+                    {
+                        resultado.Exito = true;
+                        resultado.Data = resp;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                            $"Error al intentar agregar una empresa activa al usuario creado, {TBita}, {ex}",
+                            Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+            return resultado;
         }
 
         public async Task UpdateUsers() => await ReadUsersAll.InvokeAsync();
@@ -174,10 +206,9 @@ namespace DashBoard.Pages.Zuver
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al leer los tipos de organizaciones, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
-
 
         public async void CheckMail(string email)
         {
@@ -191,7 +222,7 @@ namespace DashBoard.Pages.Zuver
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al checar el Email nuevo, YA EXISTE, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
             
         }
@@ -214,14 +245,7 @@ namespace DashBoard.Pages.Zuver
                         RequireUppercase = true
                     }
                 };
-                /*
-                if (password.Length < options.Password.RequiredLength)
-                {
-                    // La contraseña es demasiado corta.
-                    WorngPass[0] = "1";
-                    WorngPass[1] = "Password minimo 6 caracteres";
-                }
-                */
+                
                 if (options.Password.RequireDigit && !Password.Any(char.IsDigit))
                 {
                     // La contraseña no contiene dígitos.
@@ -243,13 +267,14 @@ namespace DashBoard.Pages.Zuver
                 {
                     WrongPass += "Es necesario una mayuscula! ";
                 }
+                CheckConfirm();
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al checar el password nuevo, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -267,55 +292,117 @@ namespace DashBoard.Pages.Zuver
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al checar la confirmacion del password, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
+        }
+
+        public async Task<ApiRespuesta<Z110_User>>InsertUser(Z110_User nUser)
+        {
+            ApiRespuesta<Z110_User> resultado = new();
+            try
+            {
+                if (nUser != null)
+                {
+                    Z110_User userInsert = await UserRepo.Insert(nUser);
+                    resultado.Exito = true;
+                    resultado.Data = userInsert;
+                }
+                else
+                {
+                    resultado.Exito = false;
+                    resultado.MsnError.Add($"No se pudo insertar el usuario");
+                }
+            }
+            catch (Exception ex)
+            {
+                resultado.Exito = false;
+                resultado.MsnError.Add(ex.Message);
+            }
+            return resultado;
         }
 
         public async Task<ApiRespuesta<AddUser>> Servicio(string tipo, AddUser newD)
         {
-            ApiRespuesta<AddUser> resp = new()
-            {
-                Exito = false,
-                Data = newD
-            };
+            ApiRespuesta<AddUser> resp = new();
 
             try
             {
                 if (newD != null)
                 {
-                    if (tipo == "Insert")
+                    if (tipo == "Create")
                     {
-                        ApiRespuesta<AddUser> userInsert = await AddUserRepo.InsertNewUser(newD);
-                        if (userInsert != null)
+                        ApiRespuesta<AddUser> userCreate = await AddUserRepo.CrearNewAcceso(newD);
+                        if (userCreate.Exito)
                         {
-                            return userInsert;
+                            resp.Exito = true;
+                            resp.Data = userCreate.Data;
+
+                            Z110_User nUser = new()
+                            {
+                                UserId = userCreate.Data.UserId,
+                                Nombre = newD.Nombre,
+                                Paterno = newD.Paterno,
+                                Materno = string.IsNullOrEmpty(newD.Materno) ? "" : newD.Materno,
+                                Nivel = newD.Nivel,
+                                OrgId = newD.OrgId,
+                                OldEmail = newD.Mail
+                            };
+                            ApiRespuesta<Z110_User> uResp =  await InsertUser(nUser);
+                            if (!uResp.Exito)
+                            {
+                                resp.Exito = false;
+                                foreach (var e in uResp.MsnError)
+                                {
+                                    resp.MsnError.Add($"{e}");
+                                }
+                                
+                            }
                         }
                         else
                         {
                             resp.MsnError.Add("No puedo agregarse un nuevo USER");
-                            return resp;
+                            foreach (var e in userCreate.MsnError)
+                            {
+                                resp.MsnError.Add($"{e}");
+                            }
+                           
                         }
+                        return resp;
                     }
                 }
-                return resp;
+                resp.Exito = false;
+                resp.MsnError.Add("Sin valor para crear un nuevo acceso");
+                
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar AGREGAR un nuevo USER, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 resp.Exito = false;
-                return resp;
+                
             }
+            return resp;
+        }
+
+        public class NuevoUsuario : Z110_User
+        {
+            public string url { get; set; } = "";
         }
 
         #region Usuario y Bitacora
-        [Inject]
-        public Repo<Z110_User, ApplicationDbContext> UserRepo { get; set; } = default!;
+
+        [CascadingParameter(Name = "CorporativoAll")]
+        public string Corporativo { get; set; } = "All";
 
         [CascadingParameter(Name = "ElUserAll")]
-        protected Z110_User ElUser { get; set; } = new();
+        public Z110_User ElUser { get; set; } = new();
+
+        [Inject]
+        public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z192_Logs, ApplicationDbContext> LogRepo { get; set; } = default!;
 
         public MyFunc MyFunc { get; set; } = new MyFunc();
         public NotificationMessage ElMsn(string tipo, string titulo, string mensaje, int duracion)
@@ -343,86 +430,48 @@ namespace DashBoard.Pages.Zuver
         }
         [Inject]
         public NavigationManager NM { get; set; } = default!;
-        [Inject]
-        public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
-        [Inject]
-        public Repo<Z192_Logs, ApplicationDbContext> LogRepo { get; set; } = default!;
-
         public Z190_Bitacora LastBita { get; set; } = new();
-        public async Task BitacoraAll(Z190_Bitacora bita)
-        {
-            if (bita.Fecha.Subtract(LastBita.Fecha).TotalSeconds > 15 ||
-                LastBita.Desc != bita.Desc || LastBita.Sistema != bita.Sistema ||
-                LastBita.UserId != bita.UserId || LastBita.OrgId != bita.OrgId)
-            {
-                LastBita = bita;
-                await BitaRepo.Insert(bita);
-            }
-        }
         public Z192_Logs LastLog { get; set; } = new();
-
-        public async Task LogAll(Z192_Logs log)
-        {
-            if (LastLog.Desc != log.Desc || LastLog.Sistema != log.Sistema ||
-                LastLog.UserId != log.UserId || LastLog.OrgId != log.OrgId)
-            {
-                LastLog = log;
-                await LogRepo.Insert(log);
-            }
-        }
-
-        [Inject]
-        public UserManager<IdentityUser> UserMger { get; set; } = default!;
-
-        [CascadingParameter]
-        public Task<AuthenticationState> AuthStateTask { get; set; } = default!;
-
-        public async Task LeerElUser()
+        public async Task BitacoraAll(Z190_Bitacora bita)
         {
             try
             {
-                ClaimsPrincipal user = (await AuthStateTask).User;
-                if (user != null && user.Identity != null && user.Identity.IsAuthenticated)
+                if (bita.BitacoraId != LastBita.BitacoraId)
                 {
-                    string elId = UserMger.GetUserId(user) ?? "Vacio";
-                    if (elId == null || elId == "Vacio") NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
-                    ElUser = await UserRepo.GetById(elId!);
-
-                    if (ElUser == null)
-                    {
-                        NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
-                    }
-                    /*
-                    else if (ElUser.Nivel > 4)
-                    {
-                        NM.NavigateTo("/indexz", true);
-                    }
-                    */
-                    else
-                    {
-                        Corporativo = ElUser.OrgId;
-                        await Leer();
-                    }
-
+                    LastBita = bita;
+                    await BitaRepo.Insert(bita);
                 }
-                else
-                {
-                    NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
-                }
-
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                        $"Error al intentar leer EL USER USUARIO de la bitacora, {TBita}, {ex}",
-                        "All", ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
             }
         }
 
+        public async Task LogAll(Z192_Logs log)
+        {
+            try
+            {
+                if (log.BitacoraId != LastLog.BitacoraId)
+                {
+                    LastLog = log;
+                    await LogRepo.Insert(log);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar escribir LOGbitacora, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogRepo.Insert(LogT);
+            }
 
+        }
         #endregion
 
+        
     }
 }
-

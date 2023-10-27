@@ -31,5 +31,19 @@ namespace DashBoard.Modelos
         public DateTime PagoFecFinal { get; set; }
 
     }
+
+    public enum ServiciosTipos
+    {
+        Insert,
+        Update,
+        Crear
+    }
+
+    public enum PoblarEmailTipos
+    {
+        Bienvenida,
+        Confirmacion
+    }
+
 }
 

@@ -15,6 +15,8 @@ namespace DashBoard.Pages.Zuver
 
         [Inject]
         public Repo<Z100_Org, ApplicationDbContext> OrgRepo { get; set; } = default!;
+        [Inject]
+        public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
 
         [Inject]
         public IAddUser AddUserRepo { get; set; } = default!;
@@ -41,8 +43,7 @@ namespace DashBoard.Pages.Zuver
         public EventCallback OcultarBoton { get; set; } = default!;
         [Parameter]
         public EventCallback LeerAdmin { get; set; }
-        [CascadingParameter(Name = "CorporativoAll")]
-        public string Corporativo { get; set; } = "Buscar";
+        
         [Parameter]
         public bool EsAdministrador { get; set; } = false;
 
@@ -82,25 +83,19 @@ namespace DashBoard.Pages.Zuver
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible LEER {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
             
         }
 
         
         public void PoblarLasOrgsCorp()
-        {
-            /*
-            if (LasOrgs.Any())
-            {
-                LasOrgsCorp = ElUser.Nivel < 5 ?
-                    LasOrgs.Where(x => x.Corporativo == ElUser.Corporativo).GroupBy(x=>x.Corporativo)
-                    .Select(x => x.First()).ToList() :
-
-                    LasOrgs.Where(x=>x.Estado == 1).GroupBy(x=>x.Corporativo).Select(x=>x.First()).ToList();       
-            }
-            */
-            LasOrgsCorp = LasOrgs.Where(x => x.Estado == 1).GroupBy(x => x.Corporativo).Select(x => x.First()).ToList();
+        { 
+            LasOrgsCorp = LasOrgs.Any() ?
+                LasOrgs.Where(x => x.Tipo == "Administracion" && x.Estado == 1 && x.Status == true).ToList()
+                : new List<Z100_Org>();     
+            
+            //LasOrgsCorp = LasOrgs.Where(x => x.Estado == 1).GroupBy(x => x.Corporativo).Select(x => x.First()).ToList();
         }
 
         public void ChecarFormato()
@@ -120,7 +115,7 @@ namespace DashBoard.Pages.Zuver
             ApiRespuesta<LaOrgNew> resp = new()
             {
                 Exito = false,
-                Data = org
+               
             };
 
             try
@@ -164,7 +159,7 @@ namespace DashBoard.Pages.Zuver
                             eAddUsuario.OrgId = org.OrgId;
                             eAddUsuario.Nombre = org.UserNombre;
                             eAddUsuario.Paterno = org.UserPaterno;
-                            eAddUsuario.Materno = org.UserMaterno;
+                            eAddUsuario.Materno = org.UserMaterno ?? "";
                             eAddUsuario.Corporativo = org.Corporativo;
                             if (EsAdministrador)
                             {
@@ -186,12 +181,18 @@ namespace DashBoard.Pages.Zuver
                                 eAddUsuario.Nivel = org.UserNivel;
                             }
 
-                            ApiRespuesta<AddUser> UserInsert = await AddUserRepo.InsertNewUser(eAddUsuario);
+                            ApiRespuesta<AddUser> UserInsert = await AddUserRepo.CrearNewAcceso(eAddUsuario);
                             if (!UserInsert.Exito)
                             {
                                 resp.MsnError.Add("No se agrego un usuario de la nueva organizacion");
                                 return resp;    
                             }
+                            
+                            org.OrgId = orgInsert.OrgId;
+                            org.UserId = UserInsert.Data.UserId;
+                            resp.Data = org;
+                            resp.Exito = true;
+                            return resp;
                         }
                     }
                 }
@@ -203,9 +204,40 @@ namespace DashBoard.Pages.Zuver
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                             $"Error al intentar agregar una organizacion y un usuario, {TBita}, {ex}",
                             Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 resp.Exito = false;
                 return resp;
+            }
+        }
+
+        public async Task<ApiRespuesta<ZConfig>> EmpActAddUser(ZConfig datos)
+        {
+            ApiRespuesta<ZConfig> resultado = new() { Exito = false};
+            try
+            {
+                if (datos == null)
+                {
+                    resultado.MsnError.Add($"No se agrego Empresa activa ");
+                }
+                else
+                {
+                    var resp =  await ConfRepo.Insert(datos);
+                    if (resp != null )
+                    {
+                        resultado.Exito = true;
+                        resultado.Data = resp;
+                    }
+                }
+                
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                            $"Error al intentar agregar una organizacion y un usuario, {TBita}, {ex}",
+                            Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+                return resultado;
             }
         }
 
@@ -229,6 +261,9 @@ namespace DashBoard.Pages.Zuver
         }
 
         #region Usuario y Bitacora
+
+        [CascadingParameter(Name = "CorporativoAll")]
+        public string Corporativo { get; set; } = "All";
 
         [CascadingParameter(Name = "ElUserAll")]
         public Z110_User ElUser { get; set; } = new();
@@ -265,13 +300,12 @@ namespace DashBoard.Pages.Zuver
         [Inject]
         public NavigationManager NM { get; set; } = default!;
         public Z190_Bitacora LastBita { get; set; } = new();
+        public Z192_Logs LastLog { get; set; } = new();
         public async Task BitacoraAll(Z190_Bitacora bita)
         {
             try
             {
-                if (bita.Fecha.Subtract(LastBita.Fecha).TotalSeconds > 15 ||
-                    LastBita.Desc != bita.Desc || LastBita.Sistema != bita.Sistema ||
-                    LastBita.UserId != bita.UserId || LastBita.OrgId != bita.OrgId)
+                if (bita.BitacoraId != LastBita.BitacoraId)
                 {
                     LastBita = bita;
                     await BitaRepo.Insert(bita);
@@ -280,8 +314,27 @@ namespace DashBoard.Pages.Zuver
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                        $"Error al intentar escribir BITACORA, {TBita},{ex}",
-                        Corporativo, ElUser.OrgId);
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+
+        public async Task LogAll(Z192_Logs log)
+        {
+            try
+            {
+                if (log.BitacoraId != LastLog.BitacoraId)
+                {
+                    LastLog = log;
+                    await LogRepo.Insert(log);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }
 

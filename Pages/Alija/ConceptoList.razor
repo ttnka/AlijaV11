@@ -300,7 +300,7 @@ else
 
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
                 await ConceptoGrid!.Reload();
             }
         }
@@ -309,7 +309,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible actualizar la info de Concepto, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }
@@ -379,7 +379,7 @@ else
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
                 await ConceptoGrid!.Reload();
             }
 
@@ -389,7 +389,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible crear el registro concepto, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }

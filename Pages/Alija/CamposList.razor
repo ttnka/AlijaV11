@@ -1,0 +1,601 @@
+﻿
+@inherits CamposListBase
+@inject NotificationService NS
+@using DashBoard.Modelos
+
+@if (LosCampos != null && !Leyendo)
+{
+    <RadzenDataGrid @ref="CamposGrid"
+                    AllowFiltering="true" AllowPaging="true" PageSize="50"
+                    AllowSorting="true" AllowColumnResize="true"
+                    ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                    EditMode="DataGridEditMode.Single" AllowColumnPicking="false"
+                    Data="@LosCampos" TItem="Z209_Campos"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30)
+                {
+                <RadzenButton Icon="plus" style="margin-bottom: 10px"
+                              ButtonStyle="ButtonStyle.Info" Click="InsertRow">
+                    Campturar Formato
+                </RadzenButton>
+                }
+                else if (EmpresaActiva.OrgId.Length < 30)
+                {
+                <RadzenLabel>Es necesario que seleciones una empresa activa en Informacion>Empresa Activa</RadzenLabel>
+                }
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                          ButtonStyle="ButtonStyle.Success" Click="LeerLosCampos">
+                Actualizar
+            </RadzenButton>
+        </HeaderTemplate>
+
+        <Columns>
+
+
+            <RadzenDataGridColumn TItem="Z209_Campos" Title="Id" Filterable="false"
+                                  Width="800px">
+                <Template Context="datos">
+                    <div class="container-fluid" style="background: lightgray;">
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Pedimento</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Factura</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Mercancia</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Pedimento</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Factura</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Mercancia</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Agente Aduanal</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Placas del Tractor</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Despachador</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.AgenteAduanal</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Placas</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Despachador</RadzenLabel>
+                            </div>
+
+                        </div>
+
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Tractor Num</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Num Caja 1</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Num Caja 2</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Tractor</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Caja1</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Caja2</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Carta Porte</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Transportista</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Tipo Tractor</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.CartaPorte</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Transportista</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.TractorTipo</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Nombre del Chofer</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Identificacion</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Cuadrilla</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Chofer</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Identificacion</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Cuadrilla</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Tipo de Maniobra</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Comentarios</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Libre</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Maniobra</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>@datos.Obs</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Libre</RadzenLabel>
+                            </div>
+                        </div>
+                    </div>
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    <div class="container-fluid" style="background: lightgray;">
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Pedimento</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Factura</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Mercancia</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Pedimento" @bind-Value="datos.Pedimento"
+                                               Style="width: 95%" Placeholder="Pedimento" />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Factura" @bind-Value="datos.Factura"
+                                               Style="width: 95%" Placeholder="Num Factura" />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Mercancia" @bind-Value="datos.Mercancia"
+                                               Style="width: 95%" Placeholder="Mercancias" />
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Agente Aduanal</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Placas del Tractor</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Despachador</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="AgenteAduanal" @bind-Value="datos.AgenteAduanal"
+                                               Style="width: 95%" Placeholder="Agente Aduanal " />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Placas" @bind-Value="datos.Placas"
+                                               Style="width: 95%" Placeholder="Placas del Tractor" />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Despachador" @bind-Value="datos.Despachador"
+                                               Style="width: 95%" Placeholder="Despachador" />
+                            </div>
+
+                        </div>
+
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Tractor Num</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Num Caja 1</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Num Caja 2</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Tractor" @bind-Value="datos.Tractor"
+                                               Style="width: 95%" Placeholder="Tractor Numero" />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Caja1" @bind-Value="datos.Caja1"
+                                               Style="width: 95%" Placeholder="Num Caja 1" />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Caja2" @bind-Value="datos.Caja2"
+                                               Style="width: 95%" Placeholder="Num Caja 2" />
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Carta Porte</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Transportista</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Tipo Tractor</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="CartaPorte" @bind-Value="datos.CartaPorte"
+                                               Style="width: 95%" Placeholder="Carta Porte" />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Transportista" @bind-Value="datos.Transportista"
+                                               Style="width: 95%" Placeholder="Transportista" />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="TractorTipo" @bind-Value="datos.TractorTipo"
+                                               Style="width: 95%" Placeholder="Tipo" />
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Nombre del Chofer</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Identificacion</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Cuadrilla</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Chofer" @bind-Value="datos.Chofer"
+                                               Style="width: 95%" Placeholder="Nombre del Chofer" />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Identificacion" @bind-Value="datos.Identificacion"
+                                               Style="width: 95%" Placeholder="Identificacion INE" />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Cuadrilla" @bind-Value="datos.Cuadrilla"
+                                               Style="width: 95%" Placeholder="Cuadrilla" />
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Tipo de Maniobra</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Comentarios</RadzenLabel>
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Libre</RadzenLabel>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextBox Name="Maniobra" @bind-Value="datos.Maniobra"
+                                               Style="width: 95%" Placeholder="Tipo de Maniobra" />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenTextArea Name="Obs" @bind-Value="datos.Obs"
+                                                Style="width: 95%" Placeholder="Observaciones" />
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel>Libre</RadzenLabel>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+
+            <RadzenDataGridColumn TItem="Z209_Campos" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+                    @if (ElUser.Nivel > 5 || (datos.Estado < 2 && ElFolio.Estado < 2))
+                        {
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
+                                      Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
+                        }
+                    @if (datos.Status)
+                        {
+                        <RadzenLabel>Activo</RadzenLabel>
+                        }
+                        else
+                        {
+                        <RadzenLabel>Suspendido</RadzenLabel>
+                        }
+
+
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    @if (datos.Estado > 0 && ElUser.Nivel > 4 && ElFolio.Estado < 2)
+                        {
+                        <RadzenLabel>
+                            Borrar este registro
+                        </RadzenLabel><br />
+                        <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                         Placeholder="Borrar este registro?">
+                            <Items>
+                                <RadzenSelectBarItem Text="No" Value="true" />
+                                <RadzenSelectBarItem Text="Si" Value="false" />
+                            </Items>
+                        </RadzenSelectBar><br />
+                        }
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" Click="@((args) => SaveRow(datos))" />
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+else
+{
+    <div class="spinner">
+
+    </div>
+}
+
+@code {
+
+
+    void Cancelar()
+    {
+        //OrgNew = new();
+        CamposToInsert = new();
+    }
+
+    Z209_Campos CamposToInsert = new();
+
+    async Task EditRow(Z209_Campos campo)
+    {
+
+        await CamposGrid!.EditRow(campo);
+        Editando = !Editando;
+    }
+
+    string PoblarTxt(Z209_Campos c)
+    {
+        string resp = "";
+        
+        resp += $"{ElFolio.FolioNum}, fecha: {ElFolio.Fecha}, ";
+        resp += string.IsNullOrEmpty(c.AgenteAduanal) ? "" : $"Agente aduanal {c.AgenteAduanal}, ";
+        resp += string.IsNullOrEmpty(c.Pedimento) ? "" : $"Pedimiento {c.Pedimento}, ";
+        resp += string.IsNullOrEmpty(c.Factura) ? "" : $"Num Factrua: {c.Factura}, ";
+        resp += string.IsNullOrEmpty(c.Mercancia) ? "" : $"Mercancia: {c.Mercancia}, ";
+        resp += string.IsNullOrEmpty(c.Tractor) ? "" : $"Num de Tractor: {c.Tractor}, ";
+        resp += string.IsNullOrEmpty(c.Caja1) ? "" : $"Caja 1: {c.Caja1}, ";
+        resp += string.IsNullOrEmpty(c.Caja2) ? "" : $"Caja 2: {c.Caja2}, ";
+        resp += string.IsNullOrEmpty(c.Placas) ? "" : $"Placas: {c.Placas}, ";
+        resp += string.IsNullOrEmpty(c.TractorTipo) ? "" : $"Tipo de tractor: {c.TractorTipo}, ";
+        resp += string.IsNullOrEmpty(c.Transportista) ? "" : $"Transportista: {c.Transportista}, ";
+        resp += string.IsNullOrEmpty(c.Maniobra) ? "" : $"Maniobra: {c.Maniobra}, ";
+        resp += string.IsNullOrEmpty(c.Despachador) ? "" : $"Despachador: {c.Despachador}, ";
+        resp += string.IsNullOrEmpty(c.CartaPorte) ? "" : $"Carta porte: {c.CartaPorte}, ";
+        resp += string.IsNullOrEmpty(c.SelloRemovido) ? "" : $"Sello removido: {c.SelloRemovido}";
+        resp += string.IsNullOrEmpty(c.SelloColocado) ? "" : $"Sello Colocado: {c.SelloColocado}";
+        resp += string.IsNullOrEmpty(c.Chofer) ? "" : $"Nombre del chofer: {c.Chofer}, ";
+        resp += string.IsNullOrEmpty(c.Cuadrilla) ? "" : $"Cuadrilla: {c.Cuadrilla}";
+        resp += string.IsNullOrEmpty(c.Obs) ? "" : $"Comentarios: {c.Obs}";
+
+
+        return resp;
+    }
+
+    async void OnUpdateRow(Z209_Campos campo)
+    {
+        try
+        {
+            if (campo == CamposToInsert) CamposToInsert = null!;
+
+
+            Editando = !Editando;
+            ApiRespuesta<Z209_Campos> resultado = await Servicio(ServiciosTipos.Update, campo);
+
+            string txt = PoblarTxt(campo);
+
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("info", "Actualizo",
+                    $"Se actualizo la info de Folio {ElFolio.FolioNum} ", 0));
+                txt = $"Se actualizo la informacion " + txt;
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+            }
+            else
+            {
+                string etxt = $"Error No Se actualizo la info de ";
+                foreach (var e in resultado.MsnError)
+                { etxt += $", {e}"; }
+
+                ShowNotification(ElMsn("Error", "Error", etxt, 0));
+                txt = $"Error, No se actualizo un registro de Transportista {txt} {etxt}";
+
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await LogAll(logTemp);
+            }
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible actualizar la info de Transportista, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+            await LogAll(logTemp);
+        }
+
+    }
+
+    async Task SaveRow(Z209_Campos campo)
+    {
+        await CamposGrid!.UpdateRow(campo);
+    }
+
+    void CancelEdit(Z209_Campos campo)
+    {
+        if (campo == CamposToInsert) CamposToInsert = null!;
+
+        Editando = !Editando;
+        CamposGrid!.CancelEditRow(campo);
+    }
+
+    async Task InsertRow()
+    {
+        CamposToInsert = new Z209_Campos();
+        CamposToInsert.FolioId = ElFolio.FolioId;
+        CamposToInsert.Estado = 0;
+        Editando = !Editando;
+        await CamposGrid!.InsertRow(CamposToInsert);
+
+    }
+    async void OnCreateRow(Z209_Campos campo)
+    {
+        try
+        {
+            if (campo == CamposToInsert) CamposToInsert = null!;
+
+            Editando = !Editando;
+            ApiRespuesta<Z209_Campos> resultado = await Servicio(ServiciosTipos.Insert, campo);
+
+            string txt = PoblarTxt(campo);
+
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("Exito", "Nuevo registro del FOLIO",
+                    $"Se creo un nuevo registro con informacion para FOLIO {ElFolio.FolioNum} ", 0));
+                txt = $"Se creo nuevo registro de informacion del FOLIO " + txt;
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+            }
+            else
+            {
+                string etxt = $"Error NO se creo el nuevo registro de FOLIO ";
+                foreach (var e in resultado.MsnError)
+                { etxt += $", {e}"; }
+
+                ShowNotification(ElMsn("Error", "Error", etxt, 0));
+                txt = $"{TBita}, Error, No se creo un nuevo registro de FOLIO " + txt + ", ";
+                txt += etxt;
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await LogAll(logTemp);
+                await CamposGrid!.Reload();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible crear el registro de FOLIO , {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+            await LogAll(logTemp);
+        }
+
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+    }
+

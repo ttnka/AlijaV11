@@ -91,7 +91,7 @@ namespace DashBoard.Pages.Alija
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar Leer datos INICIO, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -131,7 +131,7 @@ namespace DashBoard.Pages.Alija
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar Leer datos historicos de facturas, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
         
@@ -170,7 +170,7 @@ namespace DashBoard.Pages.Alija
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar Leer LOS FOLIOS, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -186,7 +186,7 @@ namespace DashBoard.Pages.Alija
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar Leer Los Clientes, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -211,7 +211,7 @@ namespace DashBoard.Pages.Alija
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar generer TEXTO en funcion FolioTxt de la pagina {TBita}, {ex}",
                         Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 return "Error";
             }
         }
@@ -232,7 +232,7 @@ namespace DashBoard.Pages.Alija
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar Leer Los estados de las FACTURAS, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
         }
 
@@ -286,7 +286,7 @@ namespace DashBoard.Pages.Alija
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar EVALUAR SIGUIENTE ESTADO DE FACTURA {fact.FacturaNum}, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 return false;
             }
         }
@@ -347,7 +347,7 @@ namespace DashBoard.Pages.Alija
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar {tipo} los registros de {TBita} {ex}",
                         Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 return resp;
             }
 
@@ -393,16 +393,34 @@ namespace DashBoard.Pages.Alija
         [Inject]
         public NavigationManager NM { get; set; } = default!;
         public Z190_Bitacora LastBita { get; set; } = new();
+        public Z192_Logs LastLog { get; set; } = new();
         public async Task BitacoraAll(Z190_Bitacora bita)
         {
             try
             {
-                if (bita.Fecha.Subtract(LastBita.Fecha).TotalSeconds > 15 ||
-                    LastBita.Desc != bita.Desc || LastBita.Sistema != bita.Sistema ||
-                    LastBita.UserId != bita.UserId || LastBita.OrgId != bita.OrgId)
+                if (bita.BitacoraId != LastBita.BitacoraId)
                 {
                     LastBita = bita;
                     await BitaRepo.Insert(bita);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+
+        public async Task LogAll(Z192_Logs log)
+        {
+            try
+            {
+                if (log.BitacoraId != LastLog.BitacoraId)
+                {
+                    LastLog = log;
+                    await LogRepo.Insert(log);
                 }
             }
             catch (Exception ex)
@@ -415,6 +433,8 @@ namespace DashBoard.Pages.Alija
 
         }
         #endregion
+
+
 
     }
 }

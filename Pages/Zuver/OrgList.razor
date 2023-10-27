@@ -279,7 +279,7 @@ else
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
             await OrgGrid!.Reload();
         }
@@ -288,7 +288,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible actualizar una organizacion, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }

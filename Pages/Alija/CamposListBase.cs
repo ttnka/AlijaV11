@@ -5,165 +5,128 @@ using Microsoft.AspNetCore.Components;
 using Radzen;
 using Radzen.Blazor;
 
-namespace DashBoard.Pages.Zuver
+namespace DashBoard.Pages.Alija
 {
-	public class OrgListBase : ComponentBase
+	public class CamposListBase : ComponentBase
 	{
-        public const string TBita = "Organizaciones";
+        public const string TBita = "Todos los campos";
+
         [Inject]
-        public Repo<Z100_Org, ApplicationDbContext> OrgRepo { get; set; } = default!;
+        public Repo<Z209_Campos, ApplicationDbContext> CamposRepo { get; set; } = default!;
 
-        [Parameter]
-        public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
-        public List<Z100_Org> LasOrgsCorp { get; set; } = new List<Z100_Org>();
-        [Parameter]
-        public List<Z110_User> LosUsuarios { get; set; } = new List<Z110_User>();
+        public List<Z209_Campos> LosCampos { get; set; } = new List<Z209_Campos>();
 
-        
-        [Parameter]
-        public List<KeyValuePair<int, string>> NivelesEdit { get; set; } =
-            new List<KeyValuePair<int, string>>();
+        [CascadingParameter(Name = "ElFolioAll")]
+        public Z200_Folio ElFolio { get; set; } = new();
+        [CascadingParameter(Name = "EmpresaActivaAll")]
+        public Z100_Org EmpresaActiva { get; set; } = new();
 
-        [Parameter]
-        public List<KeyValuePair<string, string>> TipoOrgs { get; set; } =
-            new List<KeyValuePair<string, string>>();
-        
-        [Parameter]
-        public EventCallback LeerOrgAll { get; set; }
-        [Parameter]
-        public EventCallback LeerUsersAll { get; set; }
+        public RadzenDataGrid<Z209_Campos>? CamposGrid { get; set; } = new RadzenDataGrid<Z209_Campos>();
 
-        public RadzenDataGrid<Z100_Org>? OrgGrid { get; set; } =
-            new RadzenDataGrid<Z100_Org>();
+        protected bool Primera { get; set; } = true;
+        protected bool Leyendo { get; set; } = false;
+        protected bool Editando { get; set; } = false;
 
-        
-        protected bool Editando = false;
-        protected bool ShowAdd { get; set; } = false;
-        protected string txtNewOrg = "Nueva Empresa";
-        protected bool Primera = true;
+
         protected override async Task OnInitializedAsync()
         {
             if (Primera)
             {
                 Primera = false;
-                if (!LasOrgs.Any() || !LosUsuarios.Any())
-                    await LeerOrgsAndUsers();
+                await LeerLosCampos();
             }
+
             await Leer();
         }
 
-        public async Task Leer()
+        protected async Task Leer()
         {
             try
             {
-                await PoblarLasOrgsCorp();
 
-                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
-                    $"El usuario consulto listado de {TBita}", Corporativo, ElUser.OrgId);
-                await BitacoraAll(bitaTemp);
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar generar LEER inicio, {TBita}, {ex}",
+                $"Error al intentar Leer datos INICIO, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
                 await LogAll(LogT);
             }
         }
 
-        protected async Task PoblarLasOrgsCorp()
+        protected async Task LeerLosCampos()
         {
             try
             {
-                /*
-                if (LasOrgs.Any())
+                IEnumerable<Z209_Campos> resp = new List<Z209_Campos>();
+                if (ElFolio != null && ElFolio.FolioId.Length > 30)
                 {
-                    LasOrgsCorp = ElUser.Nivel < 5 ?
-                        LasOrgs.Where(x => x.Corporativo == ElUser.Corporativo)
-                        .Select(x => x).ToList() :
-                        LasOrgs;
+                    if (ElUser.Nivel > 5)
+                    {
+                        resp = await CamposRepo.Get(x => x.FolioId == ElFolio.FolioId);
+                    }
+                    else
+                    {
+                        resp = await CamposRepo.Get(x => x.FolioId == ElFolio.FolioId && x.Status == true);
+                    }
+                    
                 }
-                */
-                LasOrgsCorp = LasOrgs;
+                LosCampos = resp != null && resp.Any() ? resp.ToList() : new List<Z209_Campos>() ;
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                    $"Error al intentar generar el listado de corporativos, {TBita}, {ex}",
+                $"Error al intentar Leer datos del los campos de este folio {ElFolio.FolioNum}, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
                 await LogAll(LogT);
             }
         }
 
-        protected async Task LeerOrgsAndUsers()
+        protected async Task<ApiRespuesta<Z209_Campos>> Servicio(ServiciosTipos tipo, Z209_Campos campo)
         {
-            Primera = false;
-            await LeerOrgAll.InvokeAsync();
-            await LeerUsersAll.InvokeAsync();
-        }
-
-        protected async Task GoLeerOrgs()
-        {
-            await LeerOrgAll.InvokeAsync();
-        }
-
-        protected async Task GoLeerUsers()
-        {
-            await LeerUsersAll.InvokeAsync();
-        }
-
-        public async Task<ApiRespuesta<Z100_Org>> Servicio(string tipo, Z100_Org org)
-        {
-            ApiRespuesta<Z100_Org> resp = new()
+            ApiRespuesta<Z209_Campos> resp = new()
             {
-                Exito = false,
-                Data = org
+                Exito = false
             };
 
             try
             {
-                if (org != null )
+                if (campo != null)
                 {
-                    if (tipo == "Insert")
+                    campo.FolioId = ElFolio.FolioId;
+                    if (tipo == ServiciosTipos.Insert)
                     {
-                        org.OrgId = Guid.NewGuid().ToString();
-                        Z100_Org orgInsert = await OrgRepo.Insert(org);
-                        if (orgInsert != null)
+                        campo.CampoId = Guid.NewGuid().ToString();
+                        campo.Estado = 1;
+                        Z209_Campos campoInsert = await CamposRepo.Insert(campo);
+                        if (campoInsert != null)
                         {
                             resp.Exito = true;
-                            resp.Data = orgInsert;
+                            resp.Data = campoInsert;
                         }
                         else
                         {
-                            resp.MsnError.Add("No se Inserto el registro ");
+                            resp.MsnError.Add($"No se Inserto el registro de los campos del folio {ElFolio.FolioNum}");
                         }
                         return resp;
                     }
-                    else if (tipo == "Update")
+                    else if (tipo == ServiciosTipos.Update)
                     {
-                        if (LasOrgs.Exists(x=>x.Rfc.ToUpper() == org.Rfc.ToUpper()
-                        && x.OrgId != org.OrgId))
-                        {
-                            resp.MsnError.Add("El RFC ya esta REGISTRADO!");
-                            resp.Exito = false;
-                            return resp;
-                        }
-                        Z100_Org orgUpdate = await OrgRepo.Update(org);
-                        if (orgUpdate != null)
+                        Z209_Campos campoUpdate = await CamposRepo.Update(campo);
+                        if (campoUpdate != null)
                         {
                             resp.Exito = true;
-                            resp.Data = orgUpdate;
-                            return resp;
+                            resp.Data = campoUpdate;
                         }
                         else
                         {
-                            resp.MsnError.Add("No se Actualizo el registro ");
+                            resp.MsnError.Add($"No se Actualizo el registro los campos {ElFolio.FolioNum}");
                             resp.Exito = false;
-                            return resp;
                         }
+                        return resp;
                     }
                 }
-                resp.MsnError.Add("Ningua operacion se realizo!");
+                resp.MsnError.Add($"Ningua operacion se realizo! {TBita}");
                 return resp;
             }
             catch (Exception ex)
@@ -175,7 +138,6 @@ namespace DashBoard.Pages.Zuver
                 await LogAll(LogT);
                 return resp;
             }
-
         }
 
         #region Usuario y Bitacora

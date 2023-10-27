@@ -62,12 +62,13 @@
 
             <RadzenDataGridColumn TItem="Z280_Producto" Title="Clave" Property="Clave"
                                   Filterable="true" Width="120px">
+
                 <Template Context="datos">
                     <RadzenLabel>@datos.Clave</RadzenLabel>
                 </Template>
                 <EditTemplate Context="datos">
                     <RadzenTextBox Name="Clave" @bind-Value="datos.Clave"
-                                   Placeholder="Clave" Style="width: 100%;" />
+                                   Placeholder="Clave" Style="width: 100%;" MaxLength="10" />
                 </EditTemplate>
             </RadzenDataGridColumn>
 
@@ -262,7 +263,7 @@ else
 
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
         }
         catch (Exception ex)
@@ -270,7 +271,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible actualizar la info de PRODUCTO, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }
@@ -337,7 +338,7 @@ else
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
             //await ProductoGrid!.Reload();
         }
@@ -346,7 +347,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible crear el registro PRODUCTO, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }

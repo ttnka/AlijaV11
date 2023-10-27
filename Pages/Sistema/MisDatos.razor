@@ -173,7 +173,7 @@
                     txt += e;
                 }
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
             Editando = !Editando;
             await UserToOldData();
@@ -184,7 +184,7 @@
             Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error al intentar actualizar los datos USER, {TBita},{ex}",
                    Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(LogT);
+            await LogAll(LogT);
         }
     }
 

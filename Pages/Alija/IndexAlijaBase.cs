@@ -12,32 +12,38 @@ namespace DashBoard.Pages.Alija
 	public class IndexAlijaBase : ComponentBase
 	{
         protected const string TBita = "Index Alijadores";
+
+        [Inject]
+        public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
         [Inject]
         public Repo<Z100_Org, ApplicationDbContext> OrgRepo { get; set; } = default!;
         [Inject]
         public Repo<Z110_User, ApplicationDbContext> UsersRepo { get; set; } = default!;
         [Inject]
-        public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
-        [Inject]
         public Repo<Z200_Folio, ApplicationDbContext> FolioRepo { get; set; } = default!;
+        
         [Inject]
         public Repo<Z220_Factura, ApplicationDbContext> FacturaRepo { get; set; } = default!;
         [Inject]
         public Repo<Z230_Pago, ApplicationDbContext> PagoRepo { get; set; } = default!;
-
+        
+        [Inject]
+        public Repo<Z180_EmpActiva, ApplicationDbContext> EmpActRepo { get; set; } = default!;
           
         protected List<Z110_User> LosUsersAll { get; set; } = new List<Z110_User>();
         protected List<Z100_Org> LasOrgsAll { get; set; } = new List<Z100_Org>();
+        protected List<Z100_Org> LasAlijadorasAll { get; set; } = new List<Z100_Org>();
+        protected List<Z180_EmpActiva> LasEmpActAll { get; set; } = new List<Z180_EmpActiva>();
         protected List<Z200_Folio> LosFoliosAll { get; set; } = new List<Z200_Folio>();
         protected List<Z220_Factura> LasFacturasAll { get; set; } = new List<Z220_Factura>();
         protected List<Z230_Pago> LosPagosAll { get; set; } = new List<Z230_Pago>();
         protected List<ZConfig> LasConfigsAll { get; set; } = new List<ZConfig>();
         
+        //protected List<ZConfig> LasHistEmpAll { get; set; } = new List<ZConfig>();
 
-        protected string CorporativoAll { get; set; } = "All";
         protected Z100_Org EmpresaActivaAll { get; set; } = new();
-        protected string EmpresaActivaId { get; set; } = "";
-        protected List<Z100_Org> LasAlijadorasAll { get; set; } = new List<Z100_Org>();
+        //protected string EmpresaActivaId { get; set; } = "";
+        protected string CorporativoAll { get; set; } = "All";
 
         protected List<KeyValuePair<string, string>> TipoOrgsAll { get; set; } =
             new List<KeyValuePair<string, string>>();
@@ -65,8 +71,9 @@ namespace DashBoard.Pages.Alija
             {
                 await LeerOrgAll();
 
-                if (LasOrgsAll.Any() && EmpresaActivaAll != null && EmpresaActivaAll!.OrgId.Length < 30)
+                if (LasOrgsAll.Any() && ElUser.UserId.Length > 30)
                     await LeerEmpresaActivaAll();
+
 
                 await LeerTiposAll();
                 await LeerNiveles();
@@ -144,16 +151,15 @@ namespace DashBoard.Pages.Alija
         {
             try
             {
-                if (!TipoOrgsAll.Any())
+                TipoOrgsAll.Clear();
+                string[] OrgT = Constantes.OrgTipo.Split(",");
+                foreach (var tc in OrgT)
                 {
-                    string[] OrgT = Constantes.OrgTipo.Split(",");
-                    foreach (var tc in OrgT)
-                    {
-                        if (tc == "Administracion" && ElUser.Nivel < 6)
-                            continue;
-                        TipoOrgsAll.Add(new KeyValuePair<string, string>(tc, tc));
-                    }
+                    if (tc == "Administracion" && ElUser.Nivel < 6)
+                        continue;
+                    TipoOrgsAll.Add(new KeyValuePair<string, string>(tc, tc));
                 }
+                
             }
             catch (Exception ex)
             {
@@ -168,26 +174,33 @@ namespace DashBoard.Pages.Alija
         {
             try
             {
-                if (ElUser == null || ElUser!.UserId.Length < 30)
+                LasEmpActAll = (await EmpActRepo.GetAll()).ToList();
+
+                if (!LasEmpActAll.Any())
                 {
+                    NohayEmpActiva = true;
+                    LasEmpActAll = new List<Z180_EmpActiva>();
+                    EmpresaActivaAll = new();
                     return;
                 }
                 else
                 {
-                    IEnumerable<ZConfig> reg = await ConfRepo.Get(x => x.Titulo == Constantes.EmpresaActiva &&
-                                x.Usuario == ElUser.UserId);
-
-                    if (reg == null && !reg!.Any())
+                    string orgIdT = LasEmpActAll.Any(x => x.UserId == ElUser.UserId) ? LasEmpActAll.OrderByDescending(f => f.Fecha)
+                        .FirstOrDefault(x => x.UserId == ElUser.UserId)!.OrgId :
+                        "";
+                        
+                    EmpresaActivaAll = orgIdT != "" ?  LasOrgsAll.FirstOrDefault(x => x.OrgId == orgIdT)! :
+                        new Z100_Org();
+                }
+                
+                if(DateTime.Now.Hour < 10 && DateTime.Now.Day % 5 == 0 &&
+                    LasEmpActAll.Count(x=>x.UserId == ElUser.UserId) > 5)
+                {
+                    IEnumerable<Z180_EmpActiva> lista = LasEmpActAll.OrderByDescending(f => f.Fecha)
+                                        .Where(x => x.UserId == ElUser.UserId).Skip(5);
+                    if (lista.Any())
                     {
-                        NohayEmpActiva = true;
-                        LasConfigsAll = new List<ZConfig>();
-                    }
-                    else
-                    {
-                        LasConfigsAll = reg!.ToList();
-                        string orgIdT = reg!.OrderByDescending(x => x.Fecha1).FirstOrDefault()!.Txt;
-                        EmpresaActivaAll = LasOrgsAll.FirstOrDefault(x => x.OrgId == orgIdT)!;
-                        EmpresaActivaId = EmpresaActivaAll.OrgId.Length > 30 ? EmpresaActivaAll.OrgId : "";
+                        await EmpActRepo.DeletePlus(lista);
                     }
                 }
 
@@ -307,41 +320,12 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        protected async Task CambiarEmpAct()
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(EmpresaActivaId))
-                {
-                    ZConfig nuevo = new()
-                    {
-                        ConfigId = Guid.NewGuid().ToString(),
-                        Usuario = ElUser.UserId,
-                        Txt = EmpresaActivaId,
-                        Fecha1 = DateTime.Now,
-                    };
-                    ZConfig resp = await ConfRepo.Insert(nuevo);
-                    if (resp != null && resp.ConfigId.Length > 30)
-                    {
-                        EmpresaActivaId = resp.Txt;
-                        EmpresaActivaAll = await OrgRepo.GetById(EmpresaActivaId);
-                        StateHasChanged();
-                    }
-                }
-                
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                    $"Error, No fue posible cambiar la empresa activa, {TBita}, {ex}",
-                    "All", ElUser.OrgId);
-                await LogAll(logTemp);
-            }
-        }
 
         public ZFiltros MyFiltros { get; set; } = new();
 
         #region Usuario y Bitacora
+        [CascadingParameter(Name = "CorporativoAll")]
+        public string Corporativo { get; set; } = "All";
 
         [CascadingParameter(Name = "ElUserAll")]
         public Z110_User ElUser { get; set; } = new();
@@ -380,27 +364,46 @@ namespace DashBoard.Pages.Alija
         public Repo<Z192_Logs, ApplicationDbContext> LogRepo { get; set; } = default!;
 
         public Z190_Bitacora LastBita { get; set; } = new();
+        public Z192_Logs LastLog { get; set; } = new();
         public async Task BitacoraAll(Z190_Bitacora bita)
         {
-            if (bita.Fecha.Subtract(LastBita.Fecha).TotalSeconds > 15 ||
-                LastBita.Desc != bita.Desc || LastBita.Sistema != bita.Sistema ||
-                LastBita.UserId != bita.UserId || LastBita.OrgId != bita.OrgId)
+            try
             {
-                LastBita = bita;
-                await BitaRepo.Insert(bita);
+                if (bita.BitacoraId != LastBita.BitacoraId)
+                {
+                    LastBita = bita;
+                    await BitaRepo.Insert(bita);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
             }
         }
-        public Z192_Logs LastLog { get; set; } = new();
 
         public async Task LogAll(Z192_Logs log)
         {
-            if (LastLog.Desc != log.Desc || LastLog.Sistema != log.Sistema ||
-                LastLog.UserId != log.UserId || LastLog.OrgId != log.OrgId)
+            try
             {
-                LastLog = log;
-                await LogRepo.Insert(log);
+                if (log.BitacoraId != LastLog.BitacoraId)
+                {
+                    LastLog = log;
+                    await LogRepo.Insert(log);
+                }
             }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+
         }
+        
 
         [Inject]
         public UserManager<IdentityUser> UserMger { get; set; } = default!;
@@ -422,7 +425,7 @@ namespace DashBoard.Pages.Alija
         //Niveles = "1Registrado,2Proveedor,3Cliente,4Cliente_Admin,5Alija,6Alija_Admin";
                     if (ElUser == null)
                     {
-                        NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
+                        NM.NavigateTo("Identity/Account/Login?ReturnUrl=/alijadores", true);
                     }
                     
                     else
@@ -433,7 +436,7 @@ namespace DashBoard.Pages.Alija
                 }
                 else
                 {
-                    NM.NavigateTo("Identity/Account/Login?ReturnUrl=/", true);
+                    NM.NavigateTo("Identity/Account/Login?ReturnUrl=/alijadores", true);
                 }
 
             }

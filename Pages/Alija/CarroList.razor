@@ -47,7 +47,7 @@
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z205_Carro" Title="Pedimento"
-                                  Filterable="false" Resizable="true" Width="170px">
+                                  Filterable="false" Resizable="true" Width="200px">
 
                 <Template Context="datos">
                     <RadzenLabel style="white-space:pre-wrap; line-height: initial">
@@ -58,6 +58,21 @@
                 <EditTemplate Context="datos">
                     <RadzenTextArea Name="Pedimento" @bind-Value="datos.Pedimento"
                                     Placeholder="Pedimento" Style="width: 100%;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z205_Carro" Title="Factura"
+                                  Filterable="false" Resizable="true" Width="200px">
+
+                <Template Context="datos">
+                    <RadzenLabel style="white-space:pre-wrap; line-height: initial">
+                        @datos.CajaOtros
+                    </RadzenLabel>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="CajaOtros" @bind-Value="datos.CajaOtros"
+                                   Placeholder="mas cajas opcional" />
                 </EditTemplate>
             </RadzenDataGridColumn>
 
@@ -105,20 +120,7 @@
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z205_Carro" Title="Otras Cajas"
-                                  Filterable="false" Resizable="true" Width="150px">
 
-                <Template Context="datos">
-                    <RadzenLabel style="white-space:pre-wrap; line-height: initial">
-                        @datos.CajaOtros
-                    </RadzenLabel>
-                </Template>
-
-                <EditTemplate Context="datos">
-                    <RadzenTextBox Name="CajaOtros" @bind-Value="datos.CajaOtros"
-                                   Placeholder="mas cajas opcional" />
-                </EditTemplate>
-            </RadzenDataGridColumn>
 
 
             <RadzenDataGridColumn TItem="Z205_Carro" Context="sampleBlazorModelsSampleOrder"
@@ -150,14 +152,14 @@
                         <RadzenLabel>
                             Borrar este registro?
                         </RadzenLabel>
-                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
-                                             Placeholder="Borrar este registro?">
-                                <Items>
-                                    <RadzenSelectBarItem Text="No" Value="true" />
-                                    <RadzenSelectBarItem Text="Si" Value="false" />
-                                </Items>
-                            </RadzenSelectBar>
-                        
+                        <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                         Placeholder="Borrar este registro?">
+                            <Items>
+                                <RadzenSelectBarItem Text="No" Value="true" />
+                                <RadzenSelectBarItem Text="Si" Value="false" />
+                            </Items>
+                        </RadzenSelectBar>
+
                     }
 
                     <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
@@ -231,7 +233,7 @@ else
 
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
                 await CarrosGrid!.Reload();
             }
         }
@@ -240,7 +242,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible actualizar la info de CARRO, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }
@@ -303,7 +305,7 @@ else
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
                 await CarrosGrid!.Reload();
             }
 
@@ -313,7 +315,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible CREAR el registro de CARRO, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
 

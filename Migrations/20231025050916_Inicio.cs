@@ -124,27 +124,6 @@ namespace DashBoard.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Choferes",
-                columns: table => new
-                {
-                    EmpleadoId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    FolioId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Titulo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Obs = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Estado = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Choferes", x => x.EmpleadoId);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Concpetos",
                 columns: table => new
                 {
@@ -198,6 +177,27 @@ namespace DashBoard.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Empleados",
+                columns: table => new
+                {
+                    EmpleadoId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FolioId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Nombre = table.Column<string>(type: "varchar(75)", maxLength: 75, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Obs = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Empleados", x => x.EmpleadoId);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Facturas",
                 columns: table => new
                 {
@@ -212,6 +212,8 @@ namespace DashBoard.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Obs = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    Importe = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Control = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Corporativo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     EmpresaId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
@@ -252,11 +254,11 @@ namespace DashBoard.Migrations
                 {
                     FolioId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    FolioNum = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FolioNum = table.Column<int>(type: "int", nullable: false),
                     OrgId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Fecha = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Importe = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Titulo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Obs = table.Column<string>(type: "longtext", nullable: true)
@@ -395,7 +397,7 @@ namespace DashBoard.Migrations
                     Titulo = table.Column<string>(type: "varchar(75)", maxLength: 75, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    obs = table.Column<string>(type: "longtext", nullable: true)
+                    Obs = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Corporativo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -649,13 +651,13 @@ namespace DashBoard.Migrations
                 name: "Carros");
 
             migrationBuilder.DropTable(
-                name: "Choferes");
-
-            migrationBuilder.DropTable(
                 name: "Concpetos");
 
             migrationBuilder.DropTable(
                 name: "Configuraciones");
+
+            migrationBuilder.DropTable(
+                name: "Empleados");
 
             migrationBuilder.DropTable(
                 name: "Facturas");

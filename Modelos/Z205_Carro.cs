@@ -9,15 +9,15 @@ namespace DashBoard.Modelos
         [StringLength(50)]
         public string CarroId { get; set; } = "";
         [StringLength(50)]
-        public string FolioId { get; set; } = null!;
+        public string FolioId { get; set; } = "";
         [StringLength(75)]
-        public string Tractor { get; set; } = null!;
+        public string Tractor { get; set; } = "";
         [StringLength(50)]
-        public string Caja1 { get; set; } = null!;
-        public string? Caja2 { get; set; }
-        public string? CajaOtros { get; set; }
-        public string? Pedimento { get; set; }
-        public string? Obs { get; set; }
+        public string Caja1 { get; set; } = "";
+        public string? Caja2 { get; set; } = "";
+        public string? CajaOtros { get; set; } = "";
+        public string? Pedimento { get; set; } = "";
+        public string? Obs { get; set; } = "";
         
         public int Estado { get; set; } = 2;
         public bool Status { get; set; } = true;

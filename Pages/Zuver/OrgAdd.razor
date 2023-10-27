@@ -110,17 +110,14 @@
 
             <div class="row" style="background:gray">
                 <div class="col-md-4 align-items-center d-flex">
-                    <RadzenLabel Text="Corporativo o grupo" />
-                    @if (LasOrgsCorp.Count > 0)
-                        {
-                            <RadzenSwitch @bind-Value=@ShowGpo />
-                        }
+                    <RadzenLabel Text="Empresa Activa" />
+                    
                 </div>
                 <div class="col-md-8">
 
                     <RadzenDropDown Name="Corporativo" Data=LasOrgsCorp @bind-Value=OrgNew.Corporativo
                                     ValueProperty="OrgId" TextProperty="Comercial" AllowClear="false"
-                                    Style="width: 90%;" Visible=@ShowGpo />
+                                    Style="width: 90%;" />
                 </div>
             </div>
 
@@ -131,7 +128,9 @@
                     @if (EMsn == "")
                     {
                         <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
-                                  Class="m-1" ButtonType="ButtonType.Submit" Disabled="BotonNuevo" />
+                                  Class="m-1" ButtonType="ButtonType.Submit" Disabled="BotonNuevo">
+                            Agregar
+                        </RadzenButton>
                     }
 
                     <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
@@ -156,6 +155,7 @@
             org.OrgId = Guid.NewGuid().ToString();
             org.Estado = 1;
             org.Rfc = org.Rfc.ToUpper();
+            org.UserOldEmail = org.UserOldEmail.ToLower();
             org.Corporativo = org.Corporativo.Length < 30 ? org.OrgId : org.Corporativo;
             org.Moral = org.Rfc.Length == 12;
 
@@ -183,6 +183,32 @@
                 Z190_Bitacora bitaTemp1 = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt1,
                         Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp1);
+
+                ZConfig nZc = new ZConfig()
+                {   ConfigId = Guid.NewGuid().ToString(),
+                    Txt = org.Corporativo,
+                    Titulo = Constantes.EmpresaActiva,
+                    Usuario = org.UserId
+                };
+                ApiRespuesta<ZConfig> nEa = await EmpActAddUser(nZc);
+                if (nEa.Exito)
+                {
+                    txt1 = $"Se registro empresa activa {org.UserNombre} {org.UserPaterno}";
+                    Z190_Bitacora bt = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt1, Corporativo, ElUser.UserId);
+                    await BitacoraAll(bt);
+                }
+                else
+                {
+                    ShowNotification(ElMsn("Error", "Error",
+                            $"No pudo ser creada empresa activa!!! {org.Comercial} {org.NumCliente}", 0));
+                    txt = $"{TBita}, NO se creo una EMPRESA ACTIVA {org.Comercial} " + txt;
+                    foreach (var e in resultado.MsnError)
+                    {
+                        txt += e;
+                    }
+                    Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, ElUser.OrgId);
+                    await LogAll(logTemp);
+                }
                 await LeerOrgAndUserAll.InvokeAsync();
 
                 Cancelar();
@@ -197,7 +223,7 @@
                     txt += e;
                 }
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
             BotonNuevo = false;
         }
@@ -206,7 +232,7 @@
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible agregar una organizacion, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }

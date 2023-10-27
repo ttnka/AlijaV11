@@ -43,7 +43,7 @@
         </HeaderTemplate>
 
         <Template Context="datos1">
-            <CascadingValue Value="datos1" Name="ElFolioAll">
+            <CascadingValue Value="datos1" Name="LaFacturaAll">
                 <CascadingValue Value="EmpresaActiva" Name="EmpresaActivaAll">
 
                     <RadzenTabs>
@@ -80,6 +80,8 @@
                 <EditTemplate Context="datos">
                     <RadzenTextBox Name="FacturaNum" @bind-Value="datos.FacturaNum" Change="ElTitulo"
                                    Placeholder="Folio Factura" Style="width:100%;" />
+                    <RadzenLengthValidator Component="FacturaNum" Min="5" Max="50" Text="El folio de la factura es Requerido (min 5 a max 50 caracteres)!" />
+
                 </EditTemplate>
             </RadzenDataGridColumn>
 
@@ -150,7 +152,15 @@
                             @if (FactEstadoArray.Length >= datos.Estado - 1)
                             {
                                 <RadzenLabel>
-                                    @FactEstadoArray[datos.Estado - 1]
+                                    @if (datos.Estado == 0)
+                                    {
+                                        @FactEstadoArray[0]
+                                    }
+                                    else
+                                    {
+                                        @FactEstadoArray[datos.Estado - 1]
+                                    }
+
                                 </RadzenLabel>
                             }
                             else
@@ -228,18 +238,18 @@
 
                 <EditTemplate Context="datos">
 
-                    @if (datos.Estado < 2 && ElUser.Nivel > 4)
+                    @if (datos.Estado>0 &&  datos.Estado < 2 && ElUser.Nivel > 4)
                     {
                         <RadzenLabel>
                             Borrar este registro?
-                        </RadzenLabel>
+                        </RadzenLabel><br />
                         <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
                                          Placeholder="Borrar este registro?">
                             <Items>
                                 <RadzenSelectBarItem Text="No" Value="true" />
                                 <RadzenSelectBarItem Text="Si" Value="false" />
                             </Items>
-                        </RadzenSelectBar>
+                        </RadzenSelectBar><br />
 
                     }
 
@@ -341,7 +351,7 @@ else
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
             //await FacturaGrid!.Reload();
         }
@@ -350,7 +360,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible actualizar el FACTURA, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
     }
 
@@ -425,7 +435,7 @@ else
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
             //await FacturaGrid!.Reload();
         }
@@ -434,7 +444,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible crear un FACTURA, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }

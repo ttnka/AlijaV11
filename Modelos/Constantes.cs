@@ -11,10 +11,10 @@ namespace DashBoard.Modelos
 
         public const string DeNombreMail01 = "WebMaster";
         public const string DeMail01 = "webmaster@alijadores.com";
-        public const string ServerMail01 = "alijadores.com";
+        public const string ServerMail01 = "mail.omnis.com";
         public const int PortMail01 = 587;
         public const int Nivel01 = 1;
-        public const string UserNameMail01 = "info@alijadores.com";
+        public const string UserNameMail01 = "webmaster@alijadores.com";
         public const string PasswordMail01 = "Wb.2468022";
 
         // Mail 02
@@ -44,10 +44,10 @@ namespace DashBoard.Modelos
 
         // Registro de Sistema
         public const string SyRfc = "ZME130621FFA";
-        public const string SyRazonSocial = "Zuverworks de Mexico";
-        public const int SyEstado = 2;
+        public const string SyRazonSocial = "Alijadores del Pacifico";
+        public const int SyEstado = 1;
         public const bool SyStatus = true;
-        public const string SyMail = "info@zuverworks.com";
+        public const string SyMail = "webmaster@alijadores.com";
         public const string SysPassword = "24680212Ih.";
 
         // Configuracion

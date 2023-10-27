@@ -5,25 +5,26 @@
 
 
 
-@if (LasConfig != null && !Leyendo)
+@if (LasEmpHist != null && !Leyendo)
 {
-    <RadzenDataGrid @ref="ConfigGrid"
+    <RadzenDataGrid @ref="EmpActGrid"
                     AllowFiltering="true" AllowPaging="true" PageSize="50"
                     AllowSorting="true" AllowColumnResize="true"
                     ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
                     EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
-                    Data="@LasConfig" TItem="ZConfig"
+                    Data="@LasEmpHist" TItem="Z180_EmpActiva"
                     RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
 
         <HeaderTemplate>
-            
-            <RadzenButton Icon="plus" style="margin-bottom: 10px"
+            @if(ElUser.Nivel > 5)
+            {
+                <RadzenButton Icon="plus" style="margin-bottom: 10px"
                             ButtonStyle="ButtonStyle.Info" Click="InsertRow">
-                Cambio de Empresa
-            </RadzenButton>
-            
+                    Cambio de Empresa
+                </RadzenButton>
+            }
             <RadzenButton Icon="refresh" style="margin-bottom: 10px"
-                          ButtonStyle="ButtonStyle.Success" Click="LeerConfigs">
+                          ButtonStyle="ButtonStyle.Success" Click="LeerHistEmps">
                 Actualizar
             </RadzenButton>
         </HeaderTemplate>
@@ -31,14 +32,14 @@
         <Columns>
 
 
-            <RadzenDataGridColumn TItem="ZConfig" Title="Fecha" Filterable="false"
+            <RadzenDataGridColumn TItem="Z180_EmpActiva" Title="Fecha" Filterable="false"
                                   Width="160px">
                 <Template Context="datos">
                     <RadzenLabel>
-                        @($"{@MyFunc.FormatoFecha("DD/MMM/AA", datos.Fecha1)}")
+                        @($"{@MyFunc.FormatoFecha("DD/MMM/AA", datos.Fecha)}")
                     </RadzenLabel>
                     <RadzenLabel>
-                        @($"{@MyFunc.LaHora(datos.Fecha1, "S")}")
+                        @($"{@MyFunc.LaHora(datos.Fecha, "S")}")
                     </RadzenLabel>
                 </Template>
                 <EditTemplate Context="datos">
@@ -46,13 +47,39 @@
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="ZConfig" Title="Empresa"
+            <RadzenDataGridColumn TItem="Z180_EmpActiva" Title="Empleado" Filterable="false"
+                                  Width="200px">
+                <Template Context="datos">
+                    <RadzenLabel>
+                        @if (LosUsers.Any(x=>x.UserId == datos.UserId))
+                        {
+                            <RadzenLabel>
+                                @LosUsers.FirstOrDefault(x=>x.UserId == datos.UserId)!.Completo
+                            </RadzenLabel>
+                        }
+                        else
+                        {
+                            <RadzenLabel>No hay nombre</RadzenLabel>
+                        }
+                    </RadzenLabel>
+                    
+                </Template>
+                <EditTemplate Context="datos">
+                   
+                        <RadzenDropDown Name="UserId" Data=LosEmpleados @bind-Value=@datos.UserId
+                                        ValueProperty="UserId" TextProperty="Completo" AllowClear="false"
+                                        Style="width: 100%;" Change="YaCambio" />
+                   
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z180_EmpActiva" Title="Empresa"
                                   Filterable="false" Width="250px">
                 <Template Context="datos">
-                    @if (LasOrgs.Any(x => x.OrgId == datos.Txt))
+                    @if (LasOrgs.Any(x => x.OrgId == datos.OrgId))
                     {
                         <RadzenLabel>
-                            @LasOrgs.FirstOrDefault(x => x.OrgId == datos.Txt)!.ComercialRfc
+                            @LasOrgs.FirstOrDefault(x => x.OrgId == datos.OrgId)!.ComercialRfc
                         </RadzenLabel>
 
                     }
@@ -62,28 +89,13 @@
                     }
                 </Template>
                 <EditTemplate Context="datos">
-                    <RadzenDropDown Name="Txt" Data=LasAlijadoras @bind-Value=@datos.Txt
+                    <RadzenDropDown Name="OrgId" Data=LasAlijadoras @bind-Value=@datos.OrgId
                                     ValueProperty="OrgId" TextProperty="ComercialRfc" AllowClear="false"
                                     Style="width: 100%;" Change="YaCambio" />
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="ZConfig" Title="Usuario"
-                                  Filterable="false" Width="250px">
-                <Template Context="datos">
-                    <RadzenLabel>
-                        @ElUser.Completo
-                    </RadzenLabel>
-
-                </Template>
-                <EditTemplate Context="datos">
-                    <RadzenLabel>
-                        @ElUser.Completo
-                    </RadzenLabel>
-                </EditTemplate>
-            </RadzenDataGridColumn>
-
-            <RadzenDataGridColumn TItem="ZConfig" Context="sampleBlazorModelsSampleOrder"
+            <RadzenDataGridColumn TItem="Z180_EmpActiva" Context="sampleBlazorModelsSampleOrder"
                                   Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
                                   Width="250px" Title="Estado">
                 <Template Context="datos">
@@ -126,20 +138,20 @@ else
     {
         //OrgNew = new();
         cambio = false;
-        ZConfToInsert = new();
+        empActToInsert = new();
     }
 
-    ZConfig ZConfToInsert = new();
+    Z180_EmpActiva empActToInsert = new();
 
 
-    async Task EditRow(ZConfig conf)
+    async Task EditRow(Z180_EmpActiva empAct)
     {
 
-        await ConfigGrid!.EditRow(conf);
+        await EmpActGrid!.EditRow(empAct);
         Editando = !Editando;
     }
 
-    async void OnUpdateRow(ZConfig conf)
+    async void OnUpdateRow(Z180_EmpActiva empAct)
     {
         try
         {
@@ -150,43 +162,43 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible actualizar una organizacion, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }
 
-    async Task SaveRow(ZConfig conf)
+    async Task SaveRow(Z180_EmpActiva empAct)
     {
-        await ConfigGrid!.UpdateRow(conf);
+        await EmpActGrid!.UpdateRow(empAct);
     }
 
-    void CancelEdit(ZConfig conf)
+    void CancelEdit(Z180_EmpActiva empAct)
     {
-        if (conf == ZConfToInsert) ZConfToInsert = null!;
+        if (empAct == empActToInsert) empActToInsert = null!;
         Editando = !Editando;
-        ConfigGrid!.CancelEditRow(conf);
+        EmpActGrid!.CancelEditRow(empAct);
     }
 
     async Task InsertRow()
     {
-        ZConfToInsert = new ZConfig();
+        empActToInsert = new Z180_EmpActiva();
         Editando = !Editando;
         cambio = false;
-        await ConfigGrid!.InsertRow(ZConfToInsert);
+        await EmpActGrid!.InsertRow(empActToInsert);
     }
 
-    async void OnCreateRow(ZConfig conf)
+    async void OnCreateRow(Z180_EmpActiva empAct)
     {
         try
         {
-            if (conf == ZConfToInsert) ZConfToInsert = null!;
+            if (empAct == empActToInsert) empActToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<ZConfig> resultado = await Servicio("Insert", conf);
+            ApiRespuesta<Z180_EmpActiva> resultado = await Servicio("Insert", empAct);
 
-            string txtEmp = LasAlijadoras.FirstOrDefault(x => x.OrgId == conf.Txt)!.ComercialRfc;
+            string txtEmp = LasAlijadoras.FirstOrDefault(x => x.OrgId == empAct.OrgId)!.ComercialRfc;
             string txt = $"Se registro cambio de empresa activa {ElUser.Completo} {txtEmp}";
-            txt += $"fecha: {conf.Fecha1}";
+            txt += $"fecha: {empAct.Fecha}";
             if (resultado.Exito)
             {
                 ShowNotification(ElMsn("Exito", "Nuevo Folio", txt, 0));
@@ -207,7 +219,7 @@ else
                 txt += etxt;
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
             StateHasChanged();
         }
@@ -216,7 +228,7 @@ else
             Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                     $"Error, No fue posible actualizar la empresa activa, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
-            await LogRepo.Insert(logTemp);
+            await LogAll(logTemp);
         }
 
     }

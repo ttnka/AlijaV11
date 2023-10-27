@@ -9,13 +9,13 @@ namespace DashBoard.Modelos
         [StringLength(50)]
         public string TransporteId { get; set; } = "";
         [StringLength(50)]
-        public string FolioId { get; set; } = null!;
+        public string FolioId { get; set; } = "";
         [StringLength(75)]
-        public string Transportista { get; set; } = null!;
+        public string Transportista { get; set; } = "";
         [StringLength(75)]
-        public string Chofer { get; set; } = null!;
+        public string Chofer { get; set; } = "";
         [StringLength(50)]
-        public string CartaPorte { get; set; } = null!;
+        public string CartaPorte { get; set; } = "";
         public string? Identificacion { get; set; }
         
         public int Estado { get; set; } = 2;

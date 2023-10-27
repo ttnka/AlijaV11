@@ -8,15 +8,19 @@ Applicacion de mi memes Alijadores
 esta en la base de datos Omins - Austeridad
 
 
+como unir 2 tablas 
+resp = LosUsers.Where(user =>
+                                    LasAlijadoras.Select(org => org.OrgId).Contains(user.OrgId)).ToList();
+
+Formato de dinero con <div text-align: right;
+@($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @ConceptoGrid.View.Select(x => x.Importe).Sum())}")
+
+por grupos 
+LasOrgsCorp = LasOrgs.Where(x => x.Estado == 1).GroupBy(x => x.Corporativo).Select(x => x.First()).ToList();
 
 
-
-
-
-
-
-
-
+async Task Uno() {
+}
 
 
 
@@ -287,3 +291,50 @@ public class Repo<TEntity, TDataContext> : ApiFiltroGet<TEntity>
 
 
  
+public class Z100_Org
+	{
+        [Key]
+        [StringLength(50)]
+        public string OrgId { get; set; } = "";
+        [StringLength(15)]
+        public string Rfc { get; set; } = "";
+        [StringLength(25)]
+        public string Comercial { get; set; } = "";
+        [StringLength(75)]
+        public string? RazonSocial { get; set; } = "";
+        public bool Moral { get; set; } = true;
+        
+        public string? NumCliente { get; set; } = "";
+        [StringLength(15)]
+        public string Tipo { get; set; } = "Cliente";
+        [StringLength(50)]
+        public string Corporativo { get; set; } = "All";
+        
+        public int Estado { get; set; } = 2;
+        public bool Status { get; set; } = true;
+
+        public string ComercialRfc => Comercial + " " + Rfc;
+        
+    }
+
+public class Z110_User
+	{
+        [Key]
+        [StringLength(50)]
+        public string UserId { get; set; } = "";
+        [StringLength(25)]
+        public string Nombre { get; set; } = "";
+        [StringLength(25)]
+        public string Paterno { get; set; } = "";
+        [StringLength(25)]
+        public string? Materno { get; set; }
+        public int Nivel { get; set; } = 1;
+        [StringLength(50)]
+        public string OrgId { get; set; } = "";
+        [StringLength(75)]
+        public string OldEmail { get; set; } = "";
+        
+        public int Estado { get; set; } = 2;
+        public bool Status { get; set; } = true;
+        public string Completo => Nombre + " " + Paterno + " " + Materno;
+    }

@@ -32,8 +32,7 @@ namespace DashBoard.Pages.Zuver
             new List<KeyValuePair<int, string>>();
         [Parameter]
         public string LaOrg { get; set; } = "";
-        [CascadingParameter(Name = "CorporativoAll")]
-        public string Corporativo { get; set; } = "All";
+        
         [Parameter]
         public EventCallback LeerOrgAll { get; set; }
         [Parameter]
@@ -71,7 +70,7 @@ namespace DashBoard.Pages.Zuver
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar leer los registros de {TBita} {ex}",
                         Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
             }
             
         }
@@ -149,13 +148,16 @@ namespace DashBoard.Pages.Zuver
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar {tipo} los registros de {TBita} {ex}",
                         Corporativo, ElUser.OrgId);
-                await LogRepo.Insert(LogT);
+                await LogAll(LogT);
                 return resp;
             }
 
         }
 
         #region Usuario y Bitacora
+
+        [CascadingParameter(Name = "CorporativoAll")]
+        public string Corporativo { get; set; } = "All";
 
         [CascadingParameter(Name = "ElUserAll")]
         public Z110_User ElUser { get; set; } = new();
@@ -192,13 +194,12 @@ namespace DashBoard.Pages.Zuver
         [Inject]
         public NavigationManager NM { get; set; } = default!;
         public Z190_Bitacora LastBita { get; set; } = new();
+        public Z192_Logs LastLog { get; set; } = new();
         public async Task BitacoraAll(Z190_Bitacora bita)
         {
             try
             {
-                if (bita.Fecha.Subtract(LastBita.Fecha).TotalSeconds > 15 ||
-                    LastBita.Desc != bita.Desc || LastBita.Sistema != bita.Sistema ||
-                    LastBita.UserId != bita.UserId || LastBita.OrgId != bita.OrgId)
+                if (bita.BitacoraId != LastBita.BitacoraId)
                 {
                     LastBita = bita;
                     await BitaRepo.Insert(bita);
@@ -207,7 +208,26 @@ namespace DashBoard.Pages.Zuver
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+
+        public async Task LogAll(Z192_Logs log)
+        {
+            try
+            {
+                if (log.BitacoraId != LastLog.BitacoraId)
+                {
+                    LastLog = log;
+                    await LogRepo.Insert(log);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error al intentar escribir BITACORA, {TBita},{ex}",
                     Corporativo, ElUser.OrgId);
                 await LogRepo.Insert(LogT);
             }

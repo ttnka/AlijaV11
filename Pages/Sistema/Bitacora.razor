@@ -6,7 +6,7 @@
     <Authorized>
 
         @if (LasBitas == null || Leyendo)
-            {
+        {
             <h3>Bitacora</h3>
             <div class="spinner"></div>
         }
@@ -14,13 +14,14 @@
         {
             <RadzenCard>
 
-        <div class="form-group row">
-            <div class="col-sm-5"><h3>Bitacora</h3></div>
-            <div class="col-sm-4">@LaOrgName</div>
-            <div class="col-sm-3">
-                @if (ElUser.Nivel > 4)
+            <div class="form-group row">
+                
+                <div class="col-sm-5"><h3>@Titulo</h3></div>
+                <div class="col-sm-4">@LaOrgName</div>
+                <div class="col-sm-3">
+                @if (ElUser.Nivel > 5)
                 {
-                    <RadzenLabel>Bitacora</RadzenLabel>
+                    
                     <RadzenSwitch Name="Sistema" @bind-Value="showBitacora" Change="ReadLogs" />
                     <RadzenLabel>Log</RadzenLabel>
                 }
@@ -271,13 +272,18 @@
 
     async Task ReadLogs()
     {
+        Titulo = "Bitacora";
         if (showBitacora)
         {
             FiltroLog vacio = new();
             await LeerLogs(vacio);
+            Titulo = "Log Errores";
         }
+        
     }
 
+    string Titulo = "Bitacora";
+    
     
 }
 

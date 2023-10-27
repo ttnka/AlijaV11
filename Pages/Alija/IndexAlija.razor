@@ -6,33 +6,37 @@
 @using DashBoard.Pages.Sistema
 
 
-<h2>Aplicacion de Alijadores</h2>
+<h2>Aplicacion de 
 @if (EmpresaActivaAll != null && EmpresaActivaAll.OrgId.Length > 30 && LasAlijadorasAll != null && LasAlijadorasAll.Any())
 {
     @if (LasAlijadorasAll.Any(x => x.OrgId == EmpresaActivaAll.OrgId))
     {
-        <!--
-        <RadzenDropDown Name="EmpresaActivaIdDrop" Data=LasAlijadorasAll @bind-Value=@EmpresaActivaId
-                        ValueProperty="OrgId" TextProperty="ComercialRfc"
-                        Style="width: 50%;" Change="CambiarEmpAct" />
-        -->
-        <h4>@LasOrgsAll.FirstOrDefault(x => x.OrgId == EmpresaActivaAll.OrgId)!.ComercialRfc</h4>
+        <RadzenLabel>@LasOrgsAll.FirstOrDefault(x => x.OrgId == EmpresaActivaAll.OrgId)!.ComercialRfc</RadzenLabel>
     }
 }
+</h2>
 <AuthorizeView>
     <Authorized>
         <CascadingValue Value="ElUser" Name="ElUserAll">
             <CascadingValue Value="EmpresaActivaAll" Name="EmpresaActivaAll">
                 <CascadingValue Value="CorporativoAll" Name="CorporativoAll">
-
-                    @if (ElUser != null && ElUser.UserId.Length > 10 && CorporativoAll != "All")
+                    
+                    @if (ElUser != null && ElUser.UserId.Length > 10 && CorporativoAll != "All" && LasOrgsAll.Any()
+                         && LosUsersAll.Any())
                     {
+                        
                         @if (EmpresaActivaAll == null || EmpresaActivaAll.OrgId.Length < 30)
                         {
-                            <EmpresaActiva LasOrgs="LasOrgsAll" />
+                            
+                            
+                                <EmpresaActiva LasEmpHist="LasEmpActAll" LasOrgs="LasOrgsAll"
+                                               LosUsers="LosUsersAll"
+                                               ReadEmpresaActivaAll="LeerEmpresaActivaAll" />
+                            
                         }
                         else
                         {
+                            
                             <RadzenTabs>
                                 <Tabs>
 
@@ -67,10 +71,11 @@
                                                     <MisDatos Niveles="NivelesAll" LasOrg="LasOrgsAll" />
                                                 </RadzenAccordionItem>
 
-                                                @if (LasAlijadorasAll != null  && LasAlijadorasAll.Count > 1)
+                                                @if (LasAlijadorasAll != null && LasAlijadorasAll.Count > 0)
                                                 {
                                                     <RadzenAccordionItem Text="Empresa Activa" Icon="home">
-                                                        <EmpresaActiva LasOrgs="LasOrgsAll"
+                                                        <EmpresaActiva LasEmpHist="LasEmpActAll" LasOrgs="LasOrgsAll"
+                                                                       LosUsers="LosUsersAll"
                                                                        ReadEmpresaActivaAll="LeerEmpresaActivaAll" />
                                                     </RadzenAccordionItem>
                                                 }
@@ -79,8 +84,8 @@
                                                     <Bitacora LasOrgs="LasOrgsAll" />
                                                 </RadzenAccordionItem>
 
-                                                <RadzenAccordionItem Text="Configuracion" Icon="note">
-                                                    <RadzenLabel>Falta desarrollar</RadzenLabel>
+                                                <RadzenAccordionItem Text="Precios" Icon="note">
+                                                    <PreciosList LasOrgs="LasOrgsAll" />
                                                 </RadzenAccordionItem>
                                             </Items>
                                         </RadzenAccordion>
@@ -92,7 +97,7 @@
                     }
                     else
                     {
-                        <div class="spinner">  </div>
+                        <div class="spinner"> </div>
                     }
 
 

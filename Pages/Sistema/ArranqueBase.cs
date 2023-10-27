@@ -72,7 +72,7 @@ namespace DashBoard.Pages.Sistema
                 };
                 Z100_Org newSysOrg = await OrgsRepo.Insert(SysOrg);
 
-
+                
                 // Genera un nuevo acceso al sistema con un usuario
                 AddUser eAddUsuario = new()
                 {
@@ -87,19 +87,29 @@ namespace DashBoard.Pages.Sistema
                     Nivel = 6
                 };
 
-                ApiRespuesta<AddUser> userNew = await AddUserRepo.InsertNewUser(eAddUsuario);
+                ApiRespuesta<AddUser> userNew = await AddUserRepo.CrearNewAcceso(eAddUsuario);
 
-                string userGeneradoUserId = "No_regreso_el_Usuario_generado";
-                string userGeneradoOrgId = newSysOrg.OrgId;
-                if (userNew != null && userNew.Exito == true)
+                if (userNew.Exito)
                 {
-                    userGeneradoUserId = userNew.Data.UsuarioId ?? userGeneradoUserId;
-                    userGeneradoOrgId = userNew.Data.OrgId;
+                    var axUTmp = userNew.Data;
+                    Z110_User userTmp = new() {
+                        UserId = axUTmp.UserId,
+                        OldEmail = axUTmp.Mail,
+                        Nombre = axUTmp.Nombre,
+                        Paterno = axUTmp.Paterno,
+                        Materno = axUTmp.Materno ?? "",
+                        Nivel = axUTmp.Nivel,
+                        OrgId = axUTmp.OrgId
+                    };
+                    var res = await UserRepo.Insert(userTmp) ??
+                        throw new Exception("No se creo el Usuario Inicial");
+;
                 }
-
+                
                 // Genera una organizacion nueva para publico en general
                 Z100_Org PgOrg = new()
                 {
+                    OrgId = Guid.NewGuid().ToString(),
                     Rfc = Constantes.PgRfc,
                     Comercial = Constantes.PgRazonSocial,
                     RazonSocial = Constantes.PgRazonSocial,
@@ -110,8 +120,7 @@ namespace DashBoard.Pages.Sistema
                 };
                 Z100_Org newPgOrg = await OrgsRepo.Insert(PgOrg);
 
-
-                // Genera acceso para publico en general todos 
+                // Genera acceso para publico en general 
                 AddUser eAddUsuarioPublico = new()
                 {
                     Mail = Constantes.DeMailPublico,
@@ -125,11 +134,27 @@ namespace DashBoard.Pages.Sistema
                     Nivel = Constantes.NivelPublico
                 };
 
-                ApiRespuesta<AddUser> userNewPublico = await AddUserRepo.InsertNewUser(eAddUsuarioPublico);
-
-
-                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(userGeneradoUserId, userGeneradoOrgId,
-                    $"{TBita}, Se las tablas por primera vez", "All", userGeneradoOrgId);
+                ApiRespuesta<AddUser> userNewPublico = await AddUserRepo.CrearNewAcceso(eAddUsuarioPublico);
+                if (userNewPublico.Exito)
+                {
+                    var axUTmp = userNewPublico.Data;
+                    Z110_User userTmp = new()
+                    {
+                        UserId = axUTmp.UserId,
+                        OldEmail = axUTmp.Mail,
+                        Nombre = axUTmp.Nombre,
+                        Paterno = axUTmp.Paterno,
+                        Materno = axUTmp.Materno ?? "",
+                        Nivel = axUTmp.Nivel,
+                        OrgId = axUTmp.OrgId
+                    };
+                    var res = await UserRepo.Insert(userTmp) ??
+                        throw new Exception("No se creo el Usuario Publico");
+                }
+                string txt = $"{TBita}, Se las tablas por primera vez, con 2 empresas nuevas una administrador {Constantes.ElDominio}";
+                txt += $" su administrador y otra como empresa donde registrar al publico en general";
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(eAddUsuario.UserId, eAddUsuario.OrgId,
+                    txt, "All", eAddUsuario.OrgId);
                 await BitacoraRepo.Insert(bitaTemp);
                 return true;
             }
@@ -141,6 +166,8 @@ namespace DashBoard.Pages.Sistema
                 return false;
             }
         }
+
+
 
         public class LaClave
         {

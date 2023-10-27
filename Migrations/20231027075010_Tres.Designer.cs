@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DashBoard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231024002842_Sig5")]
-    partial class Sig5
+    [Migration("20231027075010_Tres")]
+    partial class Tres
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -111,6 +111,36 @@ namespace DashBoard.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("DashBoard.Modelos.Z180_EmpActiva", b =>
+                {
+                    b.Property<string>("EmpActId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Estatus")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("OrgId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("EmpActId");
+
+                    b.ToTable("EmpresaActiva");
                 });
 
             modelBuilder.Entity("DashBoard.Modelos.Z190_Bitacora", b =>
@@ -356,6 +386,116 @@ namespace DashBoard.Migrations
                     b.HasKey("CarroId");
 
                     b.ToTable("Carros");
+                });
+
+            modelBuilder.Entity("DashBoard.Modelos.Z209_Campos", b =>
+                {
+                    b.Property<string>("CampoId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("AgenteAduanal")
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.Property<string>("Caja1")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Caja2")
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.Property<string>("CartaPorte")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.Property<string>("Chofer")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.Property<string>("Cuadrilla")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Despachador")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Factura")
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.Property<string>("FolioId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Identificacion")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<string>("Maniobra")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<string>("Mercancia")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Obs")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Pedimento")
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.Property<string>("Placas")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("SelloColocado")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.Property<string>("SelloRemovido")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Tractor")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("TractorTipo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Transportista")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.HasKey("CampoId");
+
+                    b.ToTable("Campos");
                 });
 
             modelBuilder.Entity("DashBoard.Modelos.Z210_Concepto", b =>
