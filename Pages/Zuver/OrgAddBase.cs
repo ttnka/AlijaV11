@@ -110,7 +110,7 @@ namespace DashBoard.Pages.Zuver
                 "El EMAIL ya existe! -" : "";
         }
 
-        public async Task<ApiRespuesta<LaOrgNew>> Servicio(string tipo, LaOrgNew org)
+        public async Task<ApiRespuesta<LaOrgNew>> Servicio(ServiciosTipos tipo, LaOrgNew org)
         {
             ApiRespuesta<LaOrgNew> resp = new()
             {
@@ -122,7 +122,7 @@ namespace DashBoard.Pages.Zuver
             {
                 if(org != null )
                 {
-                    if (tipo == "Insert")
+                    if (tipo == ServiciosTipos.Insert)
                     {
                         if (LasOrgs.Exists(x => x.Rfc.ToUpper() == org.Rfc.ToUpper()))
                         {

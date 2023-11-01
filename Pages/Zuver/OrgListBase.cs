@@ -75,15 +75,7 @@ namespace DashBoard.Pages.Zuver
         {
             try
             {
-                /*
-                if (LasOrgs.Any())
-                {
-                    LasOrgsCorp = ElUser.Nivel < 5 ?
-                        LasOrgs.Where(x => x.Corporativo == ElUser.Corporativo)
-                        .Select(x => x).ToList() :
-                        LasOrgs;
-                }
-                */
+                
                 LasOrgsCorp = LasOrgs;
             }
             catch (Exception ex)
@@ -112,7 +104,7 @@ namespace DashBoard.Pages.Zuver
             await LeerUsersAll.InvokeAsync();
         }
 
-        public async Task<ApiRespuesta<Z100_Org>> Servicio(string tipo, Z100_Org org)
+        public async Task<ApiRespuesta<Z100_Org>> Servicio(ServiciosTipos tipo, Z100_Org org)
         {
             ApiRespuesta<Z100_Org> resp = new()
             {
@@ -124,7 +116,7 @@ namespace DashBoard.Pages.Zuver
             {
                 if (org != null )
                 {
-                    if (tipo == "Insert")
+                    if (tipo == ServiciosTipos.Insert)
                     {
                         org.OrgId = Guid.NewGuid().ToString();
                         Z100_Org orgInsert = await OrgRepo.Insert(org);
@@ -139,7 +131,7 @@ namespace DashBoard.Pages.Zuver
                         }
                         return resp;
                     }
-                    else if (tipo == "Update")
+                    else if (tipo == ServiciosTipos.Insert)
                     {
                         if (LasOrgs.Exists(x=>x.Rfc.ToUpper() == org.Rfc.ToUpper()
                         && x.OrgId != org.OrgId))

@@ -80,7 +80,7 @@
                 <div class="col-md-8">
 
                     <RadzenTextBox style="width: 90%;" Name="Mail" @bind-Value="OrgNew.UserOldEmail"
-                                   Placeholder="e-Mail" Change="ChecarFormato" /> <br />
+                                   Placeholder="e-Mail" Change="ChecarFormato" MaxLength="75" /> <br />
                     <RadzenRequiredValidator Component="Mail" Text="Email es requerido" />
                     <RadzenEmailValidator Component="Mail" Text="Se requiere un Email Valido" />
                     
@@ -92,17 +92,17 @@
                     <RadzenLabel Text="Nombre Usuario Administrador" />
                 </div>
                 <div class="col-md-8">
-                    <RadzenTextBox style="width: 90%;" Name="UsuarioNombre"
+                    <RadzenTextBox style="width: 90%;" Name="UsuarioNombre" MaxLength="25"
                                    @bind-Value="OrgNew.UserNombre" Placeholder="Nombres" />
                     <RadzenLengthValidator Component="UsuarioNombre" Min="1"
                         Text="El Nombre del administrador es NECESARIO!" Style="position: absolute" /><br />
 
-                    <RadzenTextBox style="width: 90%;" Name="UsuarioPaterno"
+                    <RadzenTextBox style="width: 90%;" Name="UsuarioPaterno" MaxLength="25"
                                    @bind-Value="OrgNew.UserPaterno" Placeholder="Apellido Paterno" />
                     <RadzenLengthValidator Component="UsuarioPaterno" Min="1"
                        Text="El apellido paterno del administrador es NECESARIO!" Style="position: absolute" /><br />
 
-                    <RadzenTextBox style="width: 90%;" Name="UsuarioMaterno"
+                    <RadzenTextBox style="width: 90%;" Name="UsuarioMaterno" MaxLength="25"
                                    @bind-Value="OrgNew.UserMaterno" Placeholder="Apellido Materno" />
 
                 </div>
@@ -159,7 +159,7 @@
             org.Corporativo = org.Corporativo.Length < 30 ? org.OrgId : org.Corporativo;
             org.Moral = org.Rfc.Length == 12;
 
-            ApiRespuesta<LaOrgNew> resultado = await Servicio("Insert", org);
+            ApiRespuesta<LaOrgNew> resultado = await Servicio(ServiciosTipos.Insert, org);
 
             string txt = $"{org.Rfc} {org.RazonSocial} " +
                         $"tipo: {org.Tipo}, Estado:{org.Estado} status:{org.Status}";

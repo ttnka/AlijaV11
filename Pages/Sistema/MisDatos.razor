@@ -145,7 +145,7 @@
         {
             Editando = !Editando;
 
-            ApiRespuesta<Z110_User> resultado = await Servicio("Update", myData);
+            ApiRespuesta<Z110_User> resultado = await Servicio(ServiciosTipos.Update, myData);
 
             if (resultado.Exito)
             {

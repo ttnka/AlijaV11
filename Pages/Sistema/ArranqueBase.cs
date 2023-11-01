@@ -2,6 +2,7 @@
 using DashBoard.Data;
 using DashBoard.Modelos;
 using Microsoft.AspNetCore.Components;
+using NPOI.SS.Formula.Functions;
 
 namespace DashBoard.Pages.Sistema
 {
@@ -10,6 +11,8 @@ namespace DashBoard.Pages.Sistema
         public const string TBita = "Arranque";
         [Inject]
         public Repo<Z100_Org, ApplicationDbContext> OrgsRepo { get; set; } = default!;
+        [Inject]
+        public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
 
         [Inject]
         public IAddUser AddUserRepo { get; set; } = default!;
@@ -39,7 +42,7 @@ namespace DashBoard.Pages.Sistema
             {
                 Editando = false;
                 await Creacion();
-
+                await AgregarCamposRequeridos();
             }
             Clave.Pass = "";
             NM.NavigateTo("/");
@@ -167,7 +170,91 @@ namespace DashBoard.Pages.Sistema
             }
         }
 
+        protected async Task AgregarCamposRequeridos()
+        {
+            try
+            {
+                List<ZConfig> lista = new List<ZConfig>();
+                ZConfig campos = new()
+                {
+                    ConfigId = Guid.NewGuid().ToString(),
+                    Grupo = "CAMPOS", Tipo = "TITULO", Titulo = "Campos", Estado = 1 
+                };
 
+                lista.Add(campos);
+                List<string> camposTmp = Constantes.CamposAcapurar.Split(",").ToList();
+                foreach (var t in camposTmp)
+                {
+                    ZConfig campoNew = new()
+                    {
+                        ConfigId = Guid.NewGuid().ToString(),
+                        Grupo = "CAMPOS",
+                        Tipo = "ELEMENTOS",
+                        Titulo = t,
+                        Fecha1 = DateTime.Now,
+                        Estado = 3
+                    };
+                    lista.Add(campoNew);
+                }
+
+                ZConfig tractorTipo = new()
+                {
+                    ConfigId = Guid.NewGuid().ToString(), Grupo= "TRACTORTIPO",
+                    Tipo= "TITULO", Titulo="Tractor Tipo", Estado = 1
+                };
+                lista.Add(tractorTipo);
+
+                List<string> tractorTmp = Constantes.TractorTipo.Split(",").ToList(); 
+                foreach (var t in tractorTmp)
+                {
+                    ZConfig tractoNew = new()
+                    {
+                        ConfigId = Guid.NewGuid().ToString(),
+                        Grupo = "TRACTORTIPO",
+                        Tipo = "ELEMENTOS",
+                        Titulo = t,
+                        Fecha1 = DateTime.Now,
+                        Estado = 3
+                    };
+                    lista.Add(tractoNew);
+                }
+
+                ZConfig manoTipo = new()
+                {
+                    ConfigId = Guid.NewGuid().ToString(),
+                    Grupo = "MANIOBRA",
+                    Tipo = "TITULO",
+                    Titulo = "Maniobra Tipo",
+                    Estado = 1
+                };
+                lista.Add(manoTipo);
+                List<string> manoTmp = Constantes.ManiobraTipo.Split(",").ToList();
+                foreach (var m in manoTmp)
+                {
+                    ZConfig manoNew = new()
+                    {
+                        ConfigId = Guid.NewGuid().ToString(),
+                        Grupo = "MANIOBRA",
+                        Tipo = "ELEMENTOS",
+                        Titulo = m,
+                        Fecha1 = DateTime.Now,
+                        Estado = 3
+                    };
+                    lista.Add(manoNew);
+                }
+
+                if (lista.Any())
+                {
+                    await ConfRepo.InsertPlus(lista);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs logTemp = MyFunc.MakeLog("Sistema"!, "Sistema",
+                    $"{TBita}, Error al intentar Arranque agregar campos a configurador {ex}", "All", "Sistema");
+                await LogRepo.Insert(logTemp);
+            }
+        } 
 
         public class LaClave
         {

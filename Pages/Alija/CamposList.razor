@@ -37,146 +37,490 @@
             <RadzenDataGridColumn TItem="Z209_Campos" Title="Id" Filterable="false"
                                   Width="800px">
                 <Template Context="datos">
-                    <div class="container-fluid" style="background: lightgray;">
-                        <div class="row" style="background:gray">
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Pedimento</RadzenLabel>
+                    <div class="container-fluid" style="background: gray;">
+                        <div class="row" style="background:white">
+                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Pedimento</RadzenLabel>
+                                }
+
                             </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Factura</RadzenLabel>
+                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                                @if (Mostrar.Any(x => x.Titulo == "Factura" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Factura</RadzenLabel>
+                                }
+
                             </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Mercancia</RadzenLabel>
+                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                                @if (Mostrar.Any(x => x.Titulo == "Mercancia" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Mercancia</RadzenLabel>
+                                }
+
                             </div>
 
                         </div>
 
-                        <div class="row">
+                        <div class="row" style="background: gray;">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Pedimento</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Pedimento</RadzenLabel>
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+
+                                }
                                 <RadzenLabel>@datos.Factura</RadzenLabel>
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Mercancia</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Mercancia" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Mercancia</RadzenLabel>
+                                }
+
                             </div>
 
                         </div>
 
-                        <div class="row" style="background:gray">
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Agente Aduanal</RadzenLabel>
+                        <div class="row" style="background:white">
+                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+
+                                @if (Mostrar.Any(x => x.Titulo == "AgenteAduanal" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Agente Aduanal</RadzenLabel>
+                                }
                             </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Placas del Tractor</RadzenLabel>
+                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                                @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Placas del Tractor</RadzenLabel>
+                                }
+
                             </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Despachador</RadzenLabel>
+                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Despachador</RadzenLabel>
+                                }
+
                             </div>
 
                         </div>
 
-                        <div class="row">
+                        <div class="row" style="background: gray;" >
                             <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+
+                                }
                                 <RadzenLabel>@datos.AgenteAduanal</RadzenLabel>
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Placas</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Placas" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Placas</RadzenLabel>
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Despachador</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Despachador" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Despachador</RadzenLabel>
+                                }
+
                             </div>
 
                         </div>
 
+                        <div class="row" style="background:white">
+                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
 
-                        <div class="row" style="background:gray">
-                            <div class="col-md-4 align-items-center d-flex">
+                                }
                                 <RadzenLabel>Tractor Num</RadzenLabel>
                             </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Num Caja 1</RadzenLabel>
+                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                                @if (Mostrar.Any(x => x.Titulo == "Caja1" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Num Caja 1</RadzenLabel>
+                                }
+
                             </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Num Caja 2</RadzenLabel>
+                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                                @if (Mostrar.Any(x => x.Titulo == "Caja2" && x.SiNo == false))
+                                {
+                                    <label></label>
+
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Num Caja 2</RadzenLabel>
+                                }
+
                             </div>
 
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Tractor</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Tractor</RadzenLabel>
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Caja1</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Caja1" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Caja1</RadzenLabel>
+
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Caja2</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Caja2" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Caja2</RadzenLabel>
+
+                                }
+
                             </div>
 
                         </div>
 
                         <div class="row" style="background:gray">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Carta Porte</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "CartaPorte" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Carta Porte</RadzenLabel>
+
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Transportista</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Transportista" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Transportista</RadzenLabel>
+
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Tipo Tractor</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Tipo Tractor</RadzenLabel>
+                                }
+
                             </div>
 
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.CartaPorte</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "CartaPorte" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.CartaPorte</RadzenLabel>
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Transportista</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Transportista" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Transportista</RadzenLabel>
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.TractorTipo</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "TractorTipo" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.TractorTipo</RadzenLabel>
+
+                                }
+
                             </div>
 
                         </div>
 
                         <div class="row" style="background:gray">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Nombre del Chofer</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "SelloRemovido" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Sello Removido</RadzenLabel>
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Identificacion</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "SelloColocado" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Sello Colocado</RadzenLabel>
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Cuadrilla</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Libre</RadzenLabel>
+                                }
+
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "SelloRemovido" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.SelloRemovido</RadzenLabel>
+                                }
+
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "SelloColocado" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.SelloColocado</RadzenLabel>
+                                }
+
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Libre</RadzenLabel>
+
+                                }
+
+                            </div>
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Chofer" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Nombre del Chofer</RadzenLabel>
+                                }
+
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Identificacion" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Identificacion</RadzenLabel>
+                                }
+
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Cuadrilla" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Cuadrilla</RadzenLabel>
+                                }
+
                             </div>
 
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Chofer</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Chofer" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Chofer</RadzenLabel>
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Identificacion</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Identificacion" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Identificacion</RadzenLabel>
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Cuadrilla</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Cuadrilla" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Cuadrilla</RadzenLabel>
+                                }
+
                             </div>
 
                         </div>
 
                         <div class="row" style="background:gray">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Tipo de Maniobra</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Maniobra" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Tipo de Maniobra</RadzenLabel>
+
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Comentarios</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Comentarios</RadzenLabel>
+
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+
+                                }
                                 <RadzenLabel>Libre</RadzenLabel>
                             </div>
 
@@ -184,191 +528,494 @@
 
                         <div class="row">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Maniobra</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Maniobra" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Maniobra</RadzenLabel>
+
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>@datos.Obs</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Obs</RadzenLabel>
+
+                                }
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 <RadzenLabel>Libre</RadzenLabel>
                             </div>
                         </div>
                     </div>
-                </Template>
+</Template>
 
                 <EditTemplate Context="datos">
 
                     <div class="container-fluid" style="background: lightgray;">
                         <div class="row" style="background:gray">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Pedimento</RadzenLabel>
-                            </div>
+                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo== false))
+                                    {
+                                    <label></label>
+                                    }
+                                    else
+                                    {
+                                    <RadzenLabel>Pedimento</RadzenLabel>
+                                    }
+                                </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Factura</RadzenLabel>
-                            </div>
+                                @if (Mostrar.Any(x => x.Titulo == "Factura " && x.SiNo== false))
+                                    {
+                                    <label></label>
+                                    }
+                                    else
+                                    {
+                                    <RadzenLabel>Factura</RadzenLabel>
+                                    }
+                                </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Mercancia</RadzenLabel>
-                            </div>
+                                @if (Mostrar.Any(x => x.Titulo == "Mercancia " && x.SiNo== false))
+                                    {
+                                    <label></label>
+                                    }
+                                    else
+                                    {
+                                    <RadzenLabel>Mercancia</RadzenLabel>}
+                                </div>
 
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Pedimento" @bind-Value="datos.Pedimento"
-                                               Style="width: 95%" Placeholder="Pedimento" />
+                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo== false))
+                                    {
+                                    <label></label>
+                                    }
+                                    else
+                                    {
+                                    <RadzenTextBox Name="Pedimento" @bind-Value="datos.Pedimento" MaxLength="75"
+                                                   Style="width: 95%" Placeholder="Pedimento" />}
+                                </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Factura" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="Factura" @bind-Value="datos.Factura" MaxLength="75"
+                                                   Style="width: 95%" Placeholder="Num Factura" />}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Factura" @bind-Value="datos.Factura"
-                                               Style="width: 95%" Placeholder="Num Factura" />
-                            </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Mercancia" @bind-Value="datos.Mercancia"
-                                               Style="width: 95%" Placeholder="Mercancias" />
+                                @if (Mostrar.Any(x => x.Titulo == "Mercancia" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="Mercancia" @bind-Value="datos.Mercancia" MaxLength="50"
+                                                   Style="width: 95%" Placeholder="Mercancias" />}
                             </div>
 
                         </div>
 
                         <div class="row" style="background:gray">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Agente Aduanal</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "AgenteAduanal" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Agente Aduanal</RadzenLabel>}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Placas del Tractor</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Placas del Tractor</RadzenLabel>}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Despachador</RadzenLabel>
-                            </div>
-
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="AgenteAduanal" @bind-Value="datos.AgenteAduanal"
-                                               Style="width: 95%" Placeholder="Agente Aduanal " />
-                            </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Placas" @bind-Value="datos.Placas"
-                                               Style="width: 95%" Placeholder="Placas del Tractor" />
-                            </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Despachador" @bind-Value="datos.Despachador"
-                                               Style="width: 95%" Placeholder="Despachador" />
-                            </div>
-
-                        </div>
-
-
-                        <div class="row" style="background:gray">
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Tractor Num</RadzenLabel>
-                            </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Num Caja 1</RadzenLabel>
-                            </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Num Caja 2</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Despachador" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Despachador</RadzenLabel>}
                             </div>
 
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Tractor" @bind-Value="datos.Tractor"
-                                               Style="width: 95%" Placeholder="Tractor Numero" />
+                                @if (Mostrar.Any(x => x.Titulo == "AgenteAduanal" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="AgenteAduanal" @bind-Value="datos.AgenteAduanal" MaxLength="75"
+                                                   Style="width: 95%" Placeholder="Agente Aduanal " />}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Caja1" @bind-Value="datos.Caja1"
-                                               Style="width: 95%" Placeholder="Num Caja 1" />
+                                @if (Mostrar.Any(x => x.Titulo == "Placas" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="Placas" @bind-Value="datos.Placas" MaxLength="20"
+                                                   Style="width: 95%" Placeholder="Placas del Tractor" />}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Caja2" @bind-Value="datos.Caja2"
-                                               Style="width: 95%" Placeholder="Num Caja 2" />
-                            </div>
-
-                        </div>
-
-                        <div class="row" style="background:gray">
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Carta Porte</RadzenLabel>
-                            </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Transportista</RadzenLabel>
-                            </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Tipo Tractor</RadzenLabel>
-                            </div>
-
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="CartaPorte" @bind-Value="datos.CartaPorte"
-                                               Style="width: 95%" Placeholder="Carta Porte" />
-                            </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Transportista" @bind-Value="datos.Transportista"
-                                               Style="width: 95%" Placeholder="Transportista" />
-                            </div>
-                            <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="TractorTipo" @bind-Value="datos.TractorTipo"
-                                               Style="width: 95%" Placeholder="Tipo" />
+                                @if (Mostrar.Any(x => x.Titulo == "Despachador" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="Despachador" @bind-Value="datos.Despachador" MaxLength="75"
+                                                   Style="width: 95%" Placeholder="Despachador" />}
                             </div>
 
                         </div>
 
                         <div class="row" style="background:gray">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Nombre del Chofer</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Tractor Num</RadzenLabel>}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Identificacion</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Caja1" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Num Caja 1</RadzenLabel>}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Cuadrilla</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Caja2" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Num Caja 2</RadzenLabel>}
                             </div>
 
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Chofer" @bind-Value="datos.Chofer"
-                                               Style="width: 95%" Placeholder="Nombre del Chofer" />
+                                @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="Tractor" @bind-Value="datos.Tractor" MaxLength="20"
+                                                   Style="width: 95%" Placeholder="Tractor Numero" />}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Identificacion" @bind-Value="datos.Identificacion"
-                                               Style="width: 95%" Placeholder="Identificacion INE" />
+                                @if (Mostrar.Any(x => x.Titulo == "Caja1" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="Caja1" @bind-Value="datos.Caja1" MaxLength="20"
+                                                   Style="width: 95%" Placeholder="Num Caja 1" />}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Cuadrilla" @bind-Value="datos.Cuadrilla"
-                                               Style="width: 95%" Placeholder="Cuadrilla" />
+                                @if (Mostrar.Any(x => x.Titulo == "Caja2" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="Caja2" @bind-Value="datos.Caja2" MaxLength="20"
+                                                   Style="width: 95%" Placeholder="Num Caja 2" />}
                             </div>
 
                         </div>
 
                         <div class="row" style="background:gray">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Tipo de Maniobra</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "CartaPorte" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Carta Porte</RadzenLabel>}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Comentarios</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Transportista" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Transportista</RadzenLabel>}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Libre</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Tipo Tractor</RadzenLabel>}
                             </div>
 
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextBox Name="Maniobra" @bind-Value="datos.Maniobra"
-                                               Style="width: 95%" Placeholder="Tipo de Maniobra" />
+                                @if (Mostrar.Any(x => x.Titulo == "CartaPorte" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="CartaPorte" @bind-Value="datos.CartaPorte" MaxLength="75"
+                                                   Style="width: 95%" Placeholder="Carta Porte" />}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenTextArea Name="Obs" @bind-Value="datos.Obs"
-                                                Style="width: 95%" Placeholder="Observaciones" />
+                                @if (Mostrar.Any(x => x.Titulo == "Transportista" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="Transportista" @bind-Value="datos.Transportista" MaxLength="75"
+                                                   Style="width: 95%" Placeholder="Transportista" />}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Libre</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "TractorTipo" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenDropDown Name="TractorTipo" Data=TractoresTipos @bind-Value=@datos.TractorTipo
+                                            ValueProperty="Key" TextProperty="Value"
+                                            Style="width: 100%;" AllowClear="true" />
+                                    
+                                }
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "SelloRemovido" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Sello Removido</RadzenLabel>}
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "SelloColocado" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Sello Colocado</RadzenLabel>}
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Libre</RadzenLabel>}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "SelloRemovido" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="SelloRemovido" @bind-Value="datos.SelloRemovido" MaxLength="75"
+                                                   Style="width: 95%" Placeholder="Nombre del Chofer" />}
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "SelloColocado" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="SelloColocado" @bind-Value="datos.SelloColocado" MaxLength="75"
+                                                   Style="width: 95%" Placeholder="Identificacion INE" />}
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                }
+                            </div>  
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Chofer" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Nombre del Chofer</RadzenLabel>}
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Identificacion" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Identificacion</RadzenLabel>}
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Cuadrilla" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Cuadrilla</RadzenLabel>}
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Chofer" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="Chofer" @bind-Value="datos.Chofer" MaxLength="75"
+                                                   Style="width: 95%" Placeholder="Nombre del Chofer" />}
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Identificacion" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="Identificacion" @bind-Value="datos.Identificacion" MaxLength="50"
+                                                   Style="width: 95%" Placeholder="Identificacion INE" />}
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Cuadrilla" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="Cuadrilla" @bind-Value="datos.Cuadrilla" MaxLength="75"
+                                                   Style="width: 95%" Placeholder="Cuadrilla" />}
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="background:gray">
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Maniobra" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Tipo de Maniobra</RadzenLabel>}
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Comentarios</RadzenLabel>}
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Libre</RadzenLabel>}
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Maniobra" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenDropDown Name="Maniobra" Data=ManiobrasTipos @bind-Value=@datos.Maniobra
+                                                    ValueProperty="Key" TextProperty="Value"
+                                                    Style="width: 100%" AllowClear="true" />
+                                    
+                                }
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenTextArea Name="Obs" @bind-Value="datos.Obs"
+                                                    Style="width: 95%" Placeholder="Observaciones" />}
+                            </div>
+                            <div class="col-md-4 align-items-center d-flex">
+                                @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo== false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>Libre</RadzenLabel>}
                             </div>
                         </div>
                     </div>
@@ -455,7 +1102,7 @@ else
     string PoblarTxt(Z209_Campos c)
     {
         string resp = "";
-        
+
         resp += $"{ElFolio.FolioNum}, fecha: {ElFolio.Fecha}, ";
         resp += string.IsNullOrEmpty(c.AgenteAduanal) ? "" : $"Agente aduanal {c.AgenteAduanal}, ";
         resp += string.IsNullOrEmpty(c.Pedimento) ? "" : $"Pedimiento {c.Pedimento}, ";
@@ -597,5 +1244,17 @@ else
     {
         NS.Notify(message);
     }
-    }
+    /*
+    @if(Mostrar.Any(x=>x.Titulo == datos.Pedimento" && x.SiNo== false))
+                                    {
+                                        <label></label>
+                                    }
+                                    else
+                                    {
+
+                                    }
+    */
+}
+
+
 

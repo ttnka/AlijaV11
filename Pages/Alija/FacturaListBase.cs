@@ -25,19 +25,22 @@ namespace DashBoard.Pages.Alija
         [Parameter]
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
         [Parameter]
+        public List<Z170_File> LosArchivosAll { get; set; } = new List<Z170_File>();
+        [Parameter]
         public List<Z220_Factura> LasFacturas { get; set; } = new List<Z220_Factura>();
         [Parameter]
         public List<Z200_Folio> LosFolios { get; set; } = new List<Z200_Folio>();
 
         // Callback
-        [Parameter]
-        public EventCallback ReadEmpresaActivaAll { get; set; }
+        
         [Parameter]
         public EventCallback ReadLasOrgsAll { get; set; }
         [Parameter]
         public EventCallback<FiltroFactura> ReadLasFacturasAll { get; set; }
         [Parameter]
         public EventCallback<FiltroFolio> ReadLosFoliosAll { get; set; }
+        [Parameter]
+        public EventCallback ReadLosArchivosAll { get; set; }
 
         // Variables Dic - Listados - Clases
         protected List<KeyValuePair<int, string>> LosEdos { get; set; } =
@@ -62,12 +65,11 @@ namespace DashBoard.Pages.Alija
             if (Primera)
             {
                 Primera = false;
-                if (EmpresaActiva.OrgId.Length < 15)
-                    await ReadEmpresaActivaAll.InvokeAsync();
+                if (!LasOrgs.Any())
+                    await ReadLasOrgsAll.InvokeAsync();
 
             }
-            if (!LasOrgs.Any())
-                await ReadLasOrgsAll.InvokeAsync();
+            
             await Leer();
         }
 
@@ -292,12 +294,12 @@ namespace DashBoard.Pages.Alija
         }
 
 
-        protected async Task<ApiRespuesta<Z220_Factura>> Servicio(string tipo, Z220_Factura fact)
+        protected async Task<ApiRespuesta<Z220_Factura>> Servicio(ServiciosTipos tipo, Z220_Factura fact)
         {
             ApiRespuesta<Z220_Factura> resp = new()
             {
-                Exito = false,
-                Data = fact
+                Exito = false
+                
             };
 
             try
@@ -305,7 +307,7 @@ namespace DashBoard.Pages.Alija
                 if (fact != null && EmpresaActiva.OrgId.Length > 30)
                 {
                     fact.EmpresaId = EmpresaActiva.OrgId;
-                    if (tipo == "Insert")
+                    if (tipo == ServiciosTipos.Insert)
                     {
                         fact.FacturaId = Guid.NewGuid().ToString();
                         fact.Estado = 1;
@@ -321,7 +323,7 @@ namespace DashBoard.Pages.Alija
                         }
                         return resp;
                     }
-                    else if (tipo == "Update")
+                    else if (tipo == ServiciosTipos.Update)
                     {
                         Z220_Factura factUpdate = await FacturaRepo.Update(fact);
                         if (factUpdate != null)

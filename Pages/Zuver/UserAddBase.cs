@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Security.Claims;
 using System.Security.Policy;
 using DashBoard.Data;
@@ -321,7 +322,7 @@ namespace DashBoard.Pages.Zuver
             return resultado;
         }
 
-        public async Task<ApiRespuesta<AddUser>> Servicio(string tipo, AddUser newD)
+        public async Task<ApiRespuesta<AddUser>> Servicio(ServiciosTipos tipo, AddUser newD)
         {
             ApiRespuesta<AddUser> resp = new();
 
@@ -329,7 +330,7 @@ namespace DashBoard.Pages.Zuver
             {
                 if (newD != null)
                 {
-                    if (tipo == "Create")
+                    if (tipo == ServiciosTipos.Crear)
                     {
                         ApiRespuesta<AddUser> userCreate = await AddUserRepo.CrearNewAcceso(newD);
                         if (userCreate.Exito)

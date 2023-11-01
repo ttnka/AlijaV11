@@ -20,6 +20,7 @@ namespace DashBoard.Pages.Alija
 
         public List<Z210_Concepto> LosConceptos { get; set; } = new List<Z210_Concepto>();
         public List<Z280_Producto> LosProductos { get; set; } = new List<Z280_Producto>();
+        public Dictionary<string, string> DicProductos { get; set; } = new Dictionary<string, string>();
 
         [CascadingParameter(Name = "ElFolioAll")]
         public Z200_Folio ElFolio { get; set; } = new();
@@ -66,9 +67,10 @@ namespace DashBoard.Pages.Alija
                 IEnumerable<Z210_Concepto> resp = new List<Z210_Concepto>();
                 if (ElFolio != null && ElFolio.FolioId.Length > 30)
                 {
-                    resp = await ConceptoRepo.Get(x => x.FolioId == ElFolio.FolioId);
+                    resp = await ConceptoRepo.Get(x => x.FolioId == ElFolio.FolioId && x.Status == true);
                 }
                 LosConceptos = resp != null && resp.Any() ? resp.ToList() : new List<Z210_Concepto>();
+                
             }
             catch (Exception ex)
             {
@@ -92,7 +94,15 @@ namespace DashBoard.Pages.Alija
                 {
                     resp = await ProductoRepo.Get(x => x.Estado == 1 && x.Status == true);
                 }
-                LosProductos = resp != null && resp.Any() ? resp.ToList() : new List<Z280_Producto>(); 
+                LosProductos = resp != null && resp.Any() ? resp.ToList() : new List<Z280_Producto>();
+                if (LosProductos.Any())
+                {
+                    foreach (var c in LosProductos)
+                    {
+                        if (c.Tipo == "Manual")
+                            DicProductos.TryAdd(c.ProductoId, c.Tipo);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -103,7 +113,7 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        protected async Task<ApiRespuesta<Z210_Concepto>> Servicio(string tipo, Z210_Concepto concepto)
+        protected async Task<ApiRespuesta<Z210_Concepto>> Servicio(ServiciosTipos tipo, Z210_Concepto concepto)
         {
             ApiRespuesta<Z210_Concepto> resp = new()
             {
@@ -115,7 +125,7 @@ namespace DashBoard.Pages.Alija
                 if (concepto != null)
                 {
                     concepto.FolioId = ElFolio.FolioId;
-                    if (tipo == "Insert")
+                    if (tipo == ServiciosTipos.Insert)
                     {
                         concepto.ConceptoId = Guid.NewGuid().ToString();
                         concepto.Estado = 1;
@@ -131,7 +141,7 @@ namespace DashBoard.Pages.Alija
                         }
                         return resp;
                     }
-                    else if (tipo == "Update")
+                    else if (tipo == ServiciosTipos.Update)
                     {
                         Z210_Concepto conceptoUpdate = await ConceptoRepo.Update(concepto);
                         if (conceptoUpdate != null)
@@ -146,10 +156,16 @@ namespace DashBoard.Pages.Alija
                         }
                         return resp;
                     }
-                    else if(tipo == "Importe")
+                    else if(tipo == ServiciosTipos.Importe)
                     {
-                        ElFolio.Importe += concepto.Status ? concepto.Importe : (concepto.Importe * -1);
-
+                        ElFolio.Importe = 0;
+                        LosConceptos = (await ConceptoRepo.Get(x => x.FolioId == ElFolio.FolioId &&
+                                                    x.Status == true)).ToList();
+                        foreach(var c in LosConceptos)
+                        {
+                            ElFolio.Importe += c.Importe;
+                        }
+                        
                         Z200_Folio folioNewT = await FolioRepo.Update(ElFolio);
                         if (folioNewT != null)
                         {

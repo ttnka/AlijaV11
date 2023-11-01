@@ -256,7 +256,7 @@ else
             org.Rfc = org.Rfc.ToUpper();
 
             Editando = !Editando;
-            ApiRespuesta<Z100_Org> resultado = await Servicio("Update", org);
+            ApiRespuesta<Z100_Org> resultado = await Servicio(ServiciosTipos.Update, org);
 
             string txt = $"{org.Rfc} {org.RazonSocial} tipo:{org.Tipo}, Estado:{org.Estado} Estaus:{org.Status}";
             if (resultado.Exito)

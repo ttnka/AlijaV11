@@ -42,7 +42,8 @@ namespace DashBoard.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("NumCliente")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
 
                     b.Property<string>("RazonSocial")
                         .HasMaxLength(75)
@@ -108,6 +109,69 @@ namespace DashBoard.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("DashBoard.Modelos.Z170_File", b =>
+                {
+                    b.Property<string>("FileId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Archivo")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EmpresaActiva")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FacturaId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Folder")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FolioId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Grupo")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<string>("OrgId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.HasKey("FileId");
+
+                    b.ToTable("Archivos");
                 });
 
             modelBuilder.Entity("DashBoard.Modelos.Z180_EmpActiva", b =>
@@ -401,8 +465,8 @@ namespace DashBoard.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("Caja2")
-                        .HasMaxLength(75)
-                        .HasColumnType("varchar(75)");
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("CartaPorte")
                         .IsRequired()
@@ -416,8 +480,8 @@ namespace DashBoard.Migrations
 
                     b.Property<string>("Cuadrilla")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
 
                     b.Property<string>("Despachador")
                         .IsRequired()
@@ -438,8 +502,8 @@ namespace DashBoard.Migrations
 
                     b.Property<string>("Identificacion")
                         .IsRequired()
-                        .HasMaxLength(25)
-                        .HasColumnType("varchar(25)");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("Maniobra")
                         .IsRequired()
@@ -743,7 +807,9 @@ namespace DashBoard.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Tipo")
-                        .HasColumnType("longtext");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("Titulo")
                         .IsRequired()
@@ -767,6 +833,9 @@ namespace DashBoard.Migrations
                     b.Property<int>("Entero")
                         .HasColumnType("int");
 
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("Fecha1")
                         .HasColumnType("datetime(6)");
 
@@ -775,8 +844,8 @@ namespace DashBoard.Migrations
 
                     b.Property<string>("Grupo")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
 
                     b.Property<bool>("SiNo")
                         .HasColumnType("tinyint(1)");
@@ -784,13 +853,17 @@ namespace DashBoard.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
+
                     b.Property<string>("Titulo")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("Txt")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Usuario")

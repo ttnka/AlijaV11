@@ -24,16 +24,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvQ2FtcG9zTGlzdC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/CarroList.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvQ2Fycm9MaXN0LnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
 [/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/ConceptoList.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvQ29uY2VwdG9MaXN0LnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/EncargadoList.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvRW5jYXJnYWRvTGlzdC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FactDetList.razor]
@@ -52,12 +44,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvSW5kZXhBbGlqYS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/PreciosList.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvUHJlY2lvc0xpc3QucmF6b3I=
+[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/Old/CarroList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvT2xkL0NhcnJvTGlzdC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/TransporteList.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvVHJhbnNwb3J0ZUxpc3QucmF6b3I=
+[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/Old/EncargadoList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvT2xkL0VuY2FyZ2Fkb0xpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/Old/TransporteList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvT2xkL1RyYW5zcG9ydGVMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/PreciosList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWxpamEvUHJlY2lvc0xpc3QucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/ivanuhernandez/Projects/AlijaV11/Pages/Index.razor]
@@ -76,8 +76,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lzdGVtYS9FbXByZXNhQWN0aXZhLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FileList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lzdGVtYS9GaWxlTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FilesUp.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lzdGVtYS9GaWxlc1VwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/MisDatos.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lzdGVtYS9NaXNEYXRvcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/RequeridosList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lzdGVtYS9SZXF1ZXJpZG9zTGlzdC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/ZConfiguracion.razor]

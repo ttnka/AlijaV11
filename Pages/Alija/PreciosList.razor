@@ -55,8 +55,9 @@
                     <RadzenLabel>@datos.Tipo</RadzenLabel>
                 </Template>
                 <EditTemplate Context="datos">
-                    <RadzenTextBox Name="Tipo" @bind-Value="datos.Tipo"
-                                   Placeholder="Tipo" Style="width: 100%;" />
+                    <RadzenDropDown Name="Tipo" Data=PreciosTipo @bind-Value=@datos.Tipo
+                                    ValueProperty="Key" TextProperty="Value"
+                                    Style="width: 100%;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
 
@@ -234,7 +235,7 @@ else
 
 
             Editando = !Editando;
-            ApiRespuesta<Z280_Producto> resultado = await Servicio("Update", producto);
+            ApiRespuesta<Z280_Producto> resultado = await Servicio(ServiciosTipos.Update, producto);
 
             string txt = $"{TBita}, Clave: {producto.Clave} Producto: {producto.Titulo},";
             txt += $"Grupo: {producto.Grupo} Tipo: {producto.Tipo}, precio: {producto.Precio}, ";
@@ -309,7 +310,7 @@ else
             if (producto == ProductoToInsert) ProductoToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z280_Producto> resultado = await Servicio("Insert", producto);
+            ApiRespuesta<Z280_Producto> resultado = await Servicio(ServiciosTipos.Insert, producto);
 
             string txt = $"{TBita}, Clave: {producto.Clave} Producto: {producto.Titulo},";
             txt += $"Grupo: {producto.Grupo} Tipo: {producto.Tipo}, precio: {producto.Precio}, ";

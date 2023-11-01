@@ -194,7 +194,7 @@ else
             if (empAct == empActToInsert) empActToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z180_EmpActiva> resultado = await Servicio("Insert", empAct);
+            ApiRespuesta<Z180_EmpActiva> resultado = await Servicio(ServiciosTipos.Insert, empAct);
 
             string txtEmp = LasAlijadoras.FirstOrDefault(x => x.OrgId == empAct.OrgId)!.ComercialRfc;
             string txt = $"Se registro cambio de empresa activa {ElUser.Completo} {txtEmp}";

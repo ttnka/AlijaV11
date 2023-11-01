@@ -102,7 +102,7 @@ namespace DashBoard.Pages.Zuver
             await LeerUsersAll.InvokeAsync();
         }
 
-        public async Task<ApiRespuesta<Z110_User>> Servicio(string tipo, Z110_User user)
+        public async Task<ApiRespuesta<Z110_User>> Servicio(ServiciosTipos tipo, Z110_User user)
         {
             ApiRespuesta<Z110_User> resp = new()
             {
@@ -114,12 +114,12 @@ namespace DashBoard.Pages.Zuver
             {
                 if (user != null)
                 {
-                    if (tipo == "Insert")
+                    if (tipo == ServiciosTipos.Insert)
                     {
                         resp.MsnError.Add("El modulo de listado de usuarios no agrega usuarios nuevos");
                         return resp;
                     }
-                    else if (tipo == "Update")
+                    else if (tipo == ServiciosTipos.Update)
                     {
                         Z110_User userUpdate = await UserRepo.Update(user);
                         if (userUpdate != null)

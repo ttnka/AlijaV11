@@ -124,7 +124,7 @@ namespace DashBoard.Pages.Sistema
         }
 
 
-        protected async Task<ApiRespuesta<Z180_EmpActiva>> Servicio(string tipo, Z180_EmpActiva empAct)
+        protected async Task<ApiRespuesta<Z180_EmpActiva>> Servicio(ServiciosTipos tipo, Z180_EmpActiva empAct)
         {
             ApiRespuesta<Z180_EmpActiva> resp = new() { Exito = false};
 
@@ -132,7 +132,7 @@ namespace DashBoard.Pages.Sistema
             {
                 if (empAct != null)
                 {
-                    if (tipo == "Insert")
+                    if (tipo == ServiciosTipos.Insert)
                     {
                         empAct.EmpActId = Guid.NewGuid().ToString();
                         empAct.Fecha = DateTime.Now;
@@ -150,7 +150,7 @@ namespace DashBoard.Pages.Sistema
                         }
                         return resp;
                     }
-                    else if (tipo == "Update")
+                    else if (tipo == ServiciosTipos.Update)
                     {
                         resp.MsnError.Add("No hay servicio de update");
                         // No hay servicio de update

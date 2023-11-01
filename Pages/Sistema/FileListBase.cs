@@ -5,36 +5,24 @@ using Microsoft.AspNetCore.Components;
 using Radzen;
 using Radzen.Blazor;
 
-namespace DashBoard.Pages.Alija
+namespace DashBoard.Pages.Sistema
 {
-	public class FactDetListBase : ComponentBase
+	public class FileListBase : ComponentBase 
 	{
-        public const string TBita = "Factura Detalle";
+        public const string TBita = "Lista de Archivos";
 
         [Inject]
-        public Repo<Z220_Factura, ApplicationDbContext> FacturaRepo { get; set; } = default!;
-        [Inject]
-        public Repo<Z222_FactDet, ApplicationDbContext> DetRepo { get; set; } = default!;
-                                    
-
+        public Repo<Z170_File, ApplicationDbContext> FileRepo { get; set; } = default!;
+        
+        
+        [CascadingParameter(Name = "ElFolioAll")]
+        public Z200_Folio ElFolio { get; set; } = new();
         [CascadingParameter(Name = "LaFacturaAll")]
         public Z220_Factura LaFactura { get; set; } = new();
         [CascadingParameter(Name = "EmpresaActivaAll")]
         public Z100_Org EmpresaActiva { get; set; } = new();
 
-        [Parameter]
-        public List<Z200_Folio> LosFoliosAll { get; set; } = new List<Z200_Folio>();
-
-
-        [Parameter]
-        public EventCallback<FiltroFolio> ReadLosFolios { get; set; }
-
-        public List<Z222_FactDet> LosDets { get; set; } = new List<Z222_FactDet>();
-        public List<Z200_Folio> LosFolios { get; set; } = new List<Z200_Folio>();
-
-
-
-        public RadzenDataGrid<Z222_FactDet>? DetalleGrid { get; set; } = new RadzenDataGrid<Z222_FactDet>();
+        public RadzenDataGrid<Z170_File>? FacturaGrid { get; set; } = new RadzenDataGrid<Z170_File>();
 
         protected bool Primera { get; set; } = true;
         protected bool Leyendo { get; set; } = false;
@@ -46,8 +34,7 @@ namespace DashBoard.Pages.Alija
             if (Primera)
             {
                 Primera = false;
-                if (LosDets != null  && !LosDets.Any())
-                    await LeerFactDets();
+                // await LeerConceptos();
             }
 
             await Leer();
@@ -57,7 +44,7 @@ namespace DashBoard.Pages.Alija
         {
             try
             {
-                await LeerFolios();
+                //await LeerProductos();
             }
             catch (Exception ex)
             {
@@ -68,124 +55,134 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        protected async Task LeerFactDets()
+        protected async Task LeerFilesServidor()
         {
             try
             {
-                IEnumerable<Z222_FactDet> resp = new List<Z222_FactDet>();
-                if (LaFactura != null && LaFactura.FacturaId.Length > 30)
+                IEnumerable<Z170_File> filesServ = await FileRepo.Get(x => x.Fecha > (DateTime.Now).AddDays(180) &&
+                    x.Status == true); 
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer archivos en servidor {ElFolio.FolioNum}, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+        
+
+        protected async Task LeerFilesDB()
+        {
+            try
+            {
+                string path = Path.Combine(Environment.CurrentDirectory, "Archivos").ToString();
+                //List<FileInfo> listaArchivos = await ListDirectoriesAndFiles(path);
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer archivos registrados en la base de datos, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+
+        protected async Task LeerArchivosExistentes()
+        {
+            try
+            {
+                string path = Path.Combine(Environment.CurrentDirectory, "Archivos").ToString();
+                List<FilesInfo> listaArchivos = await ListDirectoriesAndFiles(path);
+                IEnumerable<Z170_File> filesServ = await FileRepo.Get(x => x.Fecha > DateTime.Now.AddDays(180) &&
+                       x.FolioId == (ElFolio.FolioId.Length > 30 ? ElFolio.FolioId : x.FolioId) &&
+                       x.FacturaId == (LaFactura.FacturaId.Length > 30 ? LaFactura.FacturaId : x.FacturaId) &&
+                       x.Status == true);
+
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer archivos registrados en la base de datos, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+
+
+        
+
+        protected async Task<List<FilesInfo>> ListDirectoriesAndFiles(string directoryPath)
+        {
+            List<FilesInfo> items = new();
+            try
+            {
+                ListDirectoriesAndFilesRecursive(directoryPath, items);
+                return items;
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer archivos registrados en el servidor, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+            return items;
+        }
+
+        private void ListDirectoriesAndFilesRecursive(string directoryPath, List<FilesInfo> items)
+        {
+            if (Directory.Exists(directoryPath))
+            {
+                string[] directories = Directory.GetDirectories(directoryPath);
+                string[] files = Directory.GetFiles(directoryPath);
+
+                foreach (var directory in directories)
                 {
-                    resp = await DetRepo.Get(x => x.FacturaId == LaFactura.FacturaId);
+                    items.Add(new FilesInfo { Name = directory, IsDirectory = true });
+                    ListDirectoriesAndFilesRecursive(directory, items);
                 }
-                LosDets = resp != null && resp.Any() ? resp.ToList() : new List<Z222_FactDet>();
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer datos de folios cobrados en la factura {LaFactura.FacturaNum}, {TBita}, {ex}",
-                    Corporativo, ElUser.OrgId);
-                await LogAll(LogT);
-            }
-        }
 
-        protected async Task LeerFolios()
-        {
-            try
-            {
-                IEnumerable<Z200_Folio> res = new List<Z200_Folio>();
-                FiltroFolio nfo = new()
+                foreach (var file in files)
                 {
-                    EmpresaId = EmpresaActiva.OrgId
-                };
-                if (LosFoliosAll != null && !LosFoliosAll.Any())
-                
-                    await ReadLosFolios.InvokeAsync(nfo);
-
-                LosFolios = LosFoliosAll != null && LosFoliosAll.Any(x => x.Status == true && x.Estado == 2 &&
-                    x.EmpresaId == LaFactura.EmpresaId && x.OrgId == LaFactura.OrgId) ?
-                                LosFoliosAll.Where(x => x.Status == true && x.Estado == 2 &&
-                                x.EmpresaId == LaFactura.EmpresaId && x.OrgId == LaFactura.OrgId).ToList() :
-                                new List<Z200_Folio>();
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer PRODUCTOS, {TBita}, {ex}",
-                    Corporativo, ElUser.OrgId);
-                await LogAll(LogT);
+                    items.Add(new FilesInfo { Name = file, IsDirectory = false });
+                }
             }
         }
 
-        protected async Task<ApiRespuesta<Z222_FactDet>> Servicio(ServiciosTipos tipo, Z222_FactDet det)
+
+        protected async Task<ApiRespuesta<Z170_File>> Servicio(ServiciosTipos tipo, Z170_File archivo)
         {
-            ApiRespuesta<Z222_FactDet> resp = new()
+            ApiRespuesta<Z170_File> resp = new()
             {
                 Exito = false,
-                Data = det
+                Data = archivo
             };
-
             try
             {
-                if (det != null)
+                if (archivo != null)
                 {
-                    det.FacturaId = LaFactura.FacturaId;
+                    if (ElFolio.FolioId.Length > 30)
+                    {
+                        archivo.FolioId = ElFolio.FolioId;
+                    }
+                    else if (LaFactura.FacturaId.Length > 30)
+                    {
+                        archivo.FacturaId = LaFactura.FacturaId;
+                    }
+                    else
+                    {
+                        return resp;
+                    }
                     if (tipo == ServiciosTipos.Insert)
                     {
-                        det.FactDetId = Guid.NewGuid().ToString();
-                        det.Estado = 1;
-                        Z222_FactDet detInsert = await DetRepo.Insert(det);
-                        if (detInsert != null)
-                        {
-                            resp.Exito = true;
-                            resp.Data = detInsert;
-                        }
-                        else
-                        {
-                            resp.MsnError.Add($"No se Inserto el registro de detalle de la factura {LaFactura.FacturaNum}");
-                        }
-                        return resp;
+                        // no hay insert
                     }
                     else if (tipo == ServiciosTipos.Update)
                     {
-                        Z222_FactDet detUpdate = await DetRepo.Update(det);
-                        if (detUpdate != null)
-                        {
-                            resp.Exito = true;
-                            resp.Data = detUpdate;
-                        }
-                        else
-                        {
-                            resp.MsnError.Add($"No se Actualizo el registro DETALLE DE FATURA {LaFactura.FacturaNum}");
-                            resp.Exito = false;
-                        }
-                        return resp;
+                        // no hay update
                     }
-                    else if (tipo == ServiciosTipos.Importe)
-                    {
-                        Z200_Folio folioTmp = LosFolios.Any(x => x.FolioId == det.FolioId) ?
-                            LosFolios.FirstOrDefault(x => x.FolioId == det.FolioId)! : new();
-                        if (folioTmp == null || folioTmp.FolioId.Length < 30)
-                        {
-                            resp.Exito = false;
-                            resp.Data = det;
-                            return resp;
-                        }
-                        LaFactura.Control += det.Status ? folioTmp.Importe : (folioTmp.Importe * -1);
-                        Z220_Factura factTmp = await FacturaRepo.Update(LaFactura);
-                        if (factTmp != null)
-                        {
-                            resp.Exito = true;
-                            resp.Data = det;
-                        }
-                        else
-                        {
-                            resp.Exito = false;
-                            resp.Data = det;
-                            resp.MsnError.Add("No pudo actualizarse el importe");
-                        }
-                        return resp;
-
-                    }
+                    
                 }
                 resp.MsnError.Add($"Ningua operacion se realizo! {TBita}");
                 return resp;
@@ -281,7 +278,6 @@ namespace DashBoard.Pages.Alija
 
         }
         #endregion
-
 
     }
 }

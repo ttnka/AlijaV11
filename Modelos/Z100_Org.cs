@@ -15,7 +15,7 @@ namespace DashBoard.Modelos
         [StringLength(75)]
         public string? RazonSocial { get; set; } = "";
         public bool Moral { get; set; } = true;
-        
+        [StringLength(10)]
         public string? NumCliente { get; set; } = "";
         [StringLength(15)]
         public string Tipo { get; set; } = "Cliente";

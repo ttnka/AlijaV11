@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.ComponentModel.DataAnnotations;
 using static System.Net.WebRequestMethods;
 
 namespace DashBoard.Modelos
@@ -65,6 +66,12 @@ namespace DashBoard.Modelos
         public const string FacturaEstado = "Nueva,Publicada,Abonada,Pagada,XCancelada";
         public const string PagoEstado = "Nuevo,Pagado,Conciliado,XCancelado";
         public const string EmpresaActiva = "Empresa Activa";
+
+        public const string CamposAcapurar = "AgenteAduanal,Pedimento,Factura,Mercancia,Tractor,Caja1,Caja2,Placas,TractorTipo,Transportista,Maniobra,Despachador,CartaPorte,SelloRemovido,SelloColocado,Chofer,Identificacion,Cuadrilla,Obs";
+        public const string TractorTipo = "Trailer,Rabon";
+        public const string ManiobraTipo = "Palet,Granel";
+
+        public const string TiposdePrecios = "Automatico,Manual";
     }
 }
 

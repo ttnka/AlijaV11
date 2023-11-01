@@ -27,12 +27,9 @@
                         
                         @if (EmpresaActivaAll == null || EmpresaActivaAll.OrgId.Length < 30)
                         {
-                            
-                            
                                 <EmpresaActiva LasEmpHist="LasEmpActAll" LasOrgs="LasOrgsAll"
                                                LosUsers="LosUsersAll"
                                                ReadEmpresaActivaAll="LeerEmpresaActivaAll" />
-                            
                         }
                         else
                         {
@@ -41,13 +38,14 @@
                                 <Tabs>
 
                                     <RadzenTabsItem Text="Factura">
-                                        <FacturaList ReadEmpresaActivaAll="LeerEmpresaActivaAll" ReadLasOrgsAll="LeerOrgAll"
+                                        <FacturaList ReadLosArchivosAll="LeerArchivosServer" ReadLasOrgsAll="LeerOrgAll"
                                                      ReadLasFacturasAll="LeerFacturas" ReadLosFoliosAll="LeerFolios"
-                                                     LasOrgs="LasOrgsAll" LasFacturas="LasFacturasAll" LosFolios="LosFoliosAll" />
+                                                     LasOrgs="LasOrgsAll" LasFacturas="LasFacturasAll"
+                                                     LosFolios="LosFoliosAll" LosArchivosAll="LosArchivosAll" />
                                     </RadzenTabsItem>
 
                                     <RadzenTabsItem Text="Folios">
-                                        <FolioList ReadEmpresaActivaAll="LeerEmpresaActivaAll"
+                                        <FolioList ReadLosArchivosAll="LeerArchivosServer" LosArchivosAll="LosArchivosAll"
                                                    ReadLosFoliosAll="LeerFolios" ReadLasOrgsAll="LeerOrgAll"
                                                    LasOrgs="LasOrgsAll" LosFolios="LosFoliosAll" />
                                     </RadzenTabsItem>
@@ -86,6 +84,18 @@
 
                                                 <RadzenAccordionItem Text="Precios" Icon="note">
                                                     <PreciosList LasOrgs="LasOrgsAll" />
+                                                </RadzenAccordionItem>
+
+                                                <RadzenAccordionItem Text="Campos Requeridos" Icon="dns">
+
+                                                    <RequeridosList ReadLasConfigAll="LeerConfigAll" ReadLasOrgsAll="LeerOrgAll"
+                                                                    LasOrgs="LasOrgsAll" LosConfigs="LosConfigsAll"/>
+
+                                                </RadzenAccordionItem>
+
+                                                <RadzenAccordionItem Text="Configuracion" Icon="build">
+                                                    <ZConfiguracion ReadEmpresaActivaAll="LeerEmpresaActivaAll" ReadLasConfigAll="LeerConfigAll"
+                                                                    ReadLasOrgsAll="LeerOrgAll" LasOrgs="LasOrgsAll" LosConfigs="LosConfigsAll" />
                                                 </RadzenAccordionItem>
                                             </Items>
                                         </RadzenAccordion>

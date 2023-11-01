@@ -1,0 +1,35 @@
+﻿
+@inherits FilesUpBase
+<h3>Subir Archivos</h3>
+<h5>Formatos permitidos PDF, XLM, JPG, JPEG y PNG </h5>
+<h5>Tamaño maximo de los archivos 2MB</h5>
+
+
+<div class="dropArea @dropClass">
+    Arrastra tu archivo o haz click para seleccionar!!
+    <InputFile disable="@Uploading"
+               OnChange="OnInputFileChange"
+               @ondragenter="HandleDragEnter"
+               @ondragleave="HandleDragLeave" max-file-size="10485760" />
+
+</div>
+<br />
+@if (Uploading)
+{
+    <progress style="height:50px;width:100%;" value="@UploadedBytes" max="@TotalBytes"></progress>
+}
+<h3>Archivos</h3>
+<ul>
+    @foreach (var url in FilesUrls)
+    {
+        <li>
+            <a href="@url">@url</a><br />
+        </li>
+    }
+</ul>
+
+@code {
+
+
+}
+

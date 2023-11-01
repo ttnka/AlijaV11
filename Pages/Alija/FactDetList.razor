@@ -216,7 +216,7 @@ else
             if (det == FactDetToInsert) FactDetToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z222_FactDet> resultado = await Servicio("Update", det);
+            ApiRespuesta<Z222_FactDet> resultado = await Servicio(ServiciosTipos.Update, det);
             Z200_Folio elfolio = LosFolios.Any(x => x.FolioId == det.FolioId) ?
                 LosFolios.FirstOrDefault(x => x.FolioId == det.FolioId)! : new Z200_Folio();
 
@@ -232,7 +232,7 @@ else
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
-                await Servicio("Importe", det);
+                await Servicio(ServiciosTipos.Importe, det);
             }
             else
             {
@@ -291,7 +291,7 @@ else
             if (det == FactDetToInsert) FactDetToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z222_FactDet> resultado = await Servicio("Insert", det);
+            ApiRespuesta<Z222_FactDet> resultado = await Servicio(ServiciosTipos.Insert, det);
 
             Z200_Folio elfolio = LosFolios.Any(x => x.FolioId == det.FolioId) ?
                 LosFolios.FirstOrDefault(x => x.FolioId == det.FolioId)! : new Z200_Folio();
@@ -309,7 +309,7 @@ else
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
-                await Servicio("Importe", det);
+                await Servicio(ServiciosTipos.Importe, det);
             }
             else
             {

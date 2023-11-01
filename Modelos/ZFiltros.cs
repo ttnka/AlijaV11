@@ -1,10 +1,13 @@
 ﻿using System;
 namespace DashBoard.Modelos
 {
-	public class ZFiltros
-	{
-		
-	}
+    public class ZFiltros { }
+    
+    public class FilesInfo
+    {
+        public string Name { get; set; } = "";
+        public bool IsDirectory { get; set; }
+    }
 
     public class FiltroFolio : Z200_Folio
     {
@@ -13,7 +16,6 @@ namespace DashBoard.Modelos
         public int FolioFinal { get; set; }
         public DateTime FolioFecInicial { get; set; }
         public DateTime FolioFecFinal { get; set; }
-
 
     }
 
@@ -36,7 +38,8 @@ namespace DashBoard.Modelos
     {
         Insert,
         Update,
-        Crear
+        Crear,
+        Importe
     }
 
     public enum PoblarEmailTipos

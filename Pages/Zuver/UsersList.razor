@@ -222,7 +222,7 @@ else
             if (user == UserToInsert) UserToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z110_User> resultado = await Servicio("Update", user);
+            ApiRespuesta<Z110_User> resultado = await Servicio(ServiciosTipos.Update, user);
             string txt = $"{user.Materno}";
             txt += LasOrgs.Any(x => x.OrgId == user.OrgId) ?
                         $"Empresa: {LasOrgs.FirstOrDefault(x => x.OrgId == user.OrgId)!.Comercial}"

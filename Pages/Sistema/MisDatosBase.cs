@@ -164,7 +164,7 @@ namespace DashBoard.Pages.Sistema
             }
         }
 
-        public async Task<ApiRespuesta<Z110_User>> Servicio(string tipo, Z110_User newD)
+        public async Task<ApiRespuesta<Z110_User>> Servicio(ServiciosTipos tipo, Z110_User newD)
         {
             ApiRespuesta<Z110_User> resp = new()
             {
@@ -176,7 +176,7 @@ namespace DashBoard.Pages.Sistema
             {
                 if (newD != null)
                 {
-                    if (tipo == "Update")
+                    if (tipo == ServiciosTipos.Update)
                     {
                         Z110_User userUpDate = await UserRepo.Update(newD);
                         if (userUpDate != null)

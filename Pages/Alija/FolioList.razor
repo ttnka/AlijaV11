@@ -2,6 +2,7 @@
 @inherits FolioListBase
 @inject NotificationService NS
 @using DashBoard.Modelos
+@using DashBoard.Pages.Sistema
 
 
 
@@ -55,17 +56,8 @@
                                 <CamposList />
                             </RadzenTabsItem>
 
-                            <RadzenTabsItem Text="Transportista">
-
-                                <TransporteList />
-                            </RadzenTabsItem>
-
-                            <RadzenTabsItem Text="Carro">
-                                <CarroList />
-                            </RadzenTabsItem>
-
-                            <RadzenTabsItem Text="Encargado">
-                                <EncargadoList />
+                            <RadzenTabsItem Text="Fotografias">
+                                <FilesUp FolioFactura="true" />
                             </RadzenTabsItem>
 
                         </Tabs>
@@ -144,7 +136,7 @@
                 </Template>
 
                 <EditTemplate Context="datos">
-                    <RadzenTextBox Name="Titulo" @bind-Value="datos.Titulo"
+                    <RadzenTextBox Name="Titulo" @bind-Value="datos.Titulo" MaxLength="50"
                                    Placeholder="Titulo" Style="width:100%;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
@@ -320,7 +312,7 @@ else
             if (folio == FolioToInsert) FolioToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z200_Folio> resultado = await Servicio("Update", folio);
+            ApiRespuesta<Z200_Folio> resultado = await Servicio(ServiciosTipos.Update, folio);
 
             Z100_Org cliente = LasOrgs.Any(x => x.OrgId == folio.OrgId) ?
                 LasOrgs.FirstOrDefault(x => x.OrgId == folio.OrgId)! : new();
@@ -405,7 +397,7 @@ else
             if (folio == FolioToInsert) FolioToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z200_Folio> resultado = await Servicio("Insert", folio);
+            ApiRespuesta<Z200_Folio> resultado = await Servicio(ServiciosTipos.Insert, folio);
 
             Z100_Org cliente = LasOrgs.Any(x => x.OrgId == folio.OrgId) ?
                 LasOrgs.FirstOrDefault(x => x.OrgId == folio.OrgId)! : new();

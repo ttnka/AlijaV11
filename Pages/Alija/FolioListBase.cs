@@ -37,16 +37,19 @@ namespace DashBoard.Pages.Alija
         //[Parameter]
         [Parameter]
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
+        [Parameter]
+        public List<Z170_File> LosArchivosAll { get; set; } = new List<Z170_File>();
 
         // CallBack
         [Parameter]
         public IEnumerable<Z200_Folio> LosFolios { get; set; } = new List<Z200_Folio>();
         [Parameter]
         public EventCallback<FiltroFolio> ReadLosFoliosAll { get; set; }
-        [Parameter]
-        public EventCallback ReadEmpresaActivaAll { get; set; }
+        
         [Parameter]
         public EventCallback ReadLasOrgsAll { get; set; }
+        [Parameter]
+        public EventCallback ReadLosArchivosAll { get; set; }
 
         // Listas y clases
         protected List<KeyValuePair<int, string>> LosEdos { get; set; } =
@@ -56,7 +59,6 @@ namespace DashBoard.Pages.Alija
 
         public RadzenDataGrid<Z200_Folio>? FoliosGrid { get; set; } = new RadzenDataGrid<Z200_Folio>();
 
-        
         protected string EstadoEtiqueta { get; set; } = MyFunc.GeneraEtiquetaEstados("Folio");
         protected string[] EstadoArray { get; set; } = Constantes.FolioEstado.Split(",");
         protected bool Primera { get; set; } = true;
@@ -69,8 +71,8 @@ namespace DashBoard.Pages.Alija
             if (Primera)
             {
                 Primera = false;
-                if (EmpresaActiva == null || EmpresaActiva.OrgId.Length < 15)
-                    await ReadEmpresaActivaAll.InvokeAsync();
+                if (!LasOrgs.Any())
+                    await ReadLasOrgsAll.InvokeAsync();
             }
             
             await Leer();
@@ -81,8 +83,6 @@ namespace DashBoard.Pages.Alija
             try
             {
 
-                if (!LasOrgs.Any())
-                    await ReadLasOrgsAll.InvokeAsync();
                 await LeerClientes();
                 FiltroFolio nf = new();
                 if (!LosFolios.Any())
@@ -177,7 +177,6 @@ namespace DashBoard.Pages.Alija
             return resp; 
         }
 
-
         protected async Task LeerEstadosFolios()
         {
             try
@@ -240,12 +239,12 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        protected async Task<ApiRespuesta<Z200_Folio>> Servicio(string tipo, Z200_Folio folio)
+        protected async Task<ApiRespuesta<Z200_Folio>> Servicio(ServiciosTipos tipo, Z200_Folio folio)
         {
             ApiRespuesta<Z200_Folio> resp = new()
             {
-                Exito = false,
-                Data = folio
+                Exito = false
+                
             };
 
             try
@@ -253,7 +252,7 @@ namespace DashBoard.Pages.Alija
                 if (folio != null && EmpresaActiva.OrgId.Length > 30)
                 {
                     folio.EmpresaId = EmpresaActiva.OrgId;
-                    if (tipo == "Insert")
+                    if (tipo == ServiciosTipos.Insert)
                     {
                         folio.FolioId = Guid.NewGuid().ToString();
                         folio.FolioNum = await FolioRepo.GetCount() + 1;
@@ -273,7 +272,7 @@ namespace DashBoard.Pages.Alija
                         }
                         return resp;
                     }
-                    else if (tipo == "Update")
+                    else if (tipo == ServiciosTipos.Update)
                     {
                         
                         //Z200_Folio folioUpdate = await FolioRepo.Update(folio);

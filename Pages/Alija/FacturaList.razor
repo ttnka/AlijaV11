@@ -2,6 +2,7 @@
 @inherits FacturaListBase
 @inject NotificationService NS
 @using DashBoard.Modelos
+@using DashBoard.Pages.Sistema
 
 
 @if (LasFacturas != null && !Leyendo)
@@ -56,7 +57,8 @@
                                 TBD
                             </RadzenTabsItem>
                             <RadzenTabsItem Text="Archivos">
-                                TBD
+                                
+                                <FilesUp FolioFactura="false" />
                             </RadzenTabsItem>
 
                         </Tabs>
@@ -329,7 +331,7 @@ else
             txt += fact.Status ? "Activo" : "Suspendido";
 
             Editando = !Editando;
-            ApiRespuesta<Z220_Factura> resultado = await Servicio("Update", fact);
+            ApiRespuesta<Z220_Factura> resultado = await Servicio(ServiciosTipos.Update, fact);
 
             if (resultado.Exito)
             {
@@ -405,7 +407,7 @@ else
             if (fact == FacturaToInsert) FacturaToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z220_Factura> resultado = await Servicio("Insert", fact);
+            ApiRespuesta<Z220_Factura> resultado = await Servicio(ServiciosTipos.Insert, fact);
 
             string emp = LasOrgs.Any(x => x.OrgId == fact.OrgId) ? LasOrgs.FirstOrDefault(x => x.OrgId == fact.OrgId)!.Comercial :
                 "";

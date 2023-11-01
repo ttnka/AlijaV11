@@ -48,7 +48,7 @@
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z210_Concepto" Title="Cantidad" Property="Cantidad"
-                                  Filterable="true" Width="120px">
+                                  Filterable="true" Width="100px">
                 <Template Context="datos">
                     <div style="text-align: right;">
                         <RadzenLabel>@datos.Cantidad</RadzenLabel>
@@ -69,7 +69,7 @@
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z210_Concepto" Title="Producto / Servicio"
-                                  Filterable="false" Resizable="true" Width="250px">
+                                  Filterable="false" Resizable="true" Width="225px">
 
                 <Template Context="datos">
                     <div style="white-space:pre-wrap; line-height: initial">
@@ -107,29 +107,40 @@
                                   Filterable="false" Resizable="true" Width="150px">
 
                 <Template Context="datos">
+                   
                     <div style="text-align: right;">
                         <RadzenLabel>
                             @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @datos.Precio)}")
-                            
+
                         </RadzenLabel>
                     </div>
                 </Template>
 
                 <EditTemplate Context="datos">
                     <div style="text-align: right;">
-                        <RadzenLabel>
-                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @datos.Precio)}")
+                        @if (DicProductos.ContainsKey(datos.Producto))
+                        {
+                            <RadzenNumeric Name="Precio" @bind-Value="datos.Precio"
+                                           Style="width: 70%; text-align: right;" ShowUpDown="false" />
                             
-                        </RadzenLabel>
-                    </div>
+                        }
+                        else
+                        {
+                            <RadzenLabel>
+                                @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @datos.Precio)}")
+
+                            </RadzenLabel>
+                        }
+                    </div> 
                 </EditTemplate>
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z210_Concepto" Title="Importe"
-                                  Filterable="false" Resizable="true" Width="150px">
+                                  Filterable="false" Resizable="true" Width="125px">
 
                 <Template Context="datos">
                     <div style="text-align: right;">
+                        
                         <RadzenLabel>
                             @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @datos.Importe)}")
 
@@ -149,7 +160,7 @@
                     @if(LosConceptos.Count > 0)
                     { 
                             <RadzenText TextAlign="TextAlign.Right">
-                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @ConceptoGrid.View.Select(x => x.Importe).Sum())}")
+                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @ConceptoGrid!.View.Select(x => x.Importe).Sum())}")
 
                         </RadzenText>
                     }
@@ -158,7 +169,7 @@
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z210_Concepto" Title="Comentarios"
-                                  Filterable="false" Resizable="true" Width="150px">
+                                  Filterable="false" Resizable="true" Width="200px">
 
                 <Template Context="datos">
                     <RadzenLabel style="white-space:pre-wrap; line-height: initial">
@@ -199,13 +210,13 @@
                     @if (datos.Estado > 0 && ElUser.Nivel > 4 && ElFolio.Estado < 2)
                     {
                         <div>
-                            <RadzenLabel> Borrar este registro? </RadzenLabel>
+                            <RadzenLabel> Borrar este registro? </RadzenLabel><br />
                             <RadzenSelectBar @bind-Value=@datos.Status TValue="bool">
                                 <Items>
                                     <RadzenSelectBarItem Text="No" Value="true" />
                                     <RadzenSelectBarItem Text="Si" Value="false" />
                                 </Items>
-                            </RadzenSelectBar>
+                            </RadzenSelectBar><br />
                         </div>
                     }
 
@@ -241,11 +252,12 @@ else
                                                 x.ProductoId == ConceptoToInsert.Producto)!.Precio;
             }
         }
-        if (ConceptoToInsert.Cantidad != 0 && ConceptoToInsert.Producto.Length > 15)
+        if (ConceptoToInsert.Cantidad > 0 && ConceptoToInsert.Precio > 0)
         {
             ConceptoToInsert.Importe = ConceptoToInsert.Cantidad * ConceptoToInsert.Precio;
         }
     }
+
 
     void Cancelar()
     {
@@ -266,10 +278,12 @@ else
     {
         try
         {
+            concepto.Importe = concepto.Cantidad * concepto.Precio;
+
             if (concepto == ConceptoToInsert) ConceptoToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z210_Concepto> resultado = await Servicio("Update", concepto);
+            ApiRespuesta<Z210_Concepto> resultado = await Servicio(ServiciosTipos.Update, concepto);
 
             Z280_Producto prod = LosProductos.Any(x => x.ProductoId == concepto.Producto) ?
                 LosProductos.FirstOrDefault(x => x.ProductoId == concepto.Producto)! : new();
@@ -287,7 +301,8 @@ else
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
-                await Servicio("Importe", concepto);
+                await Servicio(ServiciosTipos.Importe, concepto);
+                
             }
             else
             {
@@ -301,7 +316,7 @@ else
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await LogAll(logTemp);
-                await ConceptoGrid!.Reload();
+                
             }
         }
         catch (Exception ex)
@@ -311,6 +326,7 @@ else
                     Corporativo, ElUser.OrgId);
             await LogAll(logTemp);
         }
+        await ConceptoGrid!.Reload();
 
     }
 
@@ -344,10 +360,11 @@ else
     {
         try
         {
+            concepto.Importe = concepto.Cantidad * concepto.Precio;
             if (concepto == ConceptoToInsert) ConceptoToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z210_Concepto> resultado = await Servicio("Insert", concepto);
+            ApiRespuesta<Z210_Concepto> resultado = await Servicio(ServiciosTipos.Insert, concepto);
 
 
             Z280_Producto prod = LosProductos.Any(x => x.ProductoId == concepto.Producto) ?
@@ -366,7 +383,9 @@ else
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
-                await Servicio("Importe", concepto);
+                await Servicio(ServiciosTipos.Importe, concepto);
+
+                
             }
             else
             {
@@ -380,7 +399,7 @@ else
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await LogAll(logTemp);
-                await ConceptoGrid!.Reload();
+                
             }
 
         }
@@ -391,6 +410,7 @@ else
                     Corporativo, ElUser.OrgId);
             await LogAll(logTemp);
         }
+        await ConceptoGrid!.Reload();
 
     }
 

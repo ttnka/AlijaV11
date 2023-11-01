@@ -5,36 +5,45 @@ using Microsoft.AspNetCore.Components;
 using Radzen;
 using Radzen.Blazor;
 
-namespace DashBoard.Pages.Alija
+namespace DashBoard.Pages.Sistema
 {
-	public class FactDetListBase : ComponentBase
+	public class RequeridosListBase : ComponentBase
 	{
-        public const string TBita = "Factura Detalle";
+        public const string TBita = "Campos requeridos";
 
         [Inject]
-        public Repo<Z220_Factura, ApplicationDbContext> FacturaRepo { get; set; } = default!;
-        [Inject]
-        public Repo<Z222_FactDet, ApplicationDbContext> DetRepo { get; set; } = default!;
-                                    
+        public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
 
-        [CascadingParameter(Name = "LaFacturaAll")]
-        public Z220_Factura LaFactura { get; set; } = new();
+
+        // Cascading
         [CascadingParameter(Name = "EmpresaActivaAll")]
         public Z100_Org EmpresaActiva { get; set; } = new();
 
+        //[Parameter]
         [Parameter]
-        public List<Z200_Folio> LosFoliosAll { get; set; } = new List<Z200_Folio>();
+        public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
+        [Parameter]
+        public List<ZConfig> LosConfigs { get; set; } = new List<ZConfig>();
 
+
+        // CallBack
 
         [Parameter]
-        public EventCallback<FiltroFolio> ReadLosFolios { get; set; }
+        public EventCallback ReadEmpresaActivaAll { get; set; }
+        [Parameter]
+        public EventCallback ReadLasOrgsAll { get; set; }
+        [Parameter]
+        public EventCallback ReadLasConfigAll { get; set; }
 
-        public List<Z222_FactDet> LosDets { get; set; } = new List<Z222_FactDet>();
-        public List<Z200_Folio> LosFolios { get; set; } = new List<Z200_Folio>();
+        // Listas y clases
+        public List<ZConfig> LosCampos { get; set; } = new List<ZConfig>();
+        public List<ZConfig> LosDatos { get; set; } = new List<ZConfig>();
+        
 
+        
+        public List<Z100_Org> LasAdmins { get; set; } = new List<Z100_Org>();
 
-
-        public RadzenDataGrid<Z222_FactDet>? DetalleGrid { get; set; } = new RadzenDataGrid<Z222_FactDet>();
+        public RadzenDataGrid<ZConfig>? CamposGrid { get; set; } = new RadzenDataGrid<ZConfig>();
 
         protected bool Primera { get; set; } = true;
         protected bool Leyendo { get; set; } = false;
@@ -46,8 +55,8 @@ namespace DashBoard.Pages.Alija
             if (Primera)
             {
                 Primera = false;
-                if (LosDets != null  && !LosDets.Any())
-                    await LeerFactDets();
+                if (EmpresaActiva == null || EmpresaActiva.OrgId.Length < 15)
+                    await ReadEmpresaActivaAll.InvokeAsync();
             }
 
             await Leer();
@@ -57,137 +66,139 @@ namespace DashBoard.Pages.Alija
         {
             try
             {
-                await LeerFolios();
+                if (!LosConfigs.Any()) { await ReadLasConfigAll.InvokeAsync(); }
+                await LeerLosCampos();
+
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
+                     $"Consulto la seccion de {TBita}", Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+                StateHasChanged();
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer datos INICIO, {TBita}, {ex}",
+                $"Error al intentar Leer datos Campos al inicio, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
                 await LogAll(LogT);
             }
         }
 
-        protected async Task LeerFactDets()
+        protected async Task LeerLosCampos()
         {
             try
             {
-                IEnumerable<Z222_FactDet> resp = new List<Z222_FactDet>();
-                if (LaFactura != null && LaFactura.FacturaId.Length > 30)
-                {
-                    resp = await DetRepo.Get(x => x.FacturaId == LaFactura.FacturaId);
-                }
-                LosDets = resp != null && resp.Any() ? resp.ToList() : new List<Z222_FactDet>();
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer datos de folios cobrados en la factura {LaFactura.FacturaNum}, {TBita}, {ex}",
-                    Corporativo, ElUser.OrgId);
-                await LogAll(LogT);
-            }
-        }
+                if (!LasOrgs.Any()) { await ReadLasOrgsAll.InvokeAsync(); }
 
-        protected async Task LeerFolios()
-        {
-            try
-            {
-                IEnumerable<Z200_Folio> res = new List<Z200_Folio>();
-                FiltroFolio nfo = new()
-                {
-                    EmpresaId = EmpresaActiva.OrgId
-                };
-                if (LosFoliosAll != null && !LosFoliosAll.Any())
+                LasAdmins = LasOrgs.Any() ? LasOrgs.Where(x => x.Tipo == "Administracion" && x.Estado == 1 && x.Status == true).ToList() :
+                    new List<Z100_Org>();
                 
-                    await ReadLosFolios.InvokeAsync(nfo);
+                LosCampos = LosConfigs.Any() ? LosConfigs.Where(x => x.Grupo == "CAMPOS" && x.Tipo == "ELEMENTOS").OrderBy(x=>x.Titulo).ToList() :
+                    new List<ZConfig>();
+                LosDatos = LosConfigs.Any() ? LosConfigs.Where(x => x.Grupo == "CAMPOS" && x.Tipo == "MOSTRADOS").ToList() :
+                    new List<ZConfig>();
 
-                LosFolios = LosFoliosAll != null && LosFoliosAll.Any(x => x.Status == true && x.Estado == 2 &&
-                    x.EmpresaId == LaFactura.EmpresaId && x.OrgId == LaFactura.OrgId) ?
-                                LosFoliosAll.Where(x => x.Status == true && x.Estado == 2 &&
-                                x.EmpresaId == LaFactura.EmpresaId && x.OrgId == LaFactura.OrgId).ToList() :
-                                new List<Z200_Folio>();
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer PRODUCTOS, {TBita}, {ex}",
+                $"Error al intentar Leer datos LOS CAMPOS, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
                 await LogAll(LogT);
             }
         }
 
-        protected async Task<ApiRespuesta<Z222_FactDet>> Servicio(ServiciosTipos tipo, Z222_FactDet det)
+        protected async Task LeerLosConf()
         {
-            ApiRespuesta<Z222_FactDet> resp = new()
+            try
             {
-                Exito = false,
-                Data = det
+                await ReadLasConfigAll.InvokeAsync();
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer los registros de configuraciones, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+
+        
+
+        protected async Task<ApiRespuesta<ZConfig>> ExisteRegistro(ZConfig nuevo)
+        {
+            ApiRespuesta<ZConfig> respuesta = new();
+            try
+            {
+                IEnumerable<ZConfig> temp = await ConfRepo.Get(x => x.Usuario == nuevo.Usuario && x.Titulo == nuevo.Titulo);
+                if (temp.Any())
+                {
+                    respuesta.Data = temp.OrderByDescending(x => x.Fecha1).FirstOrDefault()!;
+                    respuesta.Exito = true;
+                }
+                else
+                {
+                    respuesta.Exito = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer los registros de configuraciones ya existentes, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+                respuesta.Exito = false;
+                respuesta.MsnError.Add(ex.Message);
+            }
+            return respuesta;
+        }
+
+        protected async Task<ApiRespuesta<ZConfig>> Servicio(ServiciosTipos tipo, ZConfig config)
+        {
+            // USUARIO = EmpresaAdmin Titulo = Campo   Si/No Fecha
+            ApiRespuesta<ZConfig> resp = new()
+            {
+                Exito = false
             };
 
             try
             {
-                if (det != null)
+                if (config != null)
                 {
-                    det.FacturaId = LaFactura.FacturaId;
                     if (tipo == ServiciosTipos.Insert)
                     {
-                        det.FactDetId = Guid.NewGuid().ToString();
-                        det.Estado = 1;
-                        Z222_FactDet detInsert = await DetRepo.Insert(det);
-                        if (detInsert != null)
+                        config.ConfigId = Guid.NewGuid().ToString();
+
+                        ZConfig configInsert = await ConfRepo.Insert(config);
+                        if (configInsert != null)
                         {
                             resp.Exito = true;
-                            resp.Data = detInsert;
+                            resp.Data = configInsert;
                         }
                         else
                         {
-                            resp.MsnError.Add($"No se Inserto el registro de detalle de la factura {LaFactura.FacturaNum}");
+                            resp.MsnError.Add($"No se Inserto el registro {config.Titulo}");
                         }
                         return resp;
                     }
                     else if (tipo == ServiciosTipos.Update)
                     {
-                        Z222_FactDet detUpdate = await DetRepo.Update(det);
-                        if (detUpdate != null)
-                        {
-                            resp.Exito = true;
-                            resp.Data = detUpdate;
-                        }
-                        else
-                        {
-                            resp.MsnError.Add($"No se Actualizo el registro DETALLE DE FATURA {LaFactura.FacturaNum}");
-                            resp.Exito = false;
-                        }
-                        return resp;
-                    }
-                    else if (tipo == ServiciosTipos.Importe)
-                    {
-                        Z200_Folio folioTmp = LosFolios.Any(x => x.FolioId == det.FolioId) ?
-                            LosFolios.FirstOrDefault(x => x.FolioId == det.FolioId)! : new();
-                        if (folioTmp == null || folioTmp.FolioId.Length < 30)
-                        {
-                            resp.Exito = false;
-                            resp.Data = det;
-                            return resp;
-                        }
-                        LaFactura.Control += det.Status ? folioTmp.Importe : (folioTmp.Importe * -1);
-                        Z220_Factura factTmp = await FacturaRepo.Update(LaFactura);
-                        if (factTmp != null)
-                        {
-                            resp.Exito = true;
-                            resp.Data = det;
-                        }
-                        else
-                        {
-                            resp.Exito = false;
-                            resp.Data = det;
-                            resp.MsnError.Add("No pudo actualizarse el importe");
-                        }
-                        return resp;
 
+                        
+                        ZConfig configUpdate = new();
+                        if (configUpdate != null)
+                        {
+                            resp.Exito = true;
+                            resp.Data = configUpdate;
+                        }
+                        else
+                        {
+                            resp.MsnError.Add($"No se Actualizo el registro {config.Titulo}");
+                            resp.Exito = false;
+                        }
+                        return resp;
                     }
                 }
-                resp.MsnError.Add($"Ningua operacion se realizo! {TBita}");
+                resp.MsnError.Add("Ningua operacion se realizo!");
                 return resp;
             }
             catch (Exception ex)
@@ -199,6 +210,7 @@ namespace DashBoard.Pages.Alija
                 await LogAll(LogT);
                 return resp;
             }
+
         }
 
         #region Usuario y Bitacora
@@ -281,7 +293,6 @@ namespace DashBoard.Pages.Alija
 
         }
         #endregion
-
 
     }
 }

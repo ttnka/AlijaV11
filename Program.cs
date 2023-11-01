@@ -53,7 +53,7 @@ builder.Services.AddTransient<Repo<Z100_Org, ApplicationDbContext>>();
 
 //builder.Services.AddTransient<Repo<Z104_Domicilio, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z110_User, ApplicationDbContext>>();
-//builder.Services.AddTransient<Repo<Z180_File, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z170_File, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z180_EmpActiva, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z190_Bitacora, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z192_Logs, ApplicationDbContext>>();

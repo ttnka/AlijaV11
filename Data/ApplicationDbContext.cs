@@ -19,7 +19,7 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Z100_Org> Organizaciones { get; set; }
     //public DbSet<Z104_Domicilio> Domicilios { get; set; }
     public DbSet<Z110_User> Usuarios { get; set; }
-    //public DbSet<Z180_File> Archivos { get; set; }
+    public DbSet<Z170_File> Archivos { get; set; }
     public DbSet<Z180_EmpActiva> EmpresaActiva { get; set; }
     public DbSet<Z190_Bitacora> Bitacora { get; set; }
     public DbSet<Z192_Logs> LogsBitacora { get; set; }

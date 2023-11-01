@@ -18,26 +18,29 @@ namespace DashBoard.Pages.Alija
         [Inject]
         public Repo<Z100_Org, ApplicationDbContext> OrgRepo { get; set; } = default!;
         [Inject]
+        public Repo<Z170_File, ApplicationDbContext> FileRepo { get; set; } = default!;
+        [Inject]
         public Repo<Z110_User, ApplicationDbContext> UsersRepo { get; set; } = default!;
         [Inject]
         public Repo<Z200_Folio, ApplicationDbContext> FolioRepo { get; set; } = default!;
-        
         [Inject]
         public Repo<Z220_Factura, ApplicationDbContext> FacturaRepo { get; set; } = default!;
         [Inject]
         public Repo<Z230_Pago, ApplicationDbContext> PagoRepo { get; set; } = default!;
-        
         [Inject]
         public Repo<Z180_EmpActiva, ApplicationDbContext> EmpActRepo { get; set; } = default!;
           
-        protected List<Z110_User> LosUsersAll { get; set; } = new List<Z110_User>();
+        
         protected List<Z100_Org> LasOrgsAll { get; set; } = new List<Z100_Org>();
         protected List<Z100_Org> LasAlijadorasAll { get; set; } = new List<Z100_Org>();
+        protected List<Z110_User> LosUsersAll { get; set; } = new List<Z110_User>();
+        protected List<Z170_File> LosArchivosAll { get; set; } = new List<Z170_File>();
         protected List<Z180_EmpActiva> LasEmpActAll { get; set; } = new List<Z180_EmpActiva>();
         protected List<Z200_Folio> LosFoliosAll { get; set; } = new List<Z200_Folio>();
         protected List<Z220_Factura> LasFacturasAll { get; set; } = new List<Z220_Factura>();
         protected List<Z230_Pago> LosPagosAll { get; set; } = new List<Z230_Pago>();
-        protected List<ZConfig> LasConfigsAll { get; set; } = new List<ZConfig>();
+        protected List<ZConfig> LosConfigsAll { get; set; } = new List<ZConfig>();
+
         
         //protected List<ZConfig> LasHistEmpAll { get; set; } = new List<ZConfig>();
 
@@ -79,6 +82,7 @@ namespace DashBoard.Pages.Alija
                 await LeerNiveles();
                 
                 await LeerUsersAll();
+                await LeerArchivosServer();
 
                 LasAdmonCANT = LasOrgsAll.Count(x => x.Tipo == "Administracion" &&
                                            x.Estado == 1 && x.Status == true);
@@ -91,6 +95,21 @@ namespace DashBoard.Pages.Alija
             {
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                      $"Error al entrar a la funcion LEER de {TBita}, {ex}", CorporativoAll, ElUser.OrgId);
+                await LogAll(logTemp);
+            }
+        }
+
+        protected async Task LeerConfigAll()
+        {
+            try
+            {
+                IEnumerable<ZConfig> resp = await ConfRepo.GetAll();
+                LosConfigsAll = resp.Any() ? resp.ToList() : new List<ZConfig>();
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error, No fue posible leer Zconfiguracion {TBita}, {ex}", "All", ElUser.OrgId);
                 await LogAll(logTemp);
             }
         }
@@ -320,7 +339,80 @@ namespace DashBoard.Pages.Alija
             }
         }
 
+        protected async Task LeerArchivosServer()
+        {
+            try
+            {
 
+                IEnumerable<FilesInfo> losArcServ = new List<FilesInfo>();
+                string elpath = Path.Combine(Environment.CurrentDirectory, "Archivos");
+                ApiRespuestas<FilesInfo> fi = ListDirectoriesAndFiles(elpath);
+
+                if (!fi.Exito)
+                {
+                    throw new Exception(string.Join(", ",fi.MsnError));
+                }
+                    
+                losArcServ = fi.Data;
+                IEnumerable<Z170_File> losArcDb = await FileRepo.Get(x => x.Fecha >
+                                        DateTime.Now.AddDays(180) && x.Status == true);
+                if (!losArcDb.Any())
+                {
+                    throw new Exception("No hay registros de archivos en la base de datos.");
+                }
+                if (losArcServ.Any() && losArcDb.Any())
+                {
+                    LosArchivosAll = losArcDb.Where(db => losArcServ.Any(s => s.Name == db.Archivo)).ToList();
+                    /*
+                    var archivosComunes = losArcServ.Join(losArcBd, servidor => servidor.Name, db => db.Archivo,
+                                                    (servidor, db) => new { Servidor = servidor, DB = db }).ToList();
+                    */
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                     $"Error al entrar a la funcion LEER de {TBita}, {ex}", CorporativoAll, ElUser.OrgId);
+                await LogAll(logTemp);
+            }
+        }
+        protected ApiRespuestas<FilesInfo> ListDirectoriesAndFiles(string directoryPath)
+        {
+            ApiRespuestas<FilesInfo> resp = new() { Exito = false };
+            List<FilesInfo> items = new();
+            try
+            {
+                ListDirectoriesAndFilesRecursive(directoryPath, items);
+                resp.Data = items;
+                resp.Exito = true;
+                
+            }
+            catch (Exception ex)
+            {
+                resp.MsnError.Add($"Error al intentar Leer archivos registrados en el servidor, {TBita}, {ex}");
+            }
+            return resp;
+        }
+
+        private void ListDirectoriesAndFilesRecursive(string directoryPath, List<FilesInfo> items)
+        {
+            if (Directory.Exists(directoryPath))
+            {
+                string[] directories = Directory.GetDirectories(directoryPath);
+                string[] files = Directory.GetFiles(directoryPath);
+
+                foreach (var directory in directories)
+                {
+                    items.Add(new FilesInfo { Name = directory, IsDirectory = true });
+                    ListDirectoriesAndFilesRecursive(directory, items);
+                }
+
+                foreach (var file in files)
+                {
+                    items.Add(new FilesInfo { Name = file, IsDirectory = false });
+                }
+            }
+        }
         public ZFiltros MyFiltros { get; set; } = new();
 
         #region Usuario y Bitacora

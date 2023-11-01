@@ -13,13 +13,23 @@ namespace DashBoard.Pages.Alija
 
         [Inject]
         public Repo<Z209_Campos, ApplicationDbContext> CamposRepo { get; set; } = default!;
+        
 
-        public List<Z209_Campos> LosCampos { get; set; } = new List<Z209_Campos>();
+        [Parameter]
+        public List<ZConfig> LosConfig { get; set; } = new List<ZConfig>();
+        public List<ZConfig> Mostrar { get; set; } = new List<ZConfig>();
+
+        [Parameter]
+        public EventCallback ReadConfigAll { get; set; }
 
         [CascadingParameter(Name = "ElFolioAll")]
         public Z200_Folio ElFolio { get; set; } = new();
         [CascadingParameter(Name = "EmpresaActivaAll")]
         public Z100_Org EmpresaActiva { get; set; } = new();
+
+        public List<Z209_Campos> LosCampos { get; set; } = new List<Z209_Campos>();
+        public List<KeyValuePair<string, string>> ManiobrasTipos { get; set; } = new List<KeyValuePair<string, string>>();
+        public List<KeyValuePair<string, string>> TractoresTipos { get; set; } = new List<KeyValuePair<string, string>>();
 
         public RadzenDataGrid<Z209_Campos>? CamposGrid { get; set; } = new RadzenDataGrid<Z209_Campos>();
 
@@ -34,6 +44,7 @@ namespace DashBoard.Pages.Alija
             {
                 Primera = false;
                 await LeerLosCampos();
+
             }
 
             await Leer();
@@ -43,12 +54,71 @@ namespace DashBoard.Pages.Alija
         {
             try
             {
-
+                if (!LosConfig.Any()) await ReadConfigAll.InvokeAsync();
+                Mostrar = LosConfig.Any() ? LosConfig.Where(x => x.Usuario == ElFolio.OrgId && x.Status == true &&
+                    x.Grupo == "CAMPOS" && x.Tipo == "REQUERIDOS").ToList() : new List<ZConfig>();
+                await LeerListados();
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                 $"Error al intentar Leer datos INICIO, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+
+        protected async Task LeerMostrar()
+        {
+            try
+            {
+                await ReadConfigAll.InvokeAsync();
+                
+                Mostrar = LosConfig.Any() ? LosConfig.Where(x => x.Usuario == ElFolio.OrgId && x.Status == true &&
+                    x.Grupo == "CAMPOS" && x.Tipo == "REQUERIDOS").ToList() : new List<ZConfig>();
+                
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer datos del los campos que son requeridos {ElFolio.FolioNum}, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+
+        protected async Task LeerListados()
+        {
+            try
+            {
+                // Leer los tractorTipo
+                IEnumerable<ZConfig> tt = LosConfig.Where(x => x.Grupo == "TRACTORTIPO" &&
+                                    x.Tipo == "ELEMENTOS" && x.Status == true);
+                if (tt.Any())
+                {
+                    TractoresTipos.Clear();
+                    foreach (var t in tt)
+                    {
+                        TractoresTipos.Add(new KeyValuePair<string, string>(t.Titulo, t.Titulo));
+                    }
+                }
+                // Leer las ManiobrasTipo
+
+                IEnumerable<ZConfig> mt = LosConfig.Where(x => x.Grupo == "MANIOBRATIPO" &&
+                                    x.Tipo == "ELEMENTOS" && x.Status == true);
+                if (mt.Any())
+                {
+                    ManiobrasTipos.Clear();
+                    foreach (var m in mt)
+                    {
+                        ManiobrasTipos.Add(new KeyValuePair<string, string>(m.Titulo, m.Titulo));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer los registros de configuraciones, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
                 await LogAll(LogT);
             }

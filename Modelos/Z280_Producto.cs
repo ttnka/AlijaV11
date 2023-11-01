@@ -12,13 +12,15 @@ namespace DashBoard.Modelos
         public string ProductoId { get; set; } = "";
         [StringLength(20)]
         public string Grupo { get; set; } = "";
-        public string? Tipo { get; set; }
+        [StringLength(20)]
+        public string Tipo { get; set; } = "";
         [StringLength(10)]
         public string Clave { get; set; } = "";
         [StringLength(75)]
         public string Titulo { get; set; } = "";
         [Column(TypeName = "decimal(18,2)")]    
         public decimal Precio { get; set; }
+
         public string? Obs { get; set; }
         [StringLength(50)]
         public string Corporativo { get; set; } = "";

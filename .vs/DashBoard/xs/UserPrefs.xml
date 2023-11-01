@@ -1,38 +1,41 @@
 ﻿<Properties StartupConfiguration="{B0F2F48F-367B-4CDE-BE11-032DC9FE8C2A}|https">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FilesUpBase.cs" relfile="Pages/Sistema/FilesUpBase.cs" line="235" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FilesUpBase.cs" relfile="Pages/Sistema/FilesUpBase.cs" line="239" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FilesUpBase.cs" relfile="Pages/Sistema/FilesUpBase.cs" line="233" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FilesUpBase.cs" relfile="Pages/Sistema/FilesUpBase.cs" line="237" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FilesUpBase.cs" relfile="Pages/Sistema/FilesUpBase.cs" line="200" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.ItemProperties.DashBoard PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Pages/Sistema/ArranqueBase.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Pages/Alija/FolioList.razor">
     <Files>
-      <File FileName="Pages/Alija/IndexAlija.razor" />
-      <File FileName="Pages/Zuver/UserAddBase.cs" />
-      <File FileName="Pages/Zuver/UserAdd.razor" />
-      <File FileName="Pages/Sistema/Arranque.razor" />
-      <File FileName="Pages/Sistema/ArranqueBase.cs" Line="1" Column="1" />
+      <File FileName="Pages/Alija/FolioListBase.cs" Line="61" Column="1" />
+      <File FileName="Pages/Alija/FacturaListBase.cs" Line="35" Column="9" />
+      <File FileName="Pages/Sistema/FilesUpBase.cs" Line="1" Column="1" />
+      <File FileName="Pages/Alija/FolioList.razor" Line="60" Column="33" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="DashBoard">
             <Node name="DashBoard">
-              <Node name="Pages" expanded="True">
-                <Node name="Alija" expanded="True" />
-                <Node name="Sistema" expanded="True">
-                  <Node name="ArranqueBase.cs" selected="True" />
+              <Node name="Archivos" expanded="True" />
+              <Node name="Modelos" expanded="True" />
+              <Node name="Pages">
+                <Node name="Alija">
+                  <Node name="FolioList.razor" selected="True" />
                 </Node>
-                <Node name="Zuver" expanded="True" />
               </Node>
+              <Node name="wwwroot" expanded="True" />
             </Node>
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Modelos/REnviarMail.cs" relfile="Modelos/REnviarMail.cs" line="93" column="1" />
-      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Modelos/REnviarMail.cs" relfile="Modelos/REnviarMail.cs" line="77" column="1" />
-    </BreakpointStore>
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>

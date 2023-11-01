@@ -140,7 +140,7 @@
         datos.Mail = datos.Mail.ToLower();
         datos.OldMail = string.IsNullOrEmpty(datos.OldMail) ? datos.OldMail : datos.OldMail.ToLower();
 
-        ApiRespuesta<AddUser> resultado = await Servicio("Create", datos);
+        ApiRespuesta<AddUser> resultado = await Servicio(ServiciosTipos.Crear, datos);
         datos.OrgName = LasOrgs.Any(x => x.OrgId == datos.OrgId) ?
                 LasOrgs.FirstOrDefault(x => x.OrgId == datos.OrgId)!.ComercialRfc : "";
         string nivelTxt = NivelesEdit.FirstOrDefault(x => x.Key == datos.Nivel).Value ??

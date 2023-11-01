@@ -22,7 +22,7 @@ namespace DashBoard.Modelos
         public string Tractor { get; set; } = "";
         [StringLength(20)]
         public string Caja1 { get; set; } = "";
-        [StringLength(75)]
+        [StringLength(20)]
         public string? Caja2 { get; set; } = "";
         [StringLength(20)]
         public string? Placas { get; set; } = "";
@@ -42,9 +42,9 @@ namespace DashBoard.Modelos
         public string SelloColocado { get; set; } = "";
         [StringLength(75)]
         public string Chofer { get; set; } = "";
-        [StringLength(25)]
-        public string Identificacion { get; set; } = "";
         [StringLength(50)]
+        public string Identificacion { get; set; } = "";
+        [StringLength(75)]
         public string Cuadrilla { get; set; } = "";
         public string Obs { get; set; } = "";
         public int Estado { get; set; } = 2;

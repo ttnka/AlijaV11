@@ -21,7 +21,8 @@ namespace DashBoard.Pages.Alija
 
         [Parameter]
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
-        public List<Z100_Org> LosCorps { get; set; } = new List<Z100_Org>();
+        protected List<Z100_Org> LosCorps { get; set; } = new List<Z100_Org>();
+        protected List<KeyValuePair<string, string>> PreciosTipo { get; set; } = new List<KeyValuePair<string, string>>(); 
 
         public RadzenDataGrid<Z280_Producto>? ProductoGrid { get; set; } = new RadzenDataGrid<Z280_Producto>();
 
@@ -46,6 +47,7 @@ namespace DashBoard.Pages.Alija
         {
             try
             {
+                await LeerPreciosTipo();
                 await LeerLosCorps();
             }
             catch (Exception ex)
@@ -103,7 +105,26 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        protected async Task<ApiRespuesta<Z280_Producto>> Servicio(string tipo, Z280_Producto prod)
+        protected async Task LeerPreciosTipo()
+        {
+            try
+            {
+                List<string> pt = Constantes.TiposdePrecios.Split(",").ToList();
+                foreach(var p in pt )
+                {
+                    PreciosTipo.Add(new KeyValuePair<string, string>(p, p));
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                        $"Error al intentar Leer y poblar tipos de precios {TBita} {ex}",
+                        Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+
+        protected async Task<ApiRespuesta<Z280_Producto>> Servicio(ServiciosTipos tipo, Z280_Producto prod)
         {
             ApiRespuesta<Z280_Producto> resp = new()
             {
@@ -115,7 +136,7 @@ namespace DashBoard.Pages.Alija
             {
                 if (prod != null)
                 {
-                    if (tipo == "Insert")
+                    if (tipo == ServiciosTipos.Insert)
                     {
                         prod.ProductoId = Guid.NewGuid().ToString();
 
@@ -131,7 +152,7 @@ namespace DashBoard.Pages.Alija
                         }
                         return resp;
                     }
-                    else if (tipo == "Update")
+                    else if (tipo == ServiciosTipos.Update)
                     {
                         Z280_Producto prodUpdate = await ProductoRepo.Update(prod);
                         if (prodUpdate != null)
