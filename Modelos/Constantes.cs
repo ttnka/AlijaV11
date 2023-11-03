@@ -61,6 +61,10 @@ namespace DashBoard.Modelos
         public const string ConfirmarMailTxt = "https://alijadores.com/Account/ConfirmEmail/Id=";
         public const string SitioDesc = "Este sitio genera informacion sobre los reportes de Seguro Social e Infonavit";
 
+        public const string FolderImagenes = "Imagenes";
+        public const string FolderArchivos = "Archivos";
+        public const string GrupoFolio = "ConfiguracionFolio";
+
         // Registro de Estado de Folios
         public const string FolioEstado = "Nuevo,Ejecutado,Facturado,XCancelado";
         public const string FacturaEstado = "Nueva,Publicada,Abonada,Pagada,XCancelada";
@@ -72,6 +76,8 @@ namespace DashBoard.Modelos
         public const string ManiobraTipo = "Palet,Granel";
 
         public const string TiposdePrecios = "Automatico,Manual";
+
+
     }
 }
 

@@ -59,9 +59,12 @@ builder.Services.AddTransient<Repo<Z190_Bitacora, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z192_Logs, ApplicationDbContext>>();
 
 builder.Services.AddTransient<Repo<Z200_Folio, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z201_FolioPrint, ApplicationDbContext>>();
+/*
 builder.Services.AddTransient<Repo<Z203_Transporte, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z204_Empleado, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z205_Carro, ApplicationDbContext>>();
+*/
 builder.Services.AddTransient<Repo<Z209_Campos, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z210_Concepto, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z220_Factura, ApplicationDbContext>>();

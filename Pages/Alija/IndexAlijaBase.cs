@@ -34,7 +34,7 @@ namespace DashBoard.Pages.Alija
         protected List<Z100_Org> LasOrgsAll { get; set; } = new List<Z100_Org>();
         protected List<Z100_Org> LasAlijadorasAll { get; set; } = new List<Z100_Org>();
         protected List<Z110_User> LosUsersAll { get; set; } = new List<Z110_User>();
-        protected List<Z170_File> LosArchivosAll { get; set; } = new List<Z170_File>();
+        // protected List<Z170_File> LosArchivosAll { get; set; } = new List<Z170_File>();
         protected List<Z180_EmpActiva> LasEmpActAll { get; set; } = new List<Z180_EmpActiva>();
         protected List<Z200_Folio> LosFoliosAll { get; set; } = new List<Z200_Folio>();
         protected List<Z220_Factura> LasFacturasAll { get; set; } = new List<Z220_Factura>();
@@ -82,8 +82,7 @@ namespace DashBoard.Pages.Alija
                 await LeerNiveles();
                 
                 await LeerUsersAll();
-                await LeerArchivosServer();
-
+                
                 LasAdmonCANT = LasOrgsAll.Count(x => x.Tipo == "Administracion" &&
                                            x.Estado == 1 && x.Status == true);
 
@@ -339,43 +338,8 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        protected async Task LeerArchivosServer()
-        {
-            try
-            {
-
-                IEnumerable<FilesInfo> losArcServ = new List<FilesInfo>();
-                string elpath = Path.Combine(Environment.CurrentDirectory, "Archivos");
-                ApiRespuestas<FilesInfo> fi = ListDirectoriesAndFiles(elpath);
-
-                if (!fi.Exito)
-                {
-                    throw new Exception(string.Join(", ",fi.MsnError));
-                }
-                    
-                losArcServ = fi.Data;
-                IEnumerable<Z170_File> losArcDb = await FileRepo.Get(x => x.Fecha >
-                                        DateTime.Now.AddDays(180) && x.Status == true);
-                if (!losArcDb.Any())
-                {
-                    throw new Exception("No hay registros de archivos en la base de datos.");
-                }
-                if (losArcServ.Any() && losArcDb.Any())
-                {
-                    LosArchivosAll = losArcDb.Where(db => losArcServ.Any(s => s.Name == db.Archivo)).ToList();
-                    /*
-                    var archivosComunes = losArcServ.Join(losArcBd, servidor => servidor.Name, db => db.Archivo,
-                                                    (servidor, db) => new { Servidor = servidor, DB = db }).ToList();
-                    */
-                }
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                     $"Error al entrar a la funcion LEER de {TBita}, {ex}", CorporativoAll, ElUser.OrgId);
-                await LogAll(logTemp);
-            }
-        }
+        /*
+        
         protected ApiRespuestas<FilesInfo> ListDirectoriesAndFiles(string directoryPath)
         {
             ApiRespuestas<FilesInfo> resp = new() { Exito = false };
@@ -413,6 +377,7 @@ namespace DashBoard.Pages.Alija
                 }
             }
         }
+        */
         public ZFiltros MyFiltros { get; set; } = new();
 
         #region Usuario y Bitacora

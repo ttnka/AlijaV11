@@ -1,7 +1,6 @@
 ﻿using System;
 using DashBoard.Data;
 using DashBoard.Modelos;
-using MathNet.Numerics.Distributions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Radzen;
@@ -9,31 +8,26 @@ using Radzen.Blazor;
 
 namespace DashBoard.Pages.Sistema
 {
-    public class FilesUpBase : ComponentBase
-    {
-        public const string TBita = "Subir Archivos";
+	public class ConfigFolioBase : ComponentBase
+	{
+        protected const string TBita = "Configuracion de pagina de impresion de folios";
+         
 
         [Inject]
-        public Repo<Z170_File, ApplicationDbContext> FileRepo { get; set; } = default!;
+        public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
 
-        [CascadingParameter(Name = "ElFolioAll")]
-        public Z200_Folio ElFolio { get; set; } = new();
-        [CascadingParameter(Name = "LaFacturaAll")]
-        public Z220_Factura LaFactura { get; set; } = new();
         [CascadingParameter(Name = "EmpresaActivaAll")]
         public Z100_Org EmpresaActiva { get; set; } = new();
 
+        //[Parameter]
         [Parameter]
-        public bool FolioFactura { get; set; } = true;
+        public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
 
-        public Z170_File Borrador { get; set; } = new();
+        protected List<KeyValuePair<string, string>> LosTipos { get; set; } = new List<KeyValuePair<string, string>>();
+        protected List<ZConfig> LosConfigs { get; set; } = new List<ZConfig>();
+        protected List<Z100_Org> LasAdmin { get; set; } = new List<Z100_Org>();
 
-        public string ElFolder { get; set; } = "";
-        public string ElArchivo { get; set; } = "";
-        public string ElTipoArchivo { get; set; } = "";
-        public string ElTitulo { get; set; } = "";
-
-        public List<KeyValuePair<string, string>> DocsTipo { get; set; } = new List<KeyValuePair<string, string>>();
+        public RadzenDataGrid<ZConfig>? ConfigGrid { get; set; } = new RadzenDataGrid<ZConfig>();
 
         public string dropClass = string.Empty;
         public string ImageUrl = "";
@@ -41,34 +35,71 @@ namespace DashBoard.Pages.Sistema
         public string ElMensaje = "";
         public long UploadedBytes;
         public long TotalBytes;
+        public string ElArchivo { get; set; } = "";
 
         protected bool Primera { get; set; } = true;
         protected bool Leyendo { get; set; } = false;
         protected bool Editando { get; set; } = false;
-        
+
+
         protected override async Task OnInitializedAsync()
         {
-            LeerDocsTipos();
-            
+            if (Primera)
+            {
+                Primera = false;
+                
+            }
+
+            await Leer();
+        }
+
+        protected async Task Leer()
+        {
+            try
+            {
+                LosConfigs = (await ConfRepo.Get(x => x.Grupo == Constantes.GrupoFolio && x.Status == true)).ToList();
+
+                LasAdmin = LasOrgs.Any() ? LasOrgs.Where(x => x.Tipo == "Administracion").ToList() : new List<Z100_Org>();
+
+                LosTipos.Add(new KeyValuePair<string, string>("Logotipo", "Logotipo"));
+                LosTipos.Add(new KeyValuePair<string, string>("TituloFolio", "Titulo del Folio"));
+                LosTipos.Add(new KeyValuePair<string, string>("Recinto", "Recinto"));
+                LosTipos.Add(new KeyValuePair<string, string>("Email", "Email"));
+                LosTipos.Add(new KeyValuePair<string, string>("Tel", "Email"));
+                LosTipos.Add(new KeyValuePair<string, string>("Calce1", "Calce Uno"));
+                LosTipos.Add(new KeyValuePair<string, string>("Calce2", "Calce Dos"));
+
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
+                     $"Consulto la seccion de {TBita}", Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer datos INICIO, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
         }
 
         public void HandleDragEnter()
         {
             dropClass = "dropAreaDrug";
         }
+
         public void HandleDragLeave()
         {
             dropClass = string.Empty;
         }
-        
 
-        public async Task OnInputFileChange(InputFileChangeEventArgs args)
+        public async Task OnInputFileChange(InputFileChangeEventArgs args, ZConfig registro)
         {
             string terminacion = Path.GetExtension(args.File.Name).ToLower();
             if (!TipoArchivoPermitido(args.File.Name))
             {
                 ElMensaje = $"Tipo de archivo no permitido tu archivo es {terminacion} ";
-                ElMensaje += $"y esperamos un archivo tipo {ElTipoArchivo}";
+                ElMensaje += $"y esperamos un archivo tipo JPG, JPEG o PNG";
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
                         $"Error al intentar subir un archivo no valido {TBita} {ElMensaje}",
                         Corporativo, ElUser.OrgId);
@@ -93,8 +124,8 @@ namespace DashBoard.Pages.Sistema
                 justFileName = justFileName.Replace(" ", "_");
                 justFileName = justFileName.Replace(".", "_");
 
-                string ff = FolioFactura ? "Folio_" + ElFolio.FolioNum : "Factura_" + LaFactura.FacturaNum;
-                ElArchivo = $"{justFileName}-{ff}-{DateTime.Now.Ticks}{terminacion}";
+                
+                ElArchivo = $"{justFileName}-Logo_-{DateTime.Now.Ticks}{terminacion}";
 
                 ApiRespValor hayCarpeta = ExisteCarpeta();
 
@@ -102,13 +133,13 @@ namespace DashBoard.Pages.Sistema
                 {
                     ElMensaje = $"No hay carpeta para guardar el archivo en el servidor";
                     Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                        $"Error al intentar leer la carpeta de archivos y mes no existe {TBita} {ElMensaje}",
+                        $"Error al intentar leer la carpeta de {Constantes.FolderImagenes} y mes no existe {TBita} {ElMensaje}",
                         Corporativo, ElUser.OrgId);
                     await LogAll(LogT);
                     return;
                 }
-                
-                string fileName = Path.Combine(ElFolder, ElArchivo);
+
+                string fileName = Path.Combine(hayCarpeta.Texto, ElArchivo);
 
                 using (var inStream = args.File.OpenReadStream(long.MaxValue))
                 {
@@ -139,110 +170,46 @@ namespace DashBoard.Pages.Sistema
 
                 ElMensaje = "Carga completa!";
 
-                string t = $"registro de archivo {ElFolder} {ElArchivo} y subir el archivo ";
-                t += FolioFactura ? $"Folio {ElFolio.FolioNum} " : $"Factura {LaFactura.FacturaNum}";
-                t += $"Fecha: {DateTime.Now}, Empresa Act{EmpresaActiva.Comercial}";
-
-                ApiRespuesta<Z170_File> res = await Servicio(ServiciosTipos.Insert);
+                registro.Txt = ElArchivo;
+                ApiRespuesta<ZConfig> res = await Servicio(ServiciosTipos.Insert, registro);
                 if (!res.Exito)
                 {
-                    t = "No fue posible agregar " + t;   
-                    throw new Exception(t);
+                    throw new Exception("No fue posible agregar registro del logotipo");
                 }
                 else
                 {
-                    t = "Se agrego un ";
+                    string t = "Se agrego un registro y un archivo para el logotipo de formato de Folio";
                     Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, t,
                     Corporativo, ElUser.OrgId);
                     await BitacoraAll(bitaTemp);
                 }
-                Borrador = new();
-
+                
                 Uploading = false;
+                ConfigGrid.Reload();
 
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                        $"Error al intentar leer y crea carpeta de archivos {TBita} {ex}",
+                        $"Error al intentar leer y subir el archivo de logotipo {TBita} {ex}",
                         Corporativo, ElUser.OrgId);
                 await LogAll(LogT);
             }
         }
 
-        protected async Task<ApiRespuesta<Z170_File>> Servicio(ServiciosTipos tipo)
-        {
-            ApiRespuesta<Z170_File> resp = new() { Exito = false };
-            Z170_File registro = new()
-            {
-                FileId = Guid.NewGuid().ToString(),
-                Fecha = DateTime.Now,
-                Tipo = ElTipoArchivo,
-                Folder = ElFolder,
-                Archivo = ElArchivo,
-                EmpresaActiva = EmpresaActiva.OrgId,
-                Estado = 1,
-
-            };
-            if (FolioFactura)
-            {
-                registro.FolioId = ElFolio.FolioId;
-                registro.OrgId = ElFolio.OrgId;
-            }
-            else
-            {
-                registro.FacturaId = LaFactura.FacturaId;
-                registro.OrgId = LaFactura.OrgId;
-            }
-
-            try
-            {
-                if (tipo == ServiciosTipos.Insert)
-                {
-                    Z170_File fileUped = await FileRepo.Insert(registro);
-                    if (fileUped != null)
-                    {
-                        resp.Exito = true;
-                        resp.Data = fileUped;
-                    }
-                }
-                if (tipo == ServiciosTipos.Update)
-                {
-
-                    // no hay update
-                }
-            }
-            catch (Exception ex)
-            {
-                resp.MsnError.Add( $"No fue posible actualizar el registro de archivos subidos al servidor, {ex}");
-            }
-            return resp;
-        } 
-
-        private ApiRespValor ExisteCarpeta()
+        private static ApiRespValor ExisteCarpeta()
         {
             ApiRespValor respuesta = new() { Exito = false };
             try
             {
-                string ruta_base = Path.Combine(Environment.CurrentDirectory, Constantes.FolderArchivos);
-                
+                string ruta_base = Path.Combine(Environment.CurrentDirectory, Constantes.FolderImagenes);
+
                 if (!Directory.Exists(ruta_base))
                 {
                     Directory.CreateDirectory(ruta_base);
                 }
 
-                // Combina la carpeta base con el nombre de la carpeta
-                DateTime fechaActual = DateTime.Now;
-                string nombreCarpeta = fechaActual.ToString("MMyy");
-                ElFolder = Path.Combine(ruta_base, nombreCarpeta);
-
-                // Verifica si la carpeta ya existe, si no, créala
-                if (!Directory.Exists(ElFolder))
-                {
-                    Directory.CreateDirectory(ElFolder);
-                }
-                
-                respuesta.Texto = ElFolder;
+                respuesta.Texto = ruta_base;
                 respuesta.Exito = true;
                 // Combina la ruta completa con el nombre del archivo
                 //string rutaCompleta = Path.Combine(carpetaDestino, archivo.Name);
@@ -250,34 +217,75 @@ namespace DashBoard.Pages.Sistema
             catch (Exception ex)
             {
                 respuesta.MsnError.Add(ex.Message);
-                
+
             }
             return respuesta;
-        
+
         }
 
-        private bool TipoArchivoPermitido(string nombreArchivo)
+        private static bool TipoArchivoPermitido(string nombreArchivo)
         {
             string ext = Path.GetExtension(nombreArchivo).ToLower();
-
-            if (FolioFactura)
-            {
-                return ext == ".jpg" || ext == ".jpeg" || ext == ".png";
-            }
-            return ext == ".pdf" || ext == ".xml";
+            return ext == ".jpg" || ext == ".jpeg" || ext == ".png";
         }
 
-        protected void LeerDocsTipos()
+        protected async Task<ApiRespuesta<ZConfig>> Servicio(ServiciosTipos tipo, ZConfig config)
         {
-            if (FolioFactura)
+            ApiRespuesta<ZConfig> resp = new()
             {
-                DocsTipo.Add(new KeyValuePair<string, string>("Fotografia", "Fotografia"));
+                Exito = false
+            };
+
+            try
+            {
+                if (config != null)
+                {
+                    config.Grupo = config.Grupo.ToUpper();
+                    config.Tipo = config.Tipo.ToUpper();
+                    if (tipo == ServiciosTipos.Insert)
+                    {
+                        config.ConfigId = Guid.NewGuid().ToString();
+                        ZConfig configInsert = await ConfRepo.Insert(config);
+                        if (configInsert != null)
+                        {
+                            resp.Exito = true;
+                            resp.Data = configInsert;
+                        }
+                        else
+                        {
+                            resp.MsnError.Add($"No se Inserto el registro {config.Titulo}");
+                        }
+                        return resp;
+                    }
+                    else if (tipo == ServiciosTipos.Update)
+                    {
+
+                        //Z200_Folio folioUpdate = await FolioRepo.Update(folio);
+                        ZConfig configUpdate = new();
+                        if (configUpdate != null)
+                        {
+                            resp.Exito = true;
+                            resp.Data = configUpdate;
+                        }
+                        else
+                        {
+                            resp.MsnError.Add($"No se Actualizo el registro {config.Titulo}");
+                            resp.Exito = false;
+                        }
+                        return resp;
+                    }
+                }
+                resp.MsnError.Add("Ningua operacion se realizo!");
+                return resp;
             }
-            else
+            catch (Exception ex)
             {
-                DocsTipo.Add(new KeyValuePair<string, string>("Factura Pdf", "Factura Pdf"));
-                DocsTipo.Add(new KeyValuePair<string, string>("Factura Xls", "Factura Xls"));
-                DocsTipo.Add(new KeyValuePair<string, string>("Confirmacion Pdf", "Confirmacion Pdf"));
+                resp.MsnError.Add(ex.Message);
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                        $"Error al intentar {tipo} los registros de {TBita} {ex}",
+                        Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+                return resp;
             }
 
         }

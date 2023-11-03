@@ -18,12 +18,7 @@ namespace DashBoard.Pages.Alija
         public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
         [Inject]
         public Repo<Z200_Folio, ApplicationDbContext> FolioRepo { get; set; } = default!;
-        [Inject]
-        public Repo<Z203_Transporte, ApplicationDbContext> TransporteRepo { get; set; } = default!;
-        [Inject]
-        public Repo<Z205_Carro, ApplicationDbContext> CarroRepo { get; set; } = default!;
-        [Inject]
-        public Repo<Z204_Empleado, ApplicationDbContext> EmpleadoRepo { get; set; } = default!;
+        
         [Inject]
         public Repo<Z209_Campos, ApplicationDbContext> CamposRepo { get; set; } = default!;
         [Inject]
@@ -38,18 +33,14 @@ namespace DashBoard.Pages.Alija
         [Parameter]
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
         [Parameter]
-        public List<Z170_File> LosArchivosAll { get; set; } = new List<Z170_File>();
+        public IEnumerable<Z200_Folio> LosFolios { get; set; } = new List<Z200_Folio>();
 
         // CallBack
         [Parameter]
-        public IEnumerable<Z200_Folio> LosFolios { get; set; } = new List<Z200_Folio>();
-        [Parameter]
         public EventCallback<FiltroFolio> ReadLosFoliosAll { get; set; }
-        
         [Parameter]
         public EventCallback ReadLasOrgsAll { get; set; }
-        [Parameter]
-        public EventCallback ReadLosArchivosAll { get; set; }
+        
 
         // Listas y clases
         protected List<KeyValuePair<int, string>> LosEdos { get; set; } =
@@ -197,37 +188,44 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-        protected async Task<bool> SigEdoFolio(Z200_Folio folio)
+        protected async Task<ApiRespValor> SigEdoFolio(Z200_Folio folio)
         {
+            ApiRespValor resp = new() { Exito = false };
+            bool hayErr = false;
             try
             {
-                int valorMinimo = 1; int valor = 0;
-                if (folio != null)
+                var concepTmp = await ConceptoRepo.Get(x => x.FolioId == folio.FolioId && x.Status == true);
+                if (!concepTmp.Any() && concepTmp.Sum(x => x.Importe) < 1)
                 {
-                    // Valor minimo es tener un CONCEPTO el cual ya no se podra AGREGAR o MODIFICAR
-                    IEnumerable<Z210_Concepto> conceptos = await ConceptoRepo.Get(x => x.FolioId == folio.FolioId &&
-                                                        x.Status == true);
-                    valor += conceptos != null && conceptos.Any() ? 1 : 0;
-                    if (valor == 1)
+                    resp.MsnError.Add("No hay conceptos capturados en este folio, captura alguno!");
+                    return resp;
+                }
+
+                var campoTmp = await CamposRepo.Get(x => x.FolioId == folio.FolioId && x.Status == true);
+                if (!campoTmp.Any())
+                {
+                    resp.MsnError.Add("No hay informacion de la operacion, necesitamos detalles captura todos los campos!");
+                    return resp;
+                }
+
+                List<string> camposList = Constantes.CamposAcapurar.Split(",").ToList();
+
+                var noRequeridos = await ConfRepo.Get(x => x.SiNo == false && x.Usuario == folio.EmpresaId &&
+                        x.Grupo == "CAMPOS" && x.Tipo == "MOSTRADOS");
+                foreach(var campo1 in camposList)
+                {
+                    if (noRequeridos.Any(x => x.Titulo == campo1)) continue;
+                    var prop = campoTmp.GetType().GetProperty(campo1);
+                    if (prop != null )
                     {
-                        IEnumerable<Z203_Transporte> trans = await TransporteRepo.Get(x => x.FolioId == folio.FolioId &&
-                                                        x.Status == true);
-                        valor += trans != null && trans.Any() ? 1 : 0;
-                    }
-                    if (valor == 2)
-                    {
-                        IEnumerable<Z205_Carro> carro = await CarroRepo.Get(x => x.FolioId == folio.FolioId &&
-                                                        x.Status == true);
-                        valor += carro != null && carro.Any() ? 1 : 0;
-                    }
-                    if (valor == 3)
-                    {
-                        IEnumerable<Z204_Empleado> empleado = await EmpleadoRepo.Get(x => x.FolioId == folio.FolioId &&
-                                                            x.Status == true);
-                        valor += empleado != null && empleado.Any() ? 1 : 0;
+                        var valor = prop.GetValue(campo1, null);
+                        if (valor != null && string.IsNullOrEmpty(valor.ToString()))
+                        {
+                            resp.MsnError.Add($"Falta informacion de {campo1} capturala ");
+                            hayErr = true;
+                        } 
                     }
                 }
-                return valor >= valorMinimo;
             }
             catch (Exception ex)
             {
@@ -235,8 +233,11 @@ namespace DashBoard.Pages.Alija
                 $"Error al intentar EVALUAR SIGUIENTE ESTADO DE FOLIO {folio.FolioNum}, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
                 await LogAll(LogT);
-                return false;
+                resp.MsnError.Add(ex.Message);
+                hayErr = true;
             }
+            resp.Exito = !hayErr;
+            return resp;
         }
 
         protected async Task<ApiRespuesta<Z200_Folio>> Servicio(ServiciosTipos tipo, Z200_Folio folio)

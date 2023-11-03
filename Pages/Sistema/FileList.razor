@@ -1,1 +1,276 @@
-﻿
+﻿@inherits FileListBase
+@inject NotificationService NS
+@using DashBoard.Modelos
+
+
+@if (LosArchivos != null && !Leyendo)
+{
+    <RadzenDataGrid @ref="FilesGrid"
+                    AllowFiltering="true" AllowPaging="true" PageSize="50"
+                    AllowSorting="true" AllowColumnResize="true"
+                    ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                    EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
+                    Data="@LosArchivos" TItem="Z170_File"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30)
+            {
+                @if (ElFolio.Estado < 2 || ElUser.Nivel > 5)
+                {
+                    <RadzenButton Icon="plus" style="margin-bottom: 10px"
+                                  ButtonStyle="ButtonStyle.Info" Click="InsertRow">
+                        Agregar conceptos
+                    </RadzenButton>
+                }
+            }
+            else if (EmpresaActiva.OrgId.Length < 30)
+            {
+                <RadzenLabel>Es necesario que seleciones una empresa activa en Informacion>Empresa Activa</RadzenLabel>
+            }
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                          ButtonStyle="ButtonStyle.Success" Click="LeerArchivosExistentes">
+                Actualizar
+            </RadzenButton>
+        </HeaderTemplate>
+
+        <Columns>
+
+
+            <RadzenDataGridColumn TItem="Z170_File" Title="Id" Filterable="false"
+                                  Width="40px">
+                <Template Context="datos">
+                    <RadzenLabel>@(LosArchivos.IndexOf(datos) + 1)</RadzenLabel>
+
+                </Template>
+
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z170_File" Title="Tipo Doc"
+                                  Filterable="false" Width="120px">
+                <Template Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>@datos.Tipo</RadzenLabel>
+                    </div>
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="Tipo" Data=DocsTipo @bind-Value=@datos.Tipo
+                                    ValueProperty="Key" TextProperty="Value"
+                                    Style="width: 100%;" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z170_File" Title="Titulo"
+                                  Filterable="false" Resizable="true" Width="200px">
+
+                <Template Context="datos">
+
+                    <RadzenLabel>
+                        datos.Titulo
+                    </RadzenLabel>
+
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Titulo" @bind-Value="datos.Tipo" Placeholder="Algun Titulo" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z170_File" Title="Archivo"
+                                  Filterable="false" Resizable="true" Width="200px">
+
+                <Template Context="datos">
+                    @if (DicData.ContainsKey($"FileId_{@datos.FileId}"))
+                    {
+                       <a href="@($"{datos.Folder}/{datos.Archivo}")" download >
+                           Bajar archivo
+                       </a>                        
+                    }
+                    else
+                    {
+                        <RadzenLabel>
+                            No se encontro el archivo
+                        </RadzenLabel>
+                    }
+
+
+                </Template>
+                    
+                <EditTemplate Context="datos">
+                    <RadzenLabel>
+                        @datos.Archivo
+                    </RadzenLabel>
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z170_File" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+                    @if (ElUser.Nivel > 5 || (datos.Estado < 2 && ElFolio.Estado < 2))
+                    {
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
+                                      Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
+                    }
+
+                    @if (datos.Status)
+                    {
+                        <b>Activo</b>
+                    }
+                    else
+                    {
+                        <b>Suspendido</b>
+                    }
+
+
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    @if (datos.Estado > 0 && ElUser.Nivel > 4 && ElFolio.Estado < 2)
+                    {
+                        <div>
+                            <RadzenLabel> Borrar este registro? </RadzenLabel><br />
+                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool">
+                                <Items>
+                                    <RadzenSelectBarItem Text="No" Value="true" />
+                                    <RadzenSelectBarItem Text="Si" Value="false" />
+                                </Items>
+                            </RadzenSelectBar><br />
+                        </div>
+                    }
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" Click="@((args) => SaveRow(datos))" />
+
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+else
+{
+    <div class="spinner">
+
+    </div>
+}
+
+@code
+{
+
+
+    void Cancelar()
+    {
+        //OrgNew = new();
+        FileToInsert = new();
+    }
+
+    Z170_File FileToInsert = new();
+
+    async Task EditRow(Z170_File file)
+    {
+
+        await FilesGrid!.EditRow(file);
+        Editando = !Editando;
+    }
+
+    async void OnUpdateRow(Z170_File file)
+    {
+        try
+        {
+            if (file == FileToInsert) FileToInsert = null!;
+
+            Editando = !Editando;
+            ApiRespuesta<Z170_File> resultado = await Servicio(ServiciosTipos.Update, file);
+
+            string txt = $"{TBita}, se modifico ";
+            txt += FolioFactura ? $"Folio {ElFolio.FolioNum} " : $"Factura {LaFactura.FacturaNum} ";
+            txt += $"Archivo: {file.Folder} {file.Archivo} empresa activa: {EmpresaActiva.Comercial} ";
+            txt += file.Status ? "Registro: Activo" : $"Registro: Borrado";
+
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("info", "Actualizo",
+                    $"Se actualizo la info del archivo {file.Archivo}", 0));
+                txt = $"Se actualizo la informacion " + txt;
+                Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await BitacoraAll(bitaTemp);
+
+
+            }
+            else
+            {
+                string etxt = $"Error No Se actualizo la info de ";
+                foreach (var e in resultado.MsnError)
+                { etxt += $", {e}"; }
+
+                ShowNotification(ElMsn("Error", "Error", etxt, 0));
+                txt = $"Error, No se actualizo un registro archivo {txt} {etxt}";
+
+                Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
+                    Corporativo, ElUser.OrgId);
+                await LogAll(logTemp);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                    $"Error, No fue posible actualizar la info de Concepto, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+            await LogAll(logTemp);
+        }
+        await FilesGrid!.Reload();
+
+    }
+
+    async Task SaveRow(Z170_File file)
+    {
+        await FilesGrid!.UpdateRow(file);
+    }
+
+    void CancelEdit(Z170_File file)
+    {
+        if (file == FileToInsert) FileToInsert = null!;
+
+        Editando = !Editando;
+        FilesGrid!.CancelEditRow(file);
+    }
+
+    async Task InsertRow()
+    {
+        FileToInsert = new Z170_File();
+       
+        Editando = !Editando;
+        await FilesGrid!.InsertRow(FileToInsert);
+
+    }
+    async void OnCreateRow(Z170_File file)
+    {
+        // No hay insert
+
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+    /*
+
+
+
+     @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @FilesGrid.View.Select(x => x.Importe).Sum())}")
+
+
+    */
+
+}
+

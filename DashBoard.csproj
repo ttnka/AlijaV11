@@ -42,11 +42,7 @@
     <Folder Include="Pages\Zuver\" />
     <Folder Include="Pages\Web\" />
     <Folder Include="Pages\Alija\" />
-    <Folder Include="wwwroot\Archivos\" />
     <Folder Include="Archivos\" />
     <Folder Include="Pages\Alija\Old\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Remove="wwwroot\Archivos\" />
   </ItemGroup>
 </Project>

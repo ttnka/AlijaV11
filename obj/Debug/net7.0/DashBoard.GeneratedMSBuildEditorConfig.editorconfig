@@ -72,6 +72,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lzdGVtYS9CaXRhY29yYS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/ConfigFolio.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lzdGVtYS9Db25maWdGb2xpby5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/EmpresaActiva.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lzdGVtYS9FbXByZXNhQWN0aXZhLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
@@ -94,6 +98,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/ZConfiguracion.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2lzdGVtYS9aQ29uZmlndXJhY2lvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ivanuhernandez/Projects/AlijaV11/Pages/Web/FolioPrint.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvV2ViL0ZvbGlvUHJpbnQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/ivanuhernandez/Projects/AlijaV11/Pages/Web/IndexClientes.razor]

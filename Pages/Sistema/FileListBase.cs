@@ -2,6 +2,7 @@
 using DashBoard.Data;
 using DashBoard.Modelos;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Radzen;
 using Radzen.Blazor;
 
@@ -20,9 +21,18 @@ namespace DashBoard.Pages.Sistema
         [CascadingParameter(Name = "LaFacturaAll")]
         public Z220_Factura LaFactura { get; set; } = new();
         [CascadingParameter(Name = "EmpresaActivaAll")]
-        public Z100_Org EmpresaActiva { get; set; } = new();
+        public Z100_Org EmpresaActiva { get; set; } = new();           
 
-        public RadzenDataGrid<Z170_File>? FacturaGrid { get; set; } = new RadzenDataGrid<Z170_File>();
+        [Parameter]
+        public bool FolioFactura { get; set; } = true;
+
+        public List<Z170_File> LosArchivos { get; set; } = new List<Z170_File>();
+
+        public List<KeyValuePair<string, string>> DocsTipo { get; set; } = new List<KeyValuePair<string, string>>();
+        public Dictionary<string, string> DicData { get; set; } = new Dictionary<string, string>(); 
+        
+
+        public RadzenDataGrid<Z170_File>? FilesGrid { get; set; } = new RadzenDataGrid<Z170_File>();
 
         protected bool Primera { get; set; } = true;
         protected bool Leyendo { get; set; } = false;
@@ -34,8 +44,8 @@ namespace DashBoard.Pages.Sistema
             if (Primera)
             {
                 Primera = false;
-                // await LeerConceptos();
-            }
+                LeerDocsTipos(); 
+            }   
 
             await Leer();
         }
@@ -44,45 +54,13 @@ namespace DashBoard.Pages.Sistema
         {
             try
             {
-                //await LeerProductos();
+                if (!LosArchivos.Any())
+                    await LeerArchivosExistentes();
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer datos INICIO, {TBita}, {ex}",
-                    Corporativo, ElUser.OrgId);
-                await LogAll(LogT);
-            }
-        }
-
-        protected async Task LeerFilesServidor()
-        {
-            try
-            {
-                IEnumerable<Z170_File> filesServ = await FileRepo.Get(x => x.Fecha > (DateTime.Now).AddDays(180) &&
-                    x.Status == true); 
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer archivos en servidor {ElFolio.FolioNum}, {TBita}, {ex}",
-                    Corporativo, ElUser.OrgId);
-                await LogAll(LogT);
-            }
-        }
-        
-
-        protected async Task LeerFilesDB()
-        {
-            try
-            {
-                string path = Path.Combine(Environment.CurrentDirectory, "Archivos").ToString();
-                //List<FileInfo> listaArchivos = await ListDirectoriesAndFiles(path);
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer archivos registrados en la base de datos, {TBita}, {ex}",
+                $"Error al intentar Leer los archivos en el servidor, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
                 await LogAll(LogT);
             }
@@ -92,64 +70,47 @@ namespace DashBoard.Pages.Sistema
         {
             try
             {
-                string path = Path.Combine(Environment.CurrentDirectory, "Archivos").ToString();
-                List<FilesInfo> listaArchivos = await ListDirectoriesAndFiles(path);
-                IEnumerable<Z170_File> filesServ = await FileRepo.Get(x => x.Fecha > DateTime.Now.AddDays(180) &&
-                       x.FolioId == (ElFolio.FolioId.Length > 30 ? ElFolio.FolioId : x.FolioId) &&
-                       x.FacturaId == (LaFactura.FacturaId.Length > 30 ? LaFactura.FacturaId : x.FacturaId) &&
-                       x.Status == true);
+                IEnumerable<Z170_File> resp = await FileRepo.Get(x => x.Status == true &&
+                                    x.FolioId == (FolioFactura ? ElFolio.FolioId : x.FolioId) &&
+                                    x.FacturaId == (!FolioFactura ? LaFactura.FacturaId : x.FacturaId));
+                if (resp.Any())
+                {
+                    LosArchivos = resp.ToList();
+                    foreach (var f in resp)
+                    {
+                        string comp = Path.Combine(f.Folder, f.Archivo);
+                        Console.WriteLine($" D: {Directory.Exists(f.Folder)}, F: {File.Exists(comp)}");
+                        if (Directory.Exists( f.Folder) && File.Exists(comp) &&
+                                            !DicData.ContainsKey($"FileId_{f.FileId}"))
+
+                            DicData.Add($"FileId_{f.FileId}", f.Archivo);
+                    }
+                }
 
             }
             catch (Exception ex)
             {
                 Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer archivos registrados en la base de datos, {TBita}, {ex}",
+                $"Error al intentar Leer archivos registrados en la base de datos y servidor, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
                 await LogAll(LogT);
             }
         }
 
-
-        
-
-        protected async Task<List<FilesInfo>> ListDirectoriesAndFiles(string directoryPath)
+        protected void LeerDocsTipos()
         {
-            List<FilesInfo> items = new();
-            try
+            if (FolioFactura)
             {
-                ListDirectoriesAndFilesRecursive(directoryPath, items);
-                return items;
+                DocsTipo.Add(new KeyValuePair<string, string>("Fotografia", "Fotografia"));
             }
-            catch (Exception ex)
+            else
             {
-                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer archivos registrados en el servidor, {TBita}, {ex}",
-                    Corporativo, ElUser.OrgId);
-                await LogAll(LogT);
+                DocsTipo.Add(new KeyValuePair<string, string>("Factura Pdf", "Factura Pdf"));
+                DocsTipo.Add(new KeyValuePair<string, string>("Factura Xls", "Factura Xls"));
+                DocsTipo.Add(new KeyValuePair<string, string>("Confirmacion Pdf", "Confirmacion Pdf"));
             }
-            return items;
+
         }
-
-        private void ListDirectoriesAndFilesRecursive(string directoryPath, List<FilesInfo> items)
-        {
-            if (Directory.Exists(directoryPath))
-            {
-                string[] directories = Directory.GetDirectories(directoryPath);
-                string[] files = Directory.GetFiles(directoryPath);
-
-                foreach (var directory in directories)
-                {
-                    items.Add(new FilesInfo { Name = directory, IsDirectory = true });
-                    ListDirectoriesAndFilesRecursive(directory, items);
-                }
-
-                foreach (var file in files)
-                {
-                    items.Add(new FilesInfo { Name = file, IsDirectory = false });
-                }
-            }
-        }
-
 
         protected async Task<ApiRespuesta<Z170_File>> Servicio(ServiciosTipos tipo, Z170_File archivo)
         {
@@ -162,18 +123,7 @@ namespace DashBoard.Pages.Sistema
             {
                 if (archivo != null)
                 {
-                    if (ElFolio.FolioId.Length > 30)
-                    {
-                        archivo.FolioId = ElFolio.FolioId;
-                    }
-                    else if (LaFactura.FacturaId.Length > 30)
-                    {
-                        archivo.FacturaId = LaFactura.FacturaId;
-                    }
-                    else
-                    {
-                        return resp;
-                    }
+                    
                     if (tipo == ServiciosTipos.Insert)
                     {
                         // no hay insert
@@ -279,6 +229,7 @@ namespace DashBoard.Pages.Sistema
         }
         #endregion
 
+        
     }
 }
 

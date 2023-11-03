@@ -57,6 +57,10 @@
                             </RadzenTabsItem>
 
                             <RadzenTabsItem Text="Fotografias">
+                                <h3>Subir archivos</h3>
+
+                                <FileList FolioFactura="true" />
+
                                 <FilesUp FolioFactura="true" />
                             </RadzenTabsItem>
 
@@ -360,12 +364,15 @@ else
         
         if (ElUser.Nivel < 6 && folio.Estado == 2)
         {
-            bool avanzar = await SigEdoFolio(folio);
-            if (!avanzar)
+            ApiRespValor avanzar = await SigEdoFolio(folio);
+            if (!avanzar.Exito)
             {
                 folio.Estado = 1;
                 string txt = "No fue posible modificar el registro ";
-                txt += "El Folio no cuenta con la informacion de conceptos, transportistas";
+                foreach (var m in avanzar.MsnError)
+                {
+                    txt += m + ", ";
+                }
                 ShowNotification(ElMsn("Error", "Error", txt, 4000));
              
             }

@@ -1,0 +1,176 @@
+﻿
+@page "/folio/{LlaveId}"
+@inherits FolioPrintBase
+@inject NotificationService NS
+@using DashBoard.Modelos
+
+
+
+    <div class="container-fluid">
+        <div class="form-group row">
+            <div class="col-md-4 align-items-center d-flex">
+                <img src="ruta_de_la_imagen_qr.jpg" alt="QR Code">
+            </div>
+            <div class="col-md-4 align-items-center d-flex">
+                @if (Eltitulo == "")
+                {
+                        <RadzenLabel>
+                            Maniobra realizada por @LaEmpAct.RazonSocial
+                        </RadzenLabel>
+                }
+                else
+                {
+                        <RadzenLabel>
+                            @Eltitulo  
+                        </RadzenLabel>
+                }
+                <br />
+                @if (ElRecinto == "")
+                {
+                        <RadzenLabel>
+                            En el recinto fiscal de  
+                        </RadzenLabel>
+                }
+                else
+                {
+                        <RadzenLabel>
+                            @ElRecinto
+                        </RadzenLabel>
+                }
+                <br />
+                @if (ElMail == "")
+                {
+                        <RadzenLabel>
+                            info@alijadores.com
+                        </RadzenLabel>
+                }
+                else
+                {
+                        <RadzenLabel>
+                            @ElMail
+                        </RadzenLabel>
+                }
+                @if (ElTel == "")
+                {
+                        <RadzenLabel>
+                            Tel. (631) 158-0524
+                        </RadzenLabel>
+                }
+                else
+                {
+                        <RadzenLabel>
+                            @ElTel
+                        </RadzenLabel>
+                }
+                
+            </div>
+            <div class="col-md-4 align-items-center d-flex">
+                @if (ElLogo != "")
+                {
+                    <img src="@ElLogo" alt="Alijadores">
+                }
+
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="column title">Título del Reporte</div>
+        </div>
+        <div class="Cuerpo">
+
+            <div class="form-group row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel>
+                        Fecha: @($"{@MyFunc.FormatoFecha("DD/MMM/AA", ElFolio.Fecha)}")
+                    </RadzenLabel>
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel>
+                        Hora: @($"{@MyFunc.LaHora(ElFolio.Fecha, "S")}")
+                    </RadzenLabel>
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel>
+                        FOLIO: @ElFolio.FolioNum
+                    </RadzenLabel>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-12 align-items-center d-flex">
+                    <RadzenLabel>
+                        Cliente: @ElCliente.RazonSocial
+                    </RadzenLabel>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6 align-items-center d-flex">
+                    
+                </div>
+                <div class="col-md- align-items-center d-flex">
+
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+                <div class="col-md-4 align-items-center d-flex">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @if (LlaveId == "")
+    {
+
+    }
+
+    else if (SinLlave)
+    {
+
+    }
+    else
+    {
+
+    }
+

@@ -1,11 +1,112 @@
 ﻿
 @inherits FilesUpBase
-<h3>Subir Archivos</h3>
+@inject NotificationService NS
+@using DashBoard.Modelos
+
 <h5>Formatos permitidos PDF, XLM, JPG, JPEG y PNG </h5>
-<h5>Tamaño maximo de los archivos 2MB</h5>
+<h5>Tamaño maximo de los archivos 1MB</h5>
+
+<RadzenTemplateForm Data="@Borrador" Submit="@((Z170_File args) => { AddFile(args); })">
+    <div class="container-fluid" style="background: lightgray;">
+        <div class="row">
+            <div class="col-md-3 align-items-center d-flex">
+                <RadzenLabel Text="Documento" />
+            </div>
+            <div class="col-md-5">
+                @if (FolioFactura)
+                {
+                    <RadzenLabel>Folio - @ElFolio.FolioNum</RadzenLabel>
+                }
+                else
+                {
+                    <RadzenLabel>Factura - @LaFactura.FacturaNum</RadzenLabel>
+                }
+            </div>
+            <div class="col-md-4">
+                
+            </div>
+        </div>
+        <div class="row" style="background:gray">
+            <div class="col-md-3 align-items-center d-flex">
+                <RadzenLabel Text="Tipo de archivo" />
+            </div>
+            <div class="col-md-5">
+                <RadzenDropDown Name="Tipo" Data=DocsTipo @bind-Value=@ElTipoArchivo
+                                ValueProperty="Key" TextProperty="Value" AllowClear="false"
+                                Style="width: 100%;" />
+            </div>
+            <div class="col-md-4">
+
+            </div>
+            </div>
+
+        <div class="row">
+            <div class="col-md-3 align-items-center d-flex">
+                <RadzenLabel Text="Titulo" />
+            </div>
+            <div class="col-md-5">
+                <RadzenTextBox Name="Titulo" @bind-Value="ElTitulo" Style="width: 100%;"
+                               Placeholder="Titulo opcional" MaxLength="75" />
+            </div>
+            <div class="col-md-4">
+
+            </div>
+        </div>
+
+        <div class="row" style="background:gray">
+            <div class="col-md-3 align-items-center d-flex">
+                <RadzenLabel Text="Archivo" />
+            </div>
+            <div class="col-md-5">
+                @if (ElTipoArchivo != "")
+                {
+                    <div class="dropArea @dropClass">
+                        <label>Arrastra tu archivo o </label><br />
+                        <label> haz click para seleccionar!! </label>
+                        <InputFile disable="@Uploading"
+                                   OnChange="OnInputFileChange"
+                                   @ondragenter="HandleDragEnter"
+                                   @ondragleave="HandleDragLeave" max-file-size="10485760" />
+
+                    </div>
+
+                    <br />
+                    @if (Uploading)
+                    {
+                        <progress style="height:50px;width:100%;" value="@UploadedBytes" max="@TotalBytes"></progress>
+                    }
+                }
+            </div>
+            <div class="col-md-4">
+
+            </div>
+        </div>
 
 
-<div class="dropArea @dropClass">
+        </div>
+</RadzenTemplateForm>
+
+
+
+
+@code {
+
+    void Cancelar()
+    {
+        Borrador = new();
+    }
+    async void AddFile(Z170_File archivo)
+    {
+        await Agregar(archivo);
+    }
+
+    async Task Agregar(Z170_File archivo)
+    {
+       
+
+    }
+    /* ESTE es el codigo orinal
+    <div class="dropArea @dropClass">
     Arrastra tu archivo o haz click para seleccionar!!
     <InputFile disable="@Uploading"
                OnChange="OnInputFileChange"
@@ -13,23 +114,7 @@
                @ondragleave="HandleDragLeave" max-file-size="10485760" />
 
 </div>
-<br />
-@if (Uploading)
-{
-    <progress style="height:50px;width:100%;" value="@UploadedBytes" max="@TotalBytes"></progress>
-}
-<h3>Archivos</h3>
-<ul>
-    @foreach (var url in FilesUrls)
-    {
-        <li>
-            <a href="@url">@url</a><br />
-        </li>
-    }
-</ul>
-
-@code {
-
+    */
 
 }
 
