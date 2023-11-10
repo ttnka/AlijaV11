@@ -1,18 +1,38 @@
 ﻿<Properties StartupConfiguration="{B0F2F48F-367B-4CDE-BE11-032DC9FE8C2A}|https">
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.ItemProperties.DashBoard PreferredExecutionTarget="/Applications/Google Chrome.app" />
   <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Pages/Sistema/FileListBase.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Pages/Web/FolioPrintBase.cs">
     <Files>
-      <File FileName="Pages/Sistema/FileList.razor" />
-      <File FileName="Pages/Sistema/FileListBase.cs" Line="82" Column="1" />
-      <File FileName="Pages/Alija/IndexAlijaBase.cs" />
+      <File FileName="Pages/Web/FolioPrint.razor" Line="35" Column="30" />
+      <File FileName="Pages/Web/FolioPrintBase.cs" Line="143" Column="51" />
+      <File FileName="Modelos/Constantes.cs" />
+      <File FileName="Pages/Alija/CamposList.razor" Line="1" Column="1" />
+      <File FileName="Pages/Sistema/FilesUpBase.cs" Line="237" Column="33" />
+      <File FileName="Program.cs" Line="109" Column="1" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="DashBoard" expanded="True">
+            <Node name="DashBoard">
+              <Node name="Archivos" expanded="True" />
+              <Node name="Imagenes" expanded="True" />
+              <Node name="Pages" expanded="True">
+                <Node name="Alija" expanded="True" />
+                <Node name="Sistema" expanded="True" />
+                <Node name="Web" expanded="True">
+                  <Node name="FolioPrintBase.cs" selected="True" />
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FileListBase.cs" relfile="Pages/Sistema/FileListBase.cs" line="81" column="1" />
-    </BreakpointStore>
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.ItemProperties.DashBoard PreferredExecutionTarget="/Applications/Google Chrome.app" />
 </Properties>

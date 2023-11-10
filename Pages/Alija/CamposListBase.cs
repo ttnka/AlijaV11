@@ -13,7 +13,8 @@ namespace DashBoard.Pages.Alija
 
         [Inject]
         public Repo<Z209_Campos, ApplicationDbContext> CamposRepo { get; set; } = default!;
-        
+        [Inject]
+        public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
 
         [Parameter]
         public List<ZConfig> LosConfig { get; set; } = new List<ZConfig>();
@@ -48,16 +49,16 @@ namespace DashBoard.Pages.Alija
             }
 
             await Leer();
+            await LeerListados();
         }
 
         protected async Task Leer()
         {
             try
             {
-                if (!LosConfig.Any()) await ReadConfigAll.InvokeAsync();
-                Mostrar = LosConfig.Any() ? LosConfig.Where(x => x.Usuario == ElFolio.OrgId && x.Status == true &&
-                    x.Grupo == "CAMPOS" && x.Tipo == "REQUERIDOS").ToList() : new List<ZConfig>();
-                await LeerListados();
+                LosConfig = (await ConfRepo.Get(x => x.Status == true)).ToList();
+                Mostrar = LosConfig.Any() ? LosConfig.Where(x => x.Usuario == ElFolio.EmpresaId && x.Status == true &&
+                    x.Grupo == "CAMPOS" && x.Tipo == "MOSTRADOS" && x.SiNo == false).ToList() : new List<ZConfig>();
             }
             catch (Exception ex)
             {
@@ -67,12 +68,12 @@ namespace DashBoard.Pages.Alija
                 await LogAll(LogT);
             }
         }
-
-        protected async Task LeerMostrar()
+        /*
+        protected async Task LeerMostrar1()
         {
             try
             {
-                await ReadConfigAll.InvokeAsync();
+                LosConfig = (await ConfRepo.Get(x => x.Status == true)).ToList();
                 
                 Mostrar = LosConfig.Any() ? LosConfig.Where(x => x.Usuario == ElFolio.OrgId && x.Status == true &&
                     x.Grupo == "CAMPOS" && x.Tipo == "REQUERIDOS").ToList() : new List<ZConfig>();
@@ -86,7 +87,7 @@ namespace DashBoard.Pages.Alija
                 await LogAll(LogT);
             }
         }
-
+        */
         protected async Task LeerListados()
         {
             try

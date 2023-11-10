@@ -14,6 +14,9 @@ namespace DashBoard.Pages.Sistema
 
         [Inject]
         public Repo<Z170_File, ApplicationDbContext> FileRepo { get; set; } = default!;
+
+        [Parameter]
+        public EventCallback<string> ReadFilesList { get; set; }
         
         
         [CascadingParameter(Name = "ElFolioAll")]
@@ -25,7 +28,7 @@ namespace DashBoard.Pages.Sistema
 
         [Parameter]
         public bool FolioFactura { get; set; } = true;
-
+        [Parameter]
         public List<Z170_File> LosArchivos { get; set; } = new List<Z170_File>();
 
         public List<KeyValuePair<string, string>> DocsTipo { get; set; } = new List<KeyValuePair<string, string>>();
@@ -45,8 +48,8 @@ namespace DashBoard.Pages.Sistema
             {
                 Primera = false;
                 LeerDocsTipos(); 
-            }   
-
+            }
+            AddDicData();
             await Leer();
         }
 
@@ -70,22 +73,8 @@ namespace DashBoard.Pages.Sistema
         {
             try
             {
-                IEnumerable<Z170_File> resp = await FileRepo.Get(x => x.Status == true &&
-                                    x.FolioId == (FolioFactura ? ElFolio.FolioId : x.FolioId) &&
-                                    x.FacturaId == (!FolioFactura ? LaFactura.FacturaId : x.FacturaId));
-                if (resp.Any())
-                {
-                    LosArchivos = resp.ToList();
-                    foreach (var f in resp)
-                    {
-                        string comp = Path.Combine(f.Folder, f.Archivo);
-                        Console.WriteLine($" D: {Directory.Exists(f.Folder)}, F: {File.Exists(comp)}");
-                        if (Directory.Exists( f.Folder) && File.Exists(comp) &&
-                                            !DicData.ContainsKey($"FileId_{f.FileId}"))
-
-                            DicData.Add($"FileId_{f.FileId}", f.Archivo);
-                    }
-                }
+                await ReadFilesList.InvokeAsync(ElFolio.FolioId);
+                AddDicData();
 
             }
             catch (Exception ex)
@@ -94,6 +83,24 @@ namespace DashBoard.Pages.Sistema
                 $"Error al intentar Leer archivos registrados en la base de datos y servidor, {TBita}, {ex}",
                     Corporativo, ElUser.OrgId);
                 await LogAll(LogT);
+            }
+        }
+
+
+        protected void AddDicData()
+        {
+            if (LosArchivos != null && LosArchivos.Any())
+            {
+                foreach (var f in LosArchivos)
+                {
+                    string comp = Path.Combine(f.Folder, f.Archivo);
+                    Console.WriteLine($" D: {Directory.Exists(f.Folder)}, F: {File.Exists(comp)}"); // BORRAR ESTA LINEA
+                    if (Directory.Exists(f.Folder) && File.Exists(comp) &&
+                                        !DicData.ContainsKey($"FileId_{f.FileId}"))
+
+                        DicData.Add($"FileId_{f.FileId}", f.Archivo);
+                }
+                
             }
         }
 

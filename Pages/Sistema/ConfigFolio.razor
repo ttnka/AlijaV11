@@ -37,7 +37,7 @@
 
         <Columns>
 
-            <RadzenDataGridColumn TItem="ZConfig" Title="Empresa" Filterable="false" Width="150px">
+            <RadzenDataGridColumn TItem="ZConfig" Title="Empresa" Filterable="false" Width="200px">
                 <Template Context="datos">
                     @if(LasOrgs.Any(x=>x.OrgId == datos.Usuario))
                     {
@@ -54,24 +54,24 @@
                     
                 </Template>
                 <EditTemplate Context="datos">
-                    <div style="text-align: right;">
-                        <RadzenLabel>
-                            <RadzenDropDown Name="OrgId" Data=LasAdmin @bind-Value=@ElUser.OrgId
-                                            ValueProperty="OrgId" TextProperty="ComercialRfc"
-                                            Style="width: 90%;" />
-                        </RadzenLabel>
-                    </div>
+                    
+                    <RadzenLabel>
+                        <RadzenDropDown Name="Usuario" Data=LasAdmin @bind-Value=@datos.Usuario
+                                        ValueProperty="OrgId" TextProperty="ComercialRfc"
+                                        Style="width: 100%;" />
+                    </RadzenLabel>
+                   
                 </EditTemplate>
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="ZConfig" Title="Titulo" Property="Tipo"
                                   Filterable="false" Width="150px">
                 <Template Context="datos">
-                    <div style="text-align: right;">
-                        <RadzenLabel>
-                            @datos.Titulo
-                        </RadzenLabel>
-                    </div>
+                    
+                    <RadzenLabel>
+                        @datos.Titulo
+                    </RadzenLabel>
+                   
                 </Template>
                 <EditTemplate Context="datos">
                     <RadzenDropDown Name="Titulo" Data=LosTipos @bind-Value=@datos.Titulo
@@ -93,8 +93,7 @@
                     @if (datos.Titulo == "Logotipo")
                     {
                         <div class="dropArea @dropClass">
-                            <label>Archivo 1 MB </label><br />
-                            <label> haz click para seleccionar!! </label>
+                            <p> Seleeciona archivo!! </p>
                             <InputFile disable="@Uploading"
                                        OnChange="@((arg) => { OnInputFileChange(arg, ConfigToInsert); })"
                                        @ondragenter="HandleDragEnter"
@@ -110,8 +109,8 @@
                     }
                     else
                     {
-                        <RadzenTextBox Name="Titulo" @bind-Value="datos.Titulo"
-                                       Placeholder="Titulo" Style="width:100%;" />
+                        <RadzenTextBox Name="Txt" @bind-Value="datos.Txt"
+                                       Placeholder="Texto" Style="width:100%;" />
                     }
                 </EditTemplate>
             </RadzenDataGridColumn>

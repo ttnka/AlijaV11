@@ -7,14 +7,15 @@ namespace DashBoard.Modelos
 {
 	public class Constantes
 	{
-        public const string ElDominio = "Alijadores.com";
+        public const string ElDominio = "https://pegia.com.mx";
+        //public const string ElDominio = "localhost:7234";
         // Mail 01
 
         public const string DeNombreMail01 = "WebMaster";
         public const string DeMail01 = "webmaster@alijadores.com";
         public const string ServerMail01 = "mail.omnis.com";
         public const int PortMail01 = 587;
-        public const int Nivel01 = 1;
+        public const int Nivel01 = 7;
         public const string UserNameMail01 = "webmaster@alijadores.com";
         public const string PasswordMail01 = "Wb.2468022";
 
@@ -55,14 +56,14 @@ namespace DashBoard.Modelos
         public const string Arranque = "2.468022";
 
         public const string OrgTipo = "Administracion,Cliente,Proveedor";
-        public const string Niveles = "Registrado,Proveedor,Cliente,Cliente_Admin,Alijadores,Alijadores_Admin";
+        public const string Niveles = "Registrado,Proveedor,Cliente,Cliente_Admin,Alijadores,Alijadores_Admin,ABD";
 
         public const bool EsNecesarioConfirmarMail = false;
         public const string ConfirmarMailTxt = "https://alijadores.com/Account/ConfirmEmail/Id=";
         public const string SitioDesc = "Este sitio genera informacion sobre los reportes de Seguro Social e Infonavit";
 
         public const string FolderImagenes = "Imagenes";
-        public const string FolderArchivos = "Archivos";
+        
         public const string GrupoFolio = "ConfiguracionFolio";
 
         // Registro de Estado de Folios

@@ -16,13 +16,15 @@
         <HeaderTemplate>
             @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30)
             {
-                @if (ElFolio.Estado < 2 || ElUser.Nivel > 5)
+                    /* NO Hay forma de agregar achivos desde la lista!
+                @if (ElFolio.Estado < 2 || ElUser.Nivel > 3)
                 {
                     <RadzenButton Icon="plus" style="margin-bottom: 10px"
                                   ButtonStyle="ButtonStyle.Info" Click="InsertRow">
-                        Agregar conceptos
+                        Agregar Archivos
                     </RadzenButton>
                 }
+                    */
             }
             else if (EmpresaActiva.OrgId.Length < 30)
             {
@@ -53,12 +55,13 @@
                         <RadzenLabel>@datos.Tipo</RadzenLabel>
                     </div>
                 </Template>
+                <!--
                 <EditTemplate Context="datos">
                     <RadzenDropDown Name="Tipo" Data=DocsTipo @bind-Value=@datos.Tipo
                                     ValueProperty="Key" TextProperty="Value"
                                     Style="width: 100%;" />
                 </EditTemplate>
-
+                -->
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z170_File" Title="Titulo"
@@ -67,7 +70,7 @@
                 <Template Context="datos">
 
                     <RadzenLabel>
-                        datos.Titulo
+                        @datos.Titulo
                     </RadzenLabel>
 
                 </Template>
@@ -91,7 +94,7 @@
                     else
                     {
                         <RadzenLabel>
-                            No se encontro el archivo
+                            Actualiza!
                         </RadzenLabel>
                     }
 

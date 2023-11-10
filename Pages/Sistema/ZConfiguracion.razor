@@ -36,7 +36,7 @@
         
         <Columns>
 
-            <RadzenDataGridColumn TItem="ZConfig" Title="Grupo" Property="Grupo"
+            <RadzenDataGridColumn TItem="ZConfig" Title="Grupo" Property="Grupo" Frozen="true"
                                   Filterable="true" Width="150px">
                 <Template Context="datos">
                     <div style="text-align: right;">
@@ -46,12 +46,12 @@
                     </div>
                 </Template>
                 <EditTemplate Context="datos">
-                    <div style="text-align: right;">
-                        <RadzenLabel>
-                            <RadzenTextBox Name="Grupo" @bind-Value="datos.Grupo"
-                                           Placeholder="Grupo" Style="width:100%;" MaxLength="25" />
-                        </RadzenLabel>
-                    </div>
+                    
+                    <RadzenLabel>
+                        <RadzenTextBox Name="Grupo" @bind-Value="datos.Grupo"
+                                        Placeholder="Grupo" Style="width:100%;" MaxLength="25" />
+                    </RadzenLabel>
+                    
                 </EditTemplate>
             </RadzenDataGridColumn>
 

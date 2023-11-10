@@ -87,7 +87,7 @@ namespace DashBoard.Pages.Sistema
                     Materno = "Inc",
                     Corporativo = corporativo,
                     Sistema = true,
-                    Nivel = 6
+                    Nivel = Constantes.Nivel01
                 };
 
                 ApiRespuesta<AddUser> userNew = await AddUserRepo.CrearNewAcceso(eAddUsuario);
@@ -222,7 +222,7 @@ namespace DashBoard.Pages.Sistema
                 ZConfig manoTipo = new()
                 {
                     ConfigId = Guid.NewGuid().ToString(),
-                    Grupo = "MANIOBRA",
+                    Grupo = "MANIOBRATIPO",
                     Tipo = "TITULO",
                     Titulo = "Maniobra Tipo",
                     Estado = 1
@@ -234,7 +234,7 @@ namespace DashBoard.Pages.Sistema
                     ZConfig manoNew = new()
                     {
                         ConfigId = Guid.NewGuid().ToString(),
-                        Grupo = "MANIOBRA",
+                        Grupo = "MANIOBRATIPO",
                         Tipo = "ELEMENTOS",
                         Titulo = m,
                         Fecha1 = DateTime.Now,

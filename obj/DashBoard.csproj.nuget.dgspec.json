@@ -82,6 +82,14 @@
               "target": "Package",
               "version": "[7.0.0, )"
             },
+            "QRCoder": {
+              "target": "Package",
+              "version": "[1.4.2, )"
+            },
+            "QrCode.Net": {
+              "target": "Package",
+              "version": "[0.4.0, )"
+            },
             "Radzen.Blazor": {
               "target": "Package",
               "version": "[4.16.4, )"

@@ -24,6 +24,8 @@ namespace DashBoard.Pages.Zuver
         [Inject]
         public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
         [Inject]
+        public Repo<Z180_EmpActiva, ApplicationDbContext> EmpActRepo { get; set; } = default!;
+        [Inject]
         public IEnviarMail SendMail { get; set; } = default!;
 
         [Parameter]
@@ -157,9 +159,9 @@ namespace DashBoard.Pages.Zuver
         }
 
         
-        public async Task<ApiRespuesta<ZConfig>> EmpActAddUser(ZConfig datos)
+        public async Task<ApiRespuesta<Z180_EmpActiva>> EmpActAddUser(Z180_EmpActiva datos)
         {
-            ApiRespuesta<ZConfig> resultado = new() { Exito = false };
+            ApiRespuesta<Z180_EmpActiva> resultado = new() { Exito = false };
             try
             {
                 if (datos == null)
@@ -168,7 +170,7 @@ namespace DashBoard.Pages.Zuver
                 }
                 else
                 {
-                    var resp = await ConfRepo.Insert(datos);
+                    var resp = await EmpActRepo.Insert(datos);
                     if (resp != null)
                     {
                         resultado.Exito = true;

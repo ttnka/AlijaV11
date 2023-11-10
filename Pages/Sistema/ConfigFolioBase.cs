@@ -47,6 +47,7 @@ namespace DashBoard.Pages.Sistema
             if (Primera)
             {
                 Primera = false;
+                PoblarTipos();
                 
             }
 
@@ -59,15 +60,8 @@ namespace DashBoard.Pages.Sistema
             {
                 LosConfigs = (await ConfRepo.Get(x => x.Grupo == Constantes.GrupoFolio && x.Status == true)).ToList();
 
-                LasAdmin = LasOrgs.Any() ? LasOrgs.Where(x => x.Tipo == "Administracion").ToList() : new List<Z100_Org>();
-
-                LosTipos.Add(new KeyValuePair<string, string>("Logotipo", "Logotipo"));
-                LosTipos.Add(new KeyValuePair<string, string>("TituloFolio", "Titulo del Folio"));
-                LosTipos.Add(new KeyValuePair<string, string>("Recinto", "Recinto"));
-                LosTipos.Add(new KeyValuePair<string, string>("Email", "Email"));
-                LosTipos.Add(new KeyValuePair<string, string>("Tel", "Email"));
-                LosTipos.Add(new KeyValuePair<string, string>("Calce1", "Calce Uno"));
-                LosTipos.Add(new KeyValuePair<string, string>("Calce2", "Calce Dos"));
+                LasAdmin = !LasOrgs.Any() ? new List<Z100_Org>() :
+                            LasOrgs.Where(x => x.Tipo == "Administracion" && x.Estado == 1).ToList() ;
 
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
                      $"Consulto la seccion de {TBita}", Corporativo, ElUser.OrgId);
@@ -82,16 +76,21 @@ namespace DashBoard.Pages.Sistema
                 await LogAll(LogT);
             }
         }
-
-        public void HandleDragEnter()
+        protected void PoblarTipos()
         {
-            dropClass = "dropAreaDrug";
+            if (LosTipos.Any()) LosTipos.Clear();
+
+            LosTipos.Add(new KeyValuePair<string, string>("Logotipo", "Logotipo"));
+            LosTipos.Add(new KeyValuePair<string, string>("TituloFolio", "Titulo del Folio"));
+            LosTipos.Add(new KeyValuePair<string, string>("Recinto", "Recinto"));
+            LosTipos.Add(new KeyValuePair<string, string>("Email", "Email"));
+            LosTipos.Add(new KeyValuePair<string, string>("Tel", "Telefono"));
+            LosTipos.Add(new KeyValuePair<string, string>("Calce1", "Calce Uno"));
+            LosTipos.Add(new KeyValuePair<string, string>("Calce2", "Calce Dos"));
         }
 
-        public void HandleDragLeave()
-        {
-            dropClass = string.Empty;
-        }
+        public void HandleDragEnter() => dropClass = "dropAreaDrug"; 
+        public void HandleDragLeave() => dropClass = string.Empty;
 
         public async Task OnInputFileChange(InputFileChangeEventArgs args, ZConfig registro)
         {
@@ -125,7 +124,7 @@ namespace DashBoard.Pages.Sistema
                 justFileName = justFileName.Replace(".", "_");
 
                 
-                ElArchivo = $"{justFileName}-Logo_-{DateTime.Now.Ticks}{terminacion}";
+                ElArchivo = $"{justFileName}-Logo-{DateTime.Now.Ticks}{terminacion}";
 
                 ApiRespValor hayCarpeta = ExisteCarpeta();
 
@@ -185,7 +184,7 @@ namespace DashBoard.Pages.Sistema
                 }
                 
                 Uploading = false;
-                ConfigGrid.Reload();
+                await ConfigGrid!.Reload();
 
             }
             catch (Exception ex)
@@ -202,14 +201,17 @@ namespace DashBoard.Pages.Sistema
             ApiRespValor respuesta = new() { Exito = false };
             try
             {
-                string ruta_base = Path.Combine(Environment.CurrentDirectory, Constantes.FolderImagenes);
-
-                if (!Directory.Exists(ruta_base))
+                string ruta_base = Path.Combine("wwwroot", Constantes.FolderImagenes);
+                for (var i = 0; i < 2; i++)
                 {
-                    Directory.CreateDirectory(ruta_base);
+                    if (!Directory.Exists(ruta_base))
+                    {
+                        Directory.CreateDirectory(ruta_base);
+                    }
+                    ruta_base = i == 0 ? Path.Combine(ruta_base, "Web") : ruta_base;
                 }
 
-                respuesta.Texto = ruta_base;
+                respuesta.Texto = Path.Combine(Constantes.FolderImagenes);
                 respuesta.Exito = true;
                 // Combina la ruta completa con el nombre del archivo
                 //string rutaCompleta = Path.Combine(carpetaDestino, archivo.Name);
@@ -259,9 +261,7 @@ namespace DashBoard.Pages.Sistema
                     }
                     else if (tipo == ServiciosTipos.Update)
                     {
-
-                        //Z200_Folio folioUpdate = await FolioRepo.Update(folio);
-                        ZConfig configUpdate = new();
+                        ZConfig configUpdate = await ConfRepo.Update(config);
                         if (configUpdate != null)
                         {
                             resp.Exito = true;

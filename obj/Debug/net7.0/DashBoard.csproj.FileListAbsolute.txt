@@ -383,6 +383,8 @@
 /Users/ivanuhernandez/Projects/AlijaV11/bin/Debug/net7.0/NuGet.Protocol.dll
 /Users/ivanuhernandez/Projects/AlijaV11/bin/Debug/net7.0/NuGet.Versioning.dll
 /Users/ivanuhernandez/Projects/AlijaV11/bin/Debug/net7.0/Pomelo.EntityFrameworkCore.MySql.dll
+/Users/ivanuhernandez/Projects/AlijaV11/bin/Debug/net7.0/Gma.QrCodeNet.Encoding.dll
+/Users/ivanuhernandez/Projects/AlijaV11/bin/Debug/net7.0/QRCoder.dll
 /Users/ivanuhernandez/Projects/AlijaV11/bin/Debug/net7.0/Radzen.Blazor.dll
 /Users/ivanuhernandez/Projects/AlijaV11/bin/Debug/net7.0/ICSharpCode.SharpZipLib.dll
 /Users/ivanuhernandez/Projects/AlijaV11/bin/Debug/net7.0/SixLabors.Fonts.dll

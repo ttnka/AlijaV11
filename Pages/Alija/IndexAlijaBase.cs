@@ -262,13 +262,15 @@ namespace DashBoard.Pages.Alija
                 IEnumerable<Z200_Folio> resp = new List<Z200_Folio>();
                 if(ff == null || !ff.Datos)
                 { 
-                    resp = await FolioRepo.Get(x => x.EmpresaId == EmpresaActivaAll!.OrgId &&
-                            x.OrgId == (ElUser.Nivel < 5 ? ElUser.OrgId : x.OrgId));
+                    resp = await FolioRepo.Get(x => x.Status == (ElUser.Nivel > 6? x.Status : true) &&
+                                                    x.EmpresaId == EmpresaActivaAll!.OrgId &&
+                                                    x.OrgId == (ElUser.Nivel < 5 ? ElUser.OrgId : x.OrgId));
                 }
                 else
                 {
-                    resp = await FolioRepo.Get(x => x.EmpresaId == EmpresaActivaAll!.OrgId &&
-                            x.OrgId == ff.OrgId);
+                    resp = await FolioRepo.Get(x => x.Status == (ElUser.Nivel > 6 ? x.Status : true) &&
+                                                    x.EmpresaId == EmpresaActivaAll!.OrgId &&
+                                                    x.OrgId == ff.OrgId);
                 }
                 
                 LosFoliosAll = resp.Any() ? resp.OrderByDescending(x => x.Fecha).ToList() : new List<Z200_Folio>();
@@ -289,13 +291,15 @@ namespace DashBoard.Pages.Alija
                 IEnumerable<Z220_Factura> resp = new List<Z220_Factura>();
                 if (ff == null || !ff.Datos)
                 {
-                    resp = await FacturaRepo.Get(x => x.EmpresaId == EmpresaActivaAll.OrgId &&
-                    x.OrgId == (ElUser.Nivel < 5 ? ElUser.OrgId : x.OrgId));
+                    resp = await FacturaRepo.Get(x => x.Status == (ElUser.Nivel > 6 ? x.Status : true) &&
+                                                      x.EmpresaId == EmpresaActivaAll.OrgId &&
+                                                      x.OrgId == (ElUser.Nivel < 5 ? ElUser.OrgId : x.OrgId));
                 }
                 else 
                 {
-                    resp = await FacturaRepo.Get(x => x.EmpresaId == EmpresaActivaAll.OrgId &&
-                    x.OrgId == ff.OrgId);
+                    resp = await FacturaRepo.Get(x => x.Status == (ElUser.Nivel > 6 ? x.Status : true) &&
+                                                    x.EmpresaId == EmpresaActivaAll.OrgId &&
+                                                    x.OrgId == ff.OrgId);
                 }
 
                 
@@ -318,13 +322,15 @@ namespace DashBoard.Pages.Alija
                 IEnumerable<Z230_Pago> resp = new List<Z230_Pago>();
                 if (ff == null || !ff.Datos)
                 {
-                    resp = await PagoRepo.Get(x => x.EmpresaId == EmpresaActivaAll.OrgId &&
-                        x.OrgId == (ElUser.Nivel < 5 ? ElUser.OrgId : x.OrgId));
+                    resp = await PagoRepo.Get(x => x.Status == (ElUser.Nivel > 6 ? x.Status : true) &&
+                                                x.EmpresaId == EmpresaActivaAll.OrgId &&
+                                                x.OrgId == (ElUser.Nivel < 5 ? ElUser.OrgId : x.OrgId));
                 }
                 else
                 {
-                    resp = await PagoRepo.Get(x => x.EmpresaId == EmpresaActivaAll.OrgId &&
-                    x.OrgId == ff.OrgId);
+                    resp = await PagoRepo.Get(x => x.Status == (ElUser.Nivel > 6 ? x.Status : true) &&
+                                                x.EmpresaId == EmpresaActivaAll.OrgId &&
+                                                x.OrgId == ff.OrgId);
                 }
                 
                 LosPagosAll = resp.Any() ? resp.OrderByDescending(x => x.Fecha).ToList() : new List<Z230_Pago>();

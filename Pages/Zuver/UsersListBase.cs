@@ -61,6 +61,8 @@ namespace DashBoard.Pages.Zuver
             {
                 FiltraUsers();
                 FiltraNiveles();
+                LasEmp = ElUser.Nivel > 5 ? LasOrgs : LasOrgs.Where(x => x.OrgId == ElUser.OrgId).ToList();
+
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(ElUser.UserId, ElUser.OrgId,
                     $"Consulto listado, {TBita}", Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);

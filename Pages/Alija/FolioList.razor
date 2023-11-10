@@ -53,15 +53,16 @@
                             </RadzenTabsItem>
 
                             <RadzenTabsItem Text="Campos">
-                                <CamposList />
+                                <CamposList  />
                             </RadzenTabsItem>
 
                             <RadzenTabsItem Text="Fotografias">
                                 <h3>Subir archivos</h3>
 
-                                <FileList FolioFactura="true" />
+                                <FileList FolioFactura="true" 
+                                          ReadFilesList="ReadFileListAll" LosArchivos="LosArchivosAll" />
 
-                                <FilesUp FolioFactura="true" />
+                                <FilesUp FolioFactura="true" ReadFileList="ReadFileListAll" />
                             </RadzenTabsItem>
 
                         </Tabs>
@@ -162,21 +163,6 @@
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z200_Folio" Title="Comentario" Property="obs"
-                                  Filterable="true" Resizable="true" Width="200px">
-
-                <Template Context="datos">
-                    <RadzenLabel style="white-space:pre-wrap; line-height: initial">
-                        @datos.Obs
-                    </RadzenLabel>
-                </Template>
-
-                <EditTemplate Context="datos">
-                    <RadzenTextArea Name="Obs" @bind-Value="datos.Obs"
-                                    Placeholder="Comentarios" Style="width: 100%" />
-                </EditTemplate>
-            </RadzenDataGridColumn>
-
             <RadzenDataGridColumn TItem="Z200_Folio" Title="Estatus"
                                   Filterable="false" Resizable="true" Width="150px">
 
@@ -194,6 +180,11 @@
                             }
 
                         </RadzenLabel>
+                        @if (datos.Estado > 1)
+                        {
+                            <RadzenLink Path="@($"/folio/{datos.FolioId}")"
+                                        Target="_blank"> Imprimir</RadzenLink>
+                        }
                     }
                     else
                     {
@@ -217,12 +208,28 @@
                 </EditTemplate>
             </RadzenDataGridColumn>
 
+            <RadzenDataGridColumn TItem="Z200_Folio" Title="Comentario" Property="obs"
+                                  Filterable="true" Resizable="true" Width="200px">
+
+                <Template Context="datos">
+                    <RadzenLabel style="white-space:pre-wrap; line-height: initial">
+                        @datos.Obs
+                    </RadzenLabel>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenTextArea Name="Obs" @bind-Value="datos.Obs"
+                                    Placeholder="Comentarios" Style="width: 100%" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+
             <RadzenDataGridColumn TItem="Z200_Folio" Context="sampleBlazorModelsSampleOrder"
                                   Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
                                   Width="200px" Title="Estado">
                 <Template Context="datos">
                     @if (ElUser.Nivel > 5 || datos.Estado < 2)
-                    
+
                     {
                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
                                       Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
@@ -266,6 +273,9 @@
                 </EditTemplate>
 
             </RadzenDataGridColumn>
+
+
+
         </Columns>
     </RadzenDataGrid>
 }
@@ -301,7 +311,7 @@ else
     }
 
     Z200_Folio FolioToInsert = new();
-   
+
 
     async Task EditRow(Z200_Folio folio)
     {
@@ -361,11 +371,15 @@ else
 
     async Task SaveRow(Z200_Folio folio)
     {
-        
-        if (ElUser.Nivel < 6 && folio.Estado == 2)
+
+        if (ElUser.Nivel < 7 && folio.Estado == 2)
         {
             ApiRespValor avanzar = await SigEdoFolio(folio);
-            if (!avanzar.Exito)
+            if (avanzar.Exito)
+            {
+                await Servicio(ServiciosTipos.FolioQr, folio);
+            }
+            else
             {
                 folio.Estado = 1;
                 string txt = "No fue posible modificar el registro ";
@@ -374,7 +388,7 @@ else
                     txt += m + ", ";
                 }
                 ShowNotification(ElMsn("Error", "Error", txt, 4000));
-             
+                return;
             }
         }
 
@@ -384,7 +398,7 @@ else
     void CancelEdit(Z200_Folio folio)
     {
         if (folio == FolioToInsert) FolioToInsert = null!;
-        
+
         Editando = !Editando;
         FoliosGrid!.CancelEditRow(folio);
     }

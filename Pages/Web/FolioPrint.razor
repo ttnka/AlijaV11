@@ -6,171 +6,323 @@
 
 
 
-    <div class="container-fluid">
-        <div class="form-group row">
-            <div class="col-md-4 align-items-center d-flex">
-                <img src="ruta_de_la_imagen_qr.jpg" alt="QR Code">
-            </div>
-            <div class="col-md-4 align-items-center d-flex">
-                @if (Eltitulo == "")
-                {
-                        <RadzenLabel>
-                            Maniobra realizada por @LaEmpAct.RazonSocial
-                        </RadzenLabel>
-                }
-                else
-                {
-                        <RadzenLabel>
-                            @Eltitulo  
-                        </RadzenLabel>
-                }
-                <br />
-                @if (ElRecinto == "")
-                {
-                        <RadzenLabel>
-                            En el recinto fiscal de  
-                        </RadzenLabel>
-                }
-                else
-                {
-                        <RadzenLabel>
-                            @ElRecinto
-                        </RadzenLabel>
-                }
-                <br />
-                @if (ElMail == "")
-                {
-                        <RadzenLabel>
-                            info@alijadores.com
-                        </RadzenLabel>
-                }
-                else
-                {
-                        <RadzenLabel>
-                            @ElMail
-                        </RadzenLabel>
-                }
-                @if (ElTel == "")
-                {
-                        <RadzenLabel>
-                            Tel. (631) 158-0524
-                        </RadzenLabel>
-                }
-                else
-                {
-                        <RadzenLabel>
-                            @ElTel
-                        </RadzenLabel>
-                }
-                
-            </div>
-            <div class="col-md-4 align-items-center d-flex">
-                @if (ElLogo != "")
-                {
-                    <img src="@ElLogo" alt="Alijadores">
-                }
-
-            </div>
-        </div>
-        <div class="form-group row">
-            <div class="column title">Título del Reporte</div>
-        </div>
-        <div class="Cuerpo">
-
-            <div class="form-group row">
-                <div class="col-md-4 align-items-center d-flex">
-                    <RadzenLabel>
-                        Fecha: @($"{@MyFunc.FormatoFecha("DD/MMM/AA", ElFolio.Fecha)}")
-                    </RadzenLabel>
-                </div>
-                <div class="col-md-4 align-items-center d-flex">
-                    <RadzenLabel>
-                        Hora: @($"{@MyFunc.LaHora(ElFolio.Fecha, "S")}")
-                    </RadzenLabel>
-                </div>
-                <div class="col-md-4 align-items-center d-flex">
-                    <RadzenLabel>
-                        FOLIO: @ElFolio.FolioNum
-                    </RadzenLabel>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-md-12 align-items-center d-flex">
-                    <RadzenLabel>
-                        Cliente: @ElCliente.RazonSocial
-                    </RadzenLabel>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-md-6 align-items-center d-flex">
-                    
-                </div>
-                <div class="col-md- align-items-center d-flex">
-
-                </div>
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-                <div class="col-md-4 align-items-center d-flex">
-
-                </div>
-            </div>
-
-        </div>
-    </div>
+<RadzenCard>
 
     @if (LlaveId == "")
     {
-
+        <h1>La direccion esta incorrecta!</h1>
+        <RadzenLink Path="@($"{Constantes.ElDominio}")">Vuele al Inicio</RadzenLink>
     }
 
     else if (SinLlave)
     {
-
+        <h1>La direccion esta incorrecta!</h1>
+        <RadzenLink Path="@($"{Constantes.ElDominio}")">Vuele al Inicio</RadzenLink>
     }
     else
     {
+        <div class="container-fluid">
+            <RadzenFieldset>
+                <div class="form-group row">
+                    <div class="col-md-5 align-items-center d-flex">
+                        @if (string.IsNullOrEmpty(ElQr))
+                        {
+                            <RadzenLabel>
+                                Hay un problema con QR
+                            </RadzenLabel>
+                        }
+                        else
+                        {
+                            <RadzenImage Path="@ElQr" style="width: 100px; height: 100px;"/>
+                        }
 
+                    </div>
+                    <div class="col-md-2 align-items-center d-flex">
+
+                    </div>
+                    <div class="col-md-5 align-items-center d-flex">
+                        @if (ElLogo != "")
+                        {
+                            <RadzenImage Path="@ElLogo" style="width: 100px; height: 100px;" />
+                        }
+
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-md-1 align-items-center d-flex">
+
+                    </div>
+                    <div class="col-md-10 align-items-center d-flex" style="text-align:Center">
+
+                        @if (Eltitulo == "")
+                        {
+                            <h5>
+                                Maniobra realizada por @LaEmpAct.RazonSocial
+                            </h5> <br />
+                        }
+                        else
+                        {
+                            <h5>
+                                @Eltitulo
+                            </h5> <br />
+                        }
+                        
+                    </div>
+                    <div class="col-md-1 align-items-center d-flex">
+
+
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <div class="col-md-1 align-items-center d-flex">
+
+                    </div>
+                    <div class="col-md-10 align-items-center d-flex" style="text-align:Center">
+
+                        @if (ElRecinto == "")
+                        {
+                            <h6>
+                                En el recinto fiscal de
+                            </h6><br />
+                        }
+                        else
+                        {
+                            <h6>
+                                @ElRecinto
+                            </h6> <br />
+                        }
+                        <br />
+                    </div>
+                    <div class="col-md-1 align-items-center d-flex">
+
+
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <div class="col-md-1 align-items-center d-flex">
+
+                    </div>
+                    <div class="col-md-10 align-items-center d-flex" style="text-align:Center">
+
+                        @if (ElMail == "")
+                        {
+                            <h6>
+                                info@alijadores.com
+                            </h6>
+                        }
+                        else
+                        {
+                            <h6>
+                                @ElMail
+                            </h6>
+                        }
+                        @if (ElTel == "")
+                        {
+                            <h6>
+                                Tel. (631) 158-0524
+                            </h6>
+                        }
+                        else
+                        {
+                            <h6>
+                                @ElTel
+                            </h6>
+                        }
+
+                    </div>
+                    <div class="col-md-1 align-items-center d-flex">
+
+
+                    </div>
+                </div>
+
+                <div class="Cuerpo">
+
+                    <div class="form-group row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel>
+                                Fecha: @($"{@MyFunc.FormatoFecha("DD/MMM/AA", ElFolio.Fecha)}")
+                            </RadzenLabel>
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel>
+                                Hora: @($"{@MyFunc.LaHora(ElFolio.Fecha, "S")}")
+                            </RadzenLabel>
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel>
+                                FOLIO: @ElFolio.FolioNum
+                            </RadzenLabel>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12 align-items-center d-flex">
+                            <RadzenLabel>
+                                Cliente: @ElCliente.RazonSocial
+                            </RadzenLabel>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-6 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Pedimento"))
+                            {
+                                <RadzenLabel>
+                                    Pedimento: @ElCampo.Pedimento
+                                </RadzenLabel>
+                            }
+
+                        </div>
+                        <div class="col-md- align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Factura"))
+                            {
+                                <RadzenLabel>
+                                    Factura: @ElCampo.Factura
+                                </RadzenLabel>
+                            }
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Mercancia"))
+                            {
+                                <RadzenLabel>
+                                    Mercancia: @ElCampo.Mercancia
+                                </RadzenLabel>
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Tractor"))
+                            {
+                                <RadzenLabel>
+                                    Tractor num: @ElCampo.Tractor
+                                </RadzenLabel>
+                            }
+                            @if (!DicData.ContainsKey("Placas"))
+                            {
+                                <RadzenLabel>
+                                    Placas: @ElCampo.Placas
+                                </RadzenLabel>
+                            }
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Caja"))
+                            {
+                                <RadzenLabel>
+                                    Cajas: @ElCampo.Caja1 @ElCampo.Caja2
+                                </RadzenLabel>
+                            }
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("TractorTipo"))
+                            {
+                                <RadzenLabel>
+                                    Tipo de tractor: @ElCampo.TractorTipo
+                                </RadzenLabel>
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("CartaPorte"))
+                            {
+                                <RadzenLabel>
+                                    Carta Porte: @ElCampo.CartaPorte
+                                </RadzenLabel>
+                            }
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Transportista"))
+                            {
+                                <RadzenLabel>
+                                    Transportista: @ElCampo.Transportista
+                                </RadzenLabel>
+                            }
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Chofer"))
+                            {
+                                <RadzenLabel>
+                                    Chofer: @ElCampo.Chofer @ElCampo.Identificacion
+                                </RadzenLabel>
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("SelloColocado"))
+                            {
+                                <RadzenLabel>
+                                    Sello colocado: @ElCampo.SelloColocado
+                                </RadzenLabel>
+                            }
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Removido"))
+                            {
+                                <RadzenLabel>
+                                    Sello removido: @ElCampo.SelloRemovido
+                                </RadzenLabel>
+                            }
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel>
+                                Precio
+                            </RadzenLabel>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("AgenteAdunal"))
+                            {
+                                <RadzenLabel>
+                                    Agente aduanal: @ElCampo.AgenteAduanal
+                                </RadzenLabel>
+                            }
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Despachador"))
+                            {
+                                <RadzenLabel>
+                                    Despachador: @ElCampo.Despachador
+                                </RadzenLabel>
+                            }
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Maniobra"))
+                            {
+                                <RadzenLabel>
+                                    Maniobra: @ElCampo.Maniobra
+                                </RadzenLabel>
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-8 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Obs"))
+                            {
+                                <RadzenLabel>
+                                    Observaciones: @ElCampo.Obs
+                                </RadzenLabel>
+                            }
+                        </div>
+                        <div class="col-md-4 align-items-center d-flex">
+                            @if (!DicData.ContainsKey("Obs"))
+                            {
+                                <RadzenLabel>
+                                    Estado
+                                </RadzenLabel>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            </RadzenFieldset>
+        </div>
     }
 
+</RadzenCard>

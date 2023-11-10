@@ -1,4 +1,4 @@
-﻿
+﻿    
 @inherits CamposListBase
 @inject NotificationService NS
 @using DashBoard.Modelos
@@ -14,11 +14,11 @@
                     RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
 
         <HeaderTemplate>
-            @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30)
+            @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30 && ElFolio.Estado < 2)
                 {
                 <RadzenButton Icon="plus" style="margin-bottom: 10px"
                               ButtonStyle="ButtonStyle.Info" Click="InsertRow">
-                    Campturar Formato
+                    Capturar Formato
                 </RadzenButton>
                 }
                 else if (EmpresaActiva.OrgId.Length < 30)
@@ -37,45 +37,45 @@
             <RadzenDataGridColumn TItem="Z209_Campos" Title="Id" Filterable="false"
                                   Width="800px">
                 <Template Context="datos">
-                    <div class="container-fluid" style="background: gray;">
-                        <div class="row" style="background:white">
-                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                    <div class="container-fluid">
+                        <div class="row" style="background:Turquoise">
+                            <div class="col-md-4 align-items-center d-flex" >
                                 @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
                                 {
                                     <label></label>
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Pedimento</RadzenLabel>
+                                    <h6>Pedimento</h6>
                                 }
 
                             </div>
-                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                            <div class="col-md-4 align-items-center d-flex" >
                                 @if (Mostrar.Any(x => x.Titulo == "Factura" && x.SiNo == false))
                                 {
                                     <label></label>
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Factura</RadzenLabel>
+                                    <h6>Factura</h6>
                                 }
 
                             </div>
-                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                            <div class="col-md-4 align-items-center d-flex" >
                                 @if (Mostrar.Any(x => x.Titulo == "Mercancia" && x.SiNo == false))
                                 {
                                     <label></label>
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Mercancia</RadzenLabel>
+                                    <h6>Mercancia</h6>
                                 }
 
                             </div>
 
                         </div>
 
-                        <div class="row" style="background: gray;">
+                        <div class="row" style="background: White;">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
                                 {
@@ -88,15 +88,15 @@
 
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
+                                @if (Mostrar.Any(x => x.Titulo == "Factura" && x.SiNo == false))
                                 {
                                     <label></label>
                                 }
                                 else
                                 {
-
+                                    <RadzenLabel>@datos.Factura</RadzenLabel>
                                 }
-                                <RadzenLabel>@datos.Factura</RadzenLabel>
+
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Mercancia" && x.SiNo == false))
@@ -112,8 +112,8 @@
 
                         </div>
 
-                        <div class="row" style="background:white">
-                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                        <div class="row" style="background:Turquoise">
+                            <div class="col-md-4 align-items-center d-flex" >
 
                                 @if (Mostrar.Any(x => x.Titulo == "AgenteAduanal" && x.SiNo == false))
                                 {
@@ -121,37 +121,37 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Agente Aduanal</RadzenLabel>
+                                    <h6>Agente Aduanal</h6>
                                 }
                             </div>
-                            <div class="col-md-4 align-items-center d-flex" style="color: white">
-                                @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo == false))
+                            <div class="col-md-4 align-items-center d-flex" >
+                                @if (Mostrar.Any(x => x.Titulo == "Placas" && x.SiNo == false))
                                 {
                                     <label></label>
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Placas del Tractor</RadzenLabel>
+                                    <h6>Placas de tractor</h6>
                                 }
 
                             </div>
-                            <div class="col-md-4 align-items-center d-flex" style="color: white">
-                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
+                            <div class="col-md-4 align-items-center d-flex" >
+                                @if (Mostrar.Any(x => x.Titulo == "Despachador" && x.SiNo == false))
                                 {
                                     <label></label>
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Despachador</RadzenLabel>
+                                    <h6>Despachador</h6>
                                 }
 
                             </div>
 
                         </div>
 
-                        <div class="row" style="background: gray;" >
+                        <div class="row" style="background: white;" >
                             <div class="col-md-4 align-items-center d-flex">
-                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
+                                @if (Mostrar.Any(x => x.Titulo == "AgenteAduanal" && x.SiNo == false))
                                 {
                                     <label></label>
                                 }
@@ -186,30 +186,30 @@
 
                         </div>
 
-                        <div class="row" style="background:white">
-                            <div class="col-md-4 align-items-center d-flex" style="color: white">
-                                @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo == false))
+                        <div class="row" style="background: Turquoise">
+                            <div class="col-md-4 align-items-center d-flex" >
+                                @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo == false))
                                 {
                                     <label></label>
                                 }
                                 else
                                 {
-
+                                    <h6>Tractor Num</h6>
                                 }
-                                <RadzenLabel>Tractor Num</RadzenLabel>
+
                             </div>
-                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                            <div class="col-md-4 align-items-center d-flex" >
                                 @if (Mostrar.Any(x => x.Titulo == "Caja1" && x.SiNo == false))
                                 {
                                     <label></label>
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Num Caja 1</RadzenLabel>
+                                    <h6>Num Caja 1</h6>
                                 }
 
                             </div>
-                            <div class="col-md-4 align-items-center d-flex" style="color: white">
+                            <div class="col-md-4 align-items-center d-flex" >
                                 @if (Mostrar.Any(x => x.Titulo == "Caja2" && x.SiNo == false))
                                 {
                                     <label></label>
@@ -217,14 +217,14 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Num Caja 2</RadzenLabel>
+                                    <h6>Num Caja 2</h6>
                                 }
 
                             </div>
 
                         </div>
 
-                        <div class="row">
+                        <div class="row" style="background: white;">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo == false))
                                 {
@@ -263,7 +263,7 @@
 
                         </div>
 
-                        <div class="row" style="background:gray">
+                        <div class="row" style="background: Turquoise">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "CartaPorte" && x.SiNo == false))
                                 {
@@ -271,7 +271,7 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Carta Porte</RadzenLabel>
+                                    <h6>Carta Porte</h6>
 
                                 }
 
@@ -283,26 +283,26 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Transportista</RadzenLabel>
+                                    <h6>Transportista</h6>
 
                                 }
 
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo == false))
+                                @if (Mostrar.Any(x => x.Titulo == "TractorTipo" && x.SiNo == false))
                                 {
                                     <label></label>
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Tipo Tractor</RadzenLabel>
+                                    <h6>Tipo Tractor</h6>
                                 }
 
                             </div>
 
                         </div>
 
-                        <div class="row">
+                        <div class="row" style="background: white;">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "CartaPorte" && x.SiNo == false))
                                 {
@@ -340,7 +340,7 @@
 
                         </div>
 
-                        <div class="row" style="background:gray">
+                        <div class="row" style="background:Turquoise">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "SelloRemovido" && x.SiNo == false))
                                 {
@@ -348,7 +348,7 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Sello Removido</RadzenLabel>
+                                    <h6>Sello Removido</h6>
                                 }
 
                             </div>
@@ -359,7 +359,7 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Sello Colocado</RadzenLabel>
+                                    <h6>Sello Colocado</h6>
                                 }
 
                             </div>
@@ -370,13 +370,13 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Libre</RadzenLabel>
+                                    <h6>Libre</h6>
                                 }
 
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row" style="background: white;">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "SelloRemovido" && x.SiNo == false))
                                 {
@@ -413,7 +413,7 @@
                             </div>
                         </div>
 
-                        <div class="row" style="background:gray">
+                        <div class="row" style="background:Turquoise">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Chofer" && x.SiNo == false))
                                 {
@@ -421,7 +421,7 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Nombre del Chofer</RadzenLabel>
+                                    <h6>Nombre del Chofer</h6>
                                 }
 
                             </div>
@@ -432,7 +432,7 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Identificacion</RadzenLabel>
+                                    <h6>Identificacion</h6>
                                 }
 
                             </div>
@@ -443,14 +443,14 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Cuadrilla</RadzenLabel>
+                                    <h6>Cuadrilla</h6>
                                 }
 
                             </div>
 
                         </div>
 
-                        <div class="row">
+                        <div class="row" style="background: white;">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Chofer" && x.SiNo == false))
                                 {
@@ -487,7 +487,7 @@
 
                         </div>
 
-                        <div class="row" style="background:gray">
+                        <div class="row" style="background:Turquoise">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Maniobra" && x.SiNo == false))
                                 {
@@ -495,7 +495,7 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Tipo de Maniobra</RadzenLabel>
+                                    <h6>Tipo de Maniobra</h6>
 
                                 }
 
@@ -507,7 +507,7 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Comentarios</RadzenLabel>
+                                    <h6>Comentarios</h6>
 
                                 }
 
@@ -521,12 +521,12 @@
                                 {
 
                                 }
-                                <RadzenLabel>Libre</RadzenLabel>
+                                <h6>Libre</h6>
                             </div>
 
                         </div>
 
-                        <div class="row">
+                        <div class="row" style="background: white;">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Maniobra" && x.SiNo == false))
                                 {
@@ -560,8 +560,8 @@
 
                 <EditTemplate Context="datos">
 
-                    <div class="container-fluid" style="background: lightgray;">
-                        <div class="row" style="background:gray">
+                    <div class="container-fluid" style="background: Turquoise;">
+                        <div class="row" style="background: Turquoise ">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Pedimento" && x.SiNo== false))
                                     {
@@ -569,7 +569,7 @@
                                     }
                                     else
                                     {
-                                    <RadzenLabel>Pedimento</RadzenLabel>
+                                    <h6>Pedimento</h6>
                                     }
                                 </div>
                             <div class="col-md-4 align-items-center d-flex">
@@ -579,7 +579,7 @@
                                     }
                                     else
                                     {
-                                    <RadzenLabel>Factura</RadzenLabel>
+                                    <h6>Factura</h6>
                                     }
                                 </div>
                             <div class="col-md-4 align-items-center d-flex">
@@ -589,7 +589,7 @@
                                     }
                                     else
                                     {
-                                    <RadzenLabel>Mercancia</RadzenLabel>}
+                                    <h6>Mercancia</h6>}
                                 </div>
 
                         </div>
@@ -628,7 +628,7 @@
 
                         </div>
 
-                        <div class="row" style="background:gray">
+                        <div class="row" style="background:Turquoise">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "AgenteAduanal" && x.SiNo== false))
                                 {
@@ -636,16 +636,17 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Agente Aduanal</RadzenLabel>}
+                                    <h6>Agente Aduanal</h6>}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo== false))
+                                @if (Mostrar.Any(x => x.Titulo == "Placas" && x.SiNo== false))
                                 {
                                     <label></label>
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Placas del Tractor</RadzenLabel>}
+                                    <h6>Placas de tractor</h6>
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Despachador" && x.SiNo== false))
@@ -654,7 +655,7 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Despachador</RadzenLabel>}
+                                    <h6>Despachador</h6>}
                             </div>
 
                         </div>
@@ -693,7 +694,7 @@
 
                         </div>
 
-                        <div class="row" style="background:gray">
+                        <div class="row" style="background:Turquoise">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo== false))
                                 {
@@ -701,7 +702,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Tractor Num</RadzenLabel>}
+                                    <h6>Tractor Num</h6>
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Caja1" && x.SiNo== false))
@@ -710,7 +712,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Num Caja 1</RadzenLabel>}
+                                    <h6>Num Caja 1</h6>
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Caja2" && x.SiNo== false))
@@ -719,7 +722,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Num Caja 2</RadzenLabel>}
+                                    <h6>Num Caja 2</h6>
+                                }
                             </div>
 
                         </div>
@@ -758,7 +762,7 @@
 
                         </div>
 
-                        <div class="row" style="background:gray">
+                        <div class="row" style="background:Turquoise">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "CartaPorte" && x.SiNo== false))
                                 {
@@ -766,7 +770,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Carta Porte</RadzenLabel>}
+                                    <h6>Carta Porte</h6>
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Transportista" && x.SiNo== false))
@@ -775,7 +780,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Transportista</RadzenLabel>}
+                                    <h6>Transportista</h6>
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Tractor" && x.SiNo== false))
@@ -784,7 +790,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Tipo Tractor</RadzenLabel>}
+                                    <h6>Tipo Tractor</h6>
+                                }
                             </div>
 
                         </div>
@@ -826,7 +833,7 @@
 
                         </div>
 
-                        <div class="row" style="background:gray">
+                        <div class="row" style="background:Turquoise">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "SelloRemovido" && x.SiNo == false))
                                 {
@@ -834,7 +841,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Sello Removido</RadzenLabel>}
+                                    <h6>Sello Removido</h6>
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "SelloColocado" && x.SiNo == false))
@@ -843,7 +851,7 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Sello Colocado</RadzenLabel>}
+                                    <h6>Sello Colocado</h6>}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo == false))
@@ -852,7 +860,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Libre</RadzenLabel>}
+                                    <h6>Libre</h6>
+                                }
                             </div>
                         </div>
 
@@ -865,7 +874,8 @@
                                 else
                                 {
                                     <RadzenTextBox Name="SelloRemovido" @bind-Value="datos.SelloRemovido" MaxLength="75"
-                                                   Style="width: 95%" Placeholder="Nombre del Chofer" />}
+                                                   Style="width: 95%" Placeholder="Sello removido" />
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "SelloColocado" && x.SiNo == false))
@@ -875,7 +885,8 @@
                                 else
                                 {
                                     <RadzenTextBox Name="SelloColocado" @bind-Value="datos.SelloColocado" MaxLength="75"
-                                                   Style="width: 95%" Placeholder="Identificacion INE" />}
+                                                   Style="width: 95%" Placeholder="Sello colocado" />
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo == false))
@@ -888,7 +899,7 @@
                             </div>  
                         </div>
 
-                        <div class="row" style="background:gray">
+                        <div class="row" style="background:Turquoise">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Chofer" && x.SiNo== false))
                                 {
@@ -896,7 +907,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Nombre del Chofer</RadzenLabel>}
+                                    <h6>Nombre del Chofer</h6>
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Identificacion" && x.SiNo== false))
@@ -905,7 +917,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Identificacion</RadzenLabel>}
+                                    <h6>Identificacion</h6>
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Cuadrilla" && x.SiNo== false))
@@ -914,7 +927,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Cuadrilla</RadzenLabel>}
+                                    <h6>Cuadrilla</h6>
+                                }
                             </div>
 
                         </div>
@@ -928,7 +942,8 @@
                                 else
                                 {
                                     <RadzenTextBox Name="Chofer" @bind-Value="datos.Chofer" MaxLength="75"
-                                                   Style="width: 95%" Placeholder="Nombre del Chofer" />}
+                                                   Style="width: 95%" Placeholder="Nombre del Chofer" />
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Identificacion" && x.SiNo== false))
@@ -938,7 +953,8 @@
                                 else
                                 {
                                     <RadzenTextBox Name="Identificacion" @bind-Value="datos.Identificacion" MaxLength="50"
-                                                   Style="width: 95%" Placeholder="Identificacion INE" />}
+                                                   Style="width: 95%" Placeholder="Identificacion INE" />
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Cuadrilla" && x.SiNo== false))
@@ -948,12 +964,13 @@
                                 else
                                 {
                                     <RadzenTextBox Name="Cuadrilla" @bind-Value="datos.Cuadrilla" MaxLength="75"
-                                                   Style="width: 95%" Placeholder="Cuadrilla" />}
+                                                   Style="width: 95%" Placeholder="Cuadrilla" />
+                                }
                             </div>
 
                         </div>
 
-                        <div class="row" style="background:gray">
+                        <div class="row" style="background:Turquoise">
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Maniobra" && x.SiNo== false))
                                 {
@@ -961,7 +978,7 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Tipo de Maniobra</RadzenLabel>}
+                                    <h6>Tipo de Maniobra</h6>}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo== false))
@@ -970,7 +987,7 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Comentarios</RadzenLabel>}
+                                    <h6>Comentarios</h6>}
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo== false))
@@ -979,7 +996,8 @@
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Libre</RadzenLabel>}
+                                    <h6>Libre</h6>
+                                }
                             </div>
 
                         </div>
@@ -1006,7 +1024,8 @@
                                 else
                                 {
                                     <RadzenTextArea Name="Obs" @bind-Value="datos.Obs"
-                                                    Style="width: 95%" Placeholder="Observaciones" />}
+                                                    Style="width: 95%" Placeholder="Observaciones" />
+                                }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
                                 @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo== false))

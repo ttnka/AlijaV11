@@ -63,7 +63,7 @@
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z110_User" Property="OldEmail" Title="Email" Filterable="true"
-                                  Width="200px" />
+                                  Width="250px" />
                 
             <RadzenDataGridColumn TItem="Z110_User" Title="Nombre" Filterable="true" Width="250px">
                 <Template Context="datos">
@@ -157,8 +157,10 @@
                     {
                         <b>Suspendido</b>
                     }
-                    @if (datos.Estado == 2)
+                    @if (datos.Estado == 2 && (!(datos.OldEmail == Constantes.DeMail01 ||
+                           datos.OldEmail == Constantes.DeMailPublico)) )
                     {
+                            <br />
                         <RadzenLabel>Correo sin Confirmar!</RadzenLabel>
                     }
 
@@ -167,16 +169,16 @@
                 <EditTemplate Context="datos">
                     @if (datos.Estado != 3)
                     {
-                        <RadzenLabel>Borrar este registro?</RadzenLabel>
+                        <RadzenLabel>Borrar este registro?</RadzenLabel> <br />
                         <RadzenSelectBar @bind-Value=@datos.Status TValue="bool">
                             <Items>
                                 <RadzenSelectBarItem Text="No" Value="true" />
                                 <RadzenSelectBarItem Text="Si" Value="false" />
                             </Items>
                         </RadzenSelectBar>
-
+                        <br />
                     }
-                    <label>Actualizar</label>
+                    <RadzenLabel>Actualizar</RadzenLabel>
                     <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
                                   Class="m-1" Click="@((args) => SaveRow(datos))" />
 

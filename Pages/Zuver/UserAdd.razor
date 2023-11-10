@@ -163,15 +163,14 @@
 
             // Creamos un registro de empresa activa que factura a este cliente 
             
-            ZConfig nZc = new ZConfig()
+            Z180_EmpActiva nZc = new()
             {
-                ConfigId = Guid.NewGuid().ToString(),
-                Txt = datos.Corporativo,
-                Titulo = Constantes.EmpresaActiva,
-                Usuario = resultado.Data.UserId
+                EmpActId = Guid.NewGuid().ToString(),
+                OrgId = datos.Corporativo,
+                UserId = resultado.Data.UserId
             };
 
-            ApiRespuesta<ZConfig> nEa = await EmpActAddUser(nZc);
+            ApiRespuesta<Z180_EmpActiva> nEa = await EmpActAddUser(nZc);
             if (nEa.Exito)
             {
                 txt = $"Se registro empresa activa {datos.Nombre} {datos.Paterno} {datos.OrgId}";

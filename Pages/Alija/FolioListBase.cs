@@ -12,13 +12,16 @@ namespace DashBoard.Pages.Alija
 {
     public class FolioListBase : ComponentBase
     {
-        public const string TBita = "Folios";
+        public const string TBita = "Folios Listado";
 
         [Inject]
         public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
         [Inject]
+        public Repo<Z170_File, ApplicationDbContext> FileRepo { get; set; } = default!;
+        [Inject]
         public Repo<Z200_Folio, ApplicationDbContext> FolioRepo { get; set; } = default!;
-        
+        [Inject]
+        public Repo<Z201_FolioPrint, ApplicationDbContext> PrintRepo { get; set; } = default!;
         [Inject]
         public Repo<Z209_Campos, ApplicationDbContext> CamposRepo { get; set; } = default!;
         [Inject]
@@ -48,6 +51,8 @@ namespace DashBoard.Pages.Alija
         public List<Z100_Org> LosClientes { get; set; } = new List<Z100_Org>();
         protected Z100_Org ElCliente { get; set; } = new();
 
+        protected List<Z170_File> LosArchivosAll { get; set; } = new List<Z170_File>();
+
         public RadzenDataGrid<Z200_Folio>? FoliosGrid { get; set; } = new RadzenDataGrid<Z200_Folio>();
 
         protected string EstadoEtiqueta { get; set; } = MyFunc.GeneraEtiquetaEstados("Folio");
@@ -73,7 +78,6 @@ namespace DashBoard.Pages.Alija
         {
             try
             {
-
                 await LeerClientes();
                 FiltroFolio nf = new();
                 if (!LosFolios.Any())
@@ -93,7 +97,25 @@ namespace DashBoard.Pages.Alija
                 await LogAll(LogT);
             }
         }
-                                       
+
+        protected async Task ReadFileListAll(string folioId)
+        {
+            try
+            {
+                IEnumerable<Z170_File> resp = await FileRepo.Get(x => x.Status == (ElUser.Nivel > 6 ? x.Status : true) &&
+                                    x.FolioId == folioId);
+                LosArchivosAll = resp.Any() ? resp.ToList() : new List<Z170_File>();    
+                
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer archivos registrados en la base de datos y servidor, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+        
         protected async Task LeerFolios(FiltroFolio? ff)
         {
             try
@@ -133,6 +155,27 @@ namespace DashBoard.Pages.Alija
                     Corporativo, ElUser.OrgId);
                 await LogAll(LogT);
             }
+        }
+
+        protected async Task<string> LeerPrintFolios(string fId)
+        {
+            string resp = "";
+            try
+            {
+                if (!string.IsNullOrEmpty(fId))
+                {
+                    IEnumerable<Z201_FolioPrint> rTmp = await PrintRepo.Get(x => x.FolioId == fId);
+                    resp = rTmp != null && rTmp.Any() ? rTmp.FirstOrDefault()!.LlaveId : "";
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer datos INICIO, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+            return resp;
         }
 
         protected async Task LeerClientes()
@@ -176,7 +219,7 @@ namespace DashBoard.Pages.Alija
                 {
                     LosEdos.Add(new KeyValuePair<int, string>
                         (i + 1, EstadoArray[i]));
-                    if (ElUser.Nivel < 6 && i == 1) break;
+                    if (ElUser.Nivel < 7 && i == 1) break;
                 }
             }
             catch (Exception ex)
@@ -211,7 +254,7 @@ namespace DashBoard.Pages.Alija
                 List<string> camposList = Constantes.CamposAcapurar.Split(",").ToList();
 
                 var noRequeridos = await ConfRepo.Get(x => x.SiNo == false && x.Usuario == folio.EmpresaId &&
-                        x.Grupo == "CAMPOS" && x.Tipo == "MOSTRADOS");
+                        x.Grupo == "CAMPOS" && x.Tipo == "MOSTRADOS" && x.Status == true);
                 foreach(var campo1 in camposList)
                 {
                     if (noRequeridos.Any(x => x.Titulo == campo1)) continue;
@@ -276,8 +319,8 @@ namespace DashBoard.Pages.Alija
                     else if (tipo == ServiciosTipos.Update)
                     {
                         
-                        //Z200_Folio folioUpdate = await FolioRepo.Update(folio);
-                        Z200_Folio folioUpdate = new();
+                        Z200_Folio folioUpdate = await FolioRepo.Update(folio);
+                        
                         if (folioUpdate != null)
                         {
                             resp.Exito = true;
@@ -286,6 +329,25 @@ namespace DashBoard.Pages.Alija
                         else
                         {
                             resp.MsnError.Add($"No se Actualizo el registro {folio.Fecha} {folio.FolioId}");
+                            resp.Exito = false;
+                        }
+                        return resp;
+                    }
+                    else if (tipo == ServiciosTipos.FolioQr)
+                    {
+                        Z201_FolioPrint nfp = new() {
+                            LlaveId = Guid.NewGuid().ToString(),
+                            FolioId = folio.FolioId
+                        };
+                        Z201_FolioPrint respNfp = await PrintRepo.Insert(nfp);
+                        if (respNfp != null)
+                        {
+                            resp.Exito = true;
+                            resp.Data = folio;
+                        }
+                        else
+                        {
+                            resp.MsnError.Add("No fue posible generar el registro del Qr");
                             resp.Exito = false;
                         }
                         return resp;

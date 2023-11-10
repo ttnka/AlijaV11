@@ -29,9 +29,9 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Z203_Transporte> Transportistas { get; set;}
     public DbSet<Z204_Empleado> Empleados { get; set;}
     public DbSet<Z205_Carro> Carros { get; set;}
+    */
     public DbSet<Z209_Campos> Campos { get; set; }
     public DbSet<Z210_Concepto> Concpetos { get; set;}
-    */
     public DbSet<Z220_Factura> Facturas { get; set;}
     public DbSet<Z222_FactDet> FacturasDet { get; set;}
     public DbSet<Z230_Pago> Pagos { get; set; }

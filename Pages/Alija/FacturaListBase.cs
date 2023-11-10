@@ -15,7 +15,8 @@ namespace DashBoard.Pages.Alija
         public Repo<Z220_Factura, ApplicationDbContext> FacturaRepo { get; set; } = default!;
         [Inject]
         public Repo<Z222_FactDet, ApplicationDbContext> FactDetRepo { get; set; } = default!;
-
+        [Inject]
+        public Repo<Z170_File, ApplicationDbContext> FileRepo { get; set; } = default!;
         // Cascadate
         [CascadingParameter(Name = "EmpresaActivaAll")]
         public Z100_Org EmpresaActiva { get; set; } = new();
@@ -96,6 +97,26 @@ namespace DashBoard.Pages.Alija
                 await LogAll(LogT);
             }
         }
+
+        protected async Task ReadFileListAll(string folioId)
+        {
+            try
+            {
+                IEnumerable<Z170_File> resp = await FileRepo.Get(x => x.Status == (ElUser.Nivel > 6 ? x.Status : true) &&
+                                    x.FolioId == folioId);
+                LosArchivosAll = resp.Any() ? resp.ToList() : new List<Z170_File>();
+
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Leer archivos registrados en la base de datos y servidor, {TBita}, {ex}",
+                    Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+        }
+
+
 
         protected async Task LeerFacturas(FiltroFactura? ff)
         {

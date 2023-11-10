@@ -39,7 +39,8 @@ namespace DashBoard.Modelos
         Insert,
         Update,
         Crear,
-        Importe
+        Importe,
+        FolioQr
     }
 
     public enum PoblarEmailTipos

@@ -25,6 +25,8 @@ namespace DashBoard.Pages.Sistema
 
         [Parameter]
         public bool FolioFactura { get; set; } = true;
+        [Parameter]
+        public EventCallback<string> ReadFileList { get; set; } 
 
         public Z170_File Borrador { get; set; } = new();
 
@@ -52,15 +54,9 @@ namespace DashBoard.Pages.Sistema
             
         }
 
-        public void HandleDragEnter()
-        {
-            dropClass = "dropAreaDrug";
-        }
-        public void HandleDragLeave()
-        {
-            dropClass = string.Empty;
-        }
+        public void HandleDragEnter() => dropClass = "dropAreaDrug";
         
+        public void HandleDragLeave() => dropClass = string.Empty;
 
         public async Task OnInputFileChange(InputFileChangeEventArgs args)
         {
@@ -107,7 +103,7 @@ namespace DashBoard.Pages.Sistema
                     await LogAll(LogT);
                     return;
                 }
-                
+                ElFolder = hayCarpeta.Texto;
                 string fileName = Path.Combine(ElFolder, ElArchivo);
 
                 using (var inStream = args.File.OpenReadStream(long.MaxValue))
@@ -139,7 +135,7 @@ namespace DashBoard.Pages.Sistema
 
                 ElMensaje = "Carga completa!";
 
-                string t = $"registro de archivo {ElFolder} {ElArchivo} y subir el archivo ";
+                string t = $"registro de archivo {ElFolder} {ElArchivo} y subir el archivo titulo";
                 t += FolioFactura ? $"Folio {ElFolio.FolioNum} " : $"Factura {LaFactura.FacturaNum}";
                 t += $"Fecha: {DateTime.Now}, Empresa Act{EmpresaActiva.Comercial}";
 
@@ -157,8 +153,9 @@ namespace DashBoard.Pages.Sistema
                     await BitacoraAll(bitaTemp);
                 }
                 Borrador = new();
-
+                await ReadFileList.InvokeAsync(ElFolio.FolioId);
                 Uploading = false;
+                StateHasChanged();
 
             }
             catch (Exception ex)
@@ -180,6 +177,7 @@ namespace DashBoard.Pages.Sistema
                 Tipo = ElTipoArchivo,
                 Folder = ElFolder,
                 Archivo = ElArchivo,
+                Titulo = ElTitulo,
                 EmpresaActiva = EmpresaActiva.OrgId,
                 Estado = 1,
 
@@ -224,25 +222,21 @@ namespace DashBoard.Pages.Sistema
             ApiRespValor respuesta = new() { Exito = false };
             try
             {
-                string ruta_base = Path.Combine(Environment.CurrentDirectory, Constantes.FolderArchivos);
-                
-                if (!Directory.Exists(ruta_base))
+                string ruta_base = Path.Combine("wwwroot", Constantes.FolderImagenes);
+
+                for (var i = 0; i < 3; i++)
                 {
-                    Directory.CreateDirectory(ruta_base);
+                    if (!Directory.Exists(ruta_base))
+                    {
+                        Directory.CreateDirectory(ruta_base);
+                    }
+
+                    if (i == 2) continue;
+                    ruta_base = i == 0 ? Path.Combine(ruta_base, "Archivos") : Path.Combine(ruta_base, ElFolio.Fecha.ToString("MMyy"));
                 }
 
-                // Combina la carpeta base con el nombre de la carpeta
-                DateTime fechaActual = DateTime.Now;
-                string nombreCarpeta = fechaActual.ToString("MMyy");
-                ElFolder = Path.Combine(ruta_base, nombreCarpeta);
-
-                // Verifica si la carpeta ya existe, si no, créala
-                if (!Directory.Exists(ElFolder))
-                {
-                    Directory.CreateDirectory(ElFolder);
-                }
-                
-                respuesta.Texto = ElFolder;
+                respuesta.Texto = ruta_base;
+                    //Path.Join(Constantes.FolderImagenes, "Archivos", ElFolio.Fecha.ToString("MMyy"));
                 respuesta.Exito = true;
                 // Combina la ruta completa con el nombre del archivo
                 //string rutaCompleta = Path.Combine(carpetaDestino, archivo.Name);

@@ -57,24 +57,24 @@
                     
                 </Template>
                 <EditTemplate Context="datos">
-                    <div style="text-align: right;">
-                        <RadzenLabel>
-                            <RadzenDropDown Name="Usuario" Data=LasAdmins @bind-Value=@datos.Usuario
-                                            ValueProperty="OrgId" TextProperty="Comercial" AllowClear="false"
-                                            Style="width: 100%;" />
-                        </RadzenLabel>
-                    </div>
+                    
+                    <RadzenLabel>
+                        <RadzenDropDown Name="Usuario" Data=LasAdmins @bind-Value=@datos.Usuario
+                                        ValueProperty="OrgId" TextProperty="Comercial" AllowClear="false"
+                                        Style="width: 100%;" />
+                    </RadzenLabel>
+                    
                 </EditTemplate>
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="ZConfig" Title="Campo" Property="Titulo"
                                   Filterable="true" Width="200px">
                 <Template Context="datos">
-                    <div style="text-align: right;">
-                        <RadzenLabel>
-                            @datos.Titulo
-                        </RadzenLabel>
-                    </div>
+                    
+                    <RadzenLabel>
+                        @datos.Titulo
+                    </RadzenLabel>
+                    
                 </Template>
                 <EditTemplate Context="datos">
                     

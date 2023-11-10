@@ -5,6 +5,54 @@
       "PackagePath": "staticwebassets/DashBoard.bundle.scp.css"
     },
     {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/.DS_Store",
+      "PackagePath": "staticwebassets/.DS_Store"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/.DS_Store",
+      "PackagePath": "staticwebassets/Imagenes/.DS_Store"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Archivos/.DS_Store",
+      "PackagePath": "staticwebassets/Imagenes/Archivos/.DS_Store"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_15_59_22-Folio_5-638351311020918080.jpeg",
+      "PackagePath": "staticwebassets/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_15_59_22-Folio_5-638351311020918080.jpeg"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_15_59_22-Folio_5-638351312002588690.jpeg",
+      "PackagePath": "staticwebassets/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_15_59_22-Folio_5-638351312002588690.jpeg"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_15_59_22-Folio_6-638351279105138720.jpeg",
+      "PackagePath": "staticwebassets/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_15_59_22-Folio_6-638351279105138720.jpeg"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_15_59_22-Folio_7-638351328289634150.jpeg",
+      "PackagePath": "staticwebassets/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_15_59_22-Folio_7-638351328289634150.jpeg"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_20_45_16-Folio_8-638351337633959220.jpeg",
+      "PackagePath": "staticwebassets/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_20_45_16-Folio_8-638351337633959220.jpeg"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Qr/.DS_Store",
+      "PackagePath": "staticwebassets/Imagenes/Qr/.DS_Store"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Qr/1123/35821538-fb24-430d-b45e-c0cdd9fd371c.png",
+      "PackagePath": "staticwebassets/Imagenes/Qr/1123/35821538-fb24-430d-b45e-c0cdd9fd371c.png"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Qr/1123/4b570303-bc6c-423e-8ccc-dffbd24fed77.png",
+      "PackagePath": "staticwebassets/Imagenes/Qr/1123/4b570303-bc6c-423e-8ccc-dffbd24fed77.png"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Web/logo1.png",
+      "PackagePath": "staticwebassets/Imagenes/Web/logo1.png"
+    },
+    {
       "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/bootstrap/bootstrap.min.css",
       "PackagePath": "staticwebassets/css/bootstrap/bootstrap.min.css"
     },
