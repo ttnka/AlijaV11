@@ -285,11 +285,7 @@ namespace DashBoard.Pages.Alija
 
         protected async Task<ApiRespuesta<Z200_Folio>> Servicio(ServiciosTipos tipo, Z200_Folio folio)
         {
-            ApiRespuesta<Z200_Folio> resp = new()
-            {
-                Exito = false
-                
-            };
+            ApiRespuesta<Z200_Folio> resp = new(){ Exito = false };
 
             try
             {
@@ -318,7 +314,6 @@ namespace DashBoard.Pages.Alija
                     }
                     else if (tipo == ServiciosTipos.Update)
                     {
-                        
                         Z200_Folio folioUpdate = await FolioRepo.Update(folio);
                         
                         if (folioUpdate != null)

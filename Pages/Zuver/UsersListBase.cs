@@ -102,6 +102,7 @@ namespace DashBoard.Pages.Zuver
         public async Task UsersAllRead()
         {
             await LeerUsersAll.InvokeAsync();
+            LosUsersTmp = LosUsuarios;
         }
 
         public async Task<ApiRespuesta<Z110_User>> Servicio(ServiciosTipos tipo, Z110_User user)

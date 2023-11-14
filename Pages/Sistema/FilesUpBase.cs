@@ -153,6 +153,7 @@ namespace DashBoard.Pages.Sistema
                     await BitacoraAll(bitaTemp);
                 }
                 Borrador = new();
+                Borrador.Tipo = "";
                 await ReadFileList.InvokeAsync(ElFolio.FolioId);
                 Uploading = false;
                 StateHasChanged();

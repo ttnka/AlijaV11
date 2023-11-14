@@ -2,9 +2,56 @@
 
 <PageTitle>Alijadores</PageTitle>
 
-<h1>Alijadores del Pacifico</h1>
 
-<p>Bienvendios a sitio de Alijadores del Pacifico</p>
-<p>Nuestro sitio muestra informacion de nuestra empresa y nuestros servicios</p>
-<p>Te invitamos a registrarte para que estemos en contacto</p>
-<a href="/clientes">Clientes</a> <a href="/alijadores">Administracion</a>
+<RadzenCard Style="align-content: center;">
+
+    <div style="display: flex; justify-content: center;">
+        <a href="/alijadores">
+            <RadzenImage Path=@($"Imagenes/Web/{fotoName}") Style="width: 60rem;" />
+        </a>
+    </div>
+
+    <br />
+
+
+</RadzenCard>
+
+
+
+
+
+
+
+
+
+@code{
+    string fotoName = "";
+    protected override Task OnInitializedAsync()
+    {
+
+        fotoName = GetFotoName();
+        return base.OnInitializedAsync();
+    }
+
+    protected string GetFotoName()
+    {
+        try
+        {
+            DateTime hora = DateTime.Now;
+            int seg = hora.Second;
+            if (seg < 20)
+            {
+                return "foto02.png";
+            }
+            else if (seg < 40)
+            {
+                return "foto03.png";
+            }
+            return "foto01.png";
+        }
+        catch (Exception)
+        {
+            return "foto02.png";
+        }
+    }
+}

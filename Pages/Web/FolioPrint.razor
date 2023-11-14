@@ -24,7 +24,7 @@
         <div class="container-fluid">
             <RadzenFieldset>
                 <div class="form-group row">
-                    <div class="col-md-5 align-items-center d-flex">
+                    <div class="col-md-5 col-sm-12 align-items-center d-flex">
                         @if (string.IsNullOrEmpty(ElQr))
                         {
                             <RadzenLabel>
@@ -37,10 +37,10 @@
                         }
 
                     </div>
-                    <div class="col-md-2 align-items-center d-flex">
+                    <div class="col-md-2 col-sm-12 align-items-center d-flex">
 
                     </div>
-                    <div class="col-md-5 align-items-center d-flex">
+                    <div class="col-md-5 col-sm-12 align-items-center d-flex">
                         @if (ElLogo != "")
                         {
                             <RadzenImage Path="@ElLogo" style="width: 100px; height: 100px;" />

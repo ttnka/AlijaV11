@@ -18,7 +18,7 @@
             {
             @if (LaFactura.Estado < 2 || ElUser.Nivel > 5)
             {
-                <label>ulises</label>
+                
                 <RadzenButton Icon="plus" style="margin-bottom: 10px"
                                 ButtonStyle="ButtonStyle.Info" Click="InsertRow">
                     Agregar folios
@@ -53,7 +53,15 @@
 
                 <Template Context="datos">
                     <div style="white-space:pre-wrap; line-height: initial">
-                        @datos.FolioId
+                        @if (LosFolios.Any(x => x.FolioId == datos.FolioId))
+                        {
+                            Z200_Folio elfol = LosFolios.FirstOrDefault(x => x.FolioId == datos.FolioId)!; 
+                            <RadzenLabel>@(elfol.FolioNum) @(elfol.Titulo)</RadzenLabel>
+                        }
+                        else
+                        {
+                            <RadzenLabel>No hay Info del Folio</RadzenLabel>
+                        }
                     </div>
                 </Template>
 
@@ -77,16 +85,19 @@
 
                 <Template Context="datos">
                     <div style="text-align: right;">
-                        <RadzenLabel>
-                            @(LosFolios.Any(x=>x.FolioId == datos.FolioId && x.Status == true))
+                        
+                        @if(LosFolios.Any(x=>x.FolioId == datos.FolioId && x.Status == true))
                         {
-                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @LosFolios.FirstOrDefault(x => x.FolioId == datos.FolioId && x.Status == true)!.Importe)}")
+                            Z200_Folio elfoli = LosFolios.FirstOrDefault(x => x.FolioId == datos.FolioId && x.Status == true)!;
+                            <RadzenLabel>
+                                @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", elfoli.Importe)}")
+                            </RadzenLabel>
                         }
-                            else
-                            {
+                        else
+                        {
                             <RadzenLabel>No hay datos!</RadzenLabel>
-                            }
-                        </RadzenLabel>
+                        }
+
                     </div>
                 </Template>
 
@@ -143,13 +154,13 @@
                     @if (datos.Estado > 0 && ElUser.Nivel > 4 && LaFactura.Estado < 2)
                     {
                         <div>
-                            <RadzenLabel> Borrar este registro? </RadzenLabel>
+                            <RadzenLabel> Borrar este registro? </RadzenLabel><br />
                             <RadzenSelectBar @bind-Value=@datos.Status TValue="bool">
                                 <Items>
                                     <RadzenSelectBarItem Text="No" Value="true" />
                                     <RadzenSelectBarItem Text="Si" Value="false" />
                                 </Items>
-                            </RadzenSelectBar>
+                            </RadzenSelectBar><br />
                         </div>
                     }
 

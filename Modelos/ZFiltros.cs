@@ -40,7 +40,9 @@ namespace DashBoard.Modelos
         Update,
         Crear,
         Importe,
-        FolioQr
+        FolioQr,
+        FacturarACliente,
+        CanclarFactura
     }
 
     public enum PoblarEmailTipos

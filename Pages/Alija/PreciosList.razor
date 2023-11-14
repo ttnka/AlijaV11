@@ -74,7 +74,7 @@
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z280_Producto" Title="Descripcion del Producto"
-                                  Filterable="true" Width="250px" Property="Titulo" >
+                                  Filterable="true" Width="250px" Property="Titulo">
                 <Template Context="datos">
                     <RadzenLabel>@datos.Titulo</RadzenLabel>
                 </Template>
@@ -99,7 +99,27 @@
                 <EditTemplate Context="datos">
                     <div style="text-align: right;">
                         <RadzenNumeric Name="Precio" @bind-Value="datos.Precio"
-                                       ShowUpDown="false" style="text-align: right;"/>
+                                       ShowUpDown="false" style="text-align: right;" Min="0" Max="99999" />
+                    </div>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z280_Producto" Title="IVA" Property="TasaIVA"
+                                  Filterable="false" Resizable="true" Width="100px">
+
+                <Template Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @($"{(datos.TasaIVA/100).ToString("P0", System.Globalization.CultureInfo.InvariantCulture)}")
+                            
+                        </RadzenLabel>
+                    </div>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenNumeric Name="TasaIVA" @bind-Value="datos.TasaIVA"
+                                       ShowUpDown="true" style="text-align: right;" Min="0" Max="100" />
                     </div>
                 </EditTemplate>
             </RadzenDataGridColumn>
@@ -123,20 +143,20 @@
                                   Filterable="false" Resizable="true" Width="200px">
 
                 <Template Context="datos">
-                    @if(datos.Corporativo == "All")
+                    @if (datos.Corporativo == "All")
                     {
-                            <RadzenLabel>Todos los clientes</RadzenLabel>
+                        <RadzenLabel>Todos los clientes</RadzenLabel>
                     }
-                     else if(@LasOrgs.Any(x=>x.OrgId == datos.Corporativo))
+                    else if (@LasOrgs.Any(x => x.OrgId == datos.Corporativo))
                     {
                         <div style="white-space:pre-wrap; line-height: initial">
                             <RadzenLabel>@($"Solo para los clientes {@LasOrgs.FirstOrDefault(x=>x.OrgId == datos.Corporativo)!.Comercial}") </RadzenLabel>
 
                         </div>
                     }
-                     else
+                    else
                     {
-                            <RadzenLabel>No hay Empresa!</RadzenLabel>
+                        <RadzenLabel>No hay Empresa!</RadzenLabel>
                     }
                 </Template>
 

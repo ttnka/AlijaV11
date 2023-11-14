@@ -208,10 +208,11 @@ namespace DashBoard.Pages.Sistema
                     {
                         Directory.CreateDirectory(ruta_base);
                     }
+                    
                     ruta_base = i == 0 ? Path.Combine(ruta_base, "Web") : ruta_base;
                 }
 
-                respuesta.Texto = Path.Combine(Constantes.FolderImagenes);
+                respuesta.Texto = ruta_base;
                 respuesta.Exito = true;
                 // Combina la ruta completa con el nombre del archivo
                 //string rutaCompleta = Path.Combine(carpetaDestino, archivo.Name);

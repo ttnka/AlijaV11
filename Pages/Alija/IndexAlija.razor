@@ -81,25 +81,31 @@
                                                     <Bitacora LasOrgs="LasOrgsAll" />
                                                 </RadzenAccordionItem>
 
-                                                <RadzenAccordionItem Text="Precios" Icon="note">
-                                                    <PreciosList LasOrgs="LasOrgsAll" />
-                                                </RadzenAccordionItem>
+                                                @if (ElUser.Nivel > 5)
+                                                {
+                                                    <RadzenAccordionItem Text="Precios" Icon="note">
+                                                        <PreciosList LasOrgs="LasOrgsAll" />
+                                                    </RadzenAccordionItem>
+                                                }
+                                                @if (ElUser.Nivel > 6)
+                                                {
 
-                                                <RadzenAccordionItem Text="Campos Requeridos" Icon="dns">
+                                                    <RadzenAccordionItem Text="Campos Requeridos" Icon="dns">
 
-                                                    <RequeridosList ReadLasConfigAll="LeerConfigAll" ReadLasOrgsAll="LeerOrgAll"
-                                                                    LasOrgs="LasOrgsAll" LosConfigs="LosConfigsAll" />
+                                                        <RequeridosList ReadLasConfigAll="LeerConfigAll" ReadLasOrgsAll="LeerOrgAll"
+                                                                        LasOrgs="LasOrgsAll" LosConfigs="LosConfigsAll" />
 
-                                                </RadzenAccordionItem>
+                                                    </RadzenAccordionItem>
 
-                                                <RadzenAccordionItem Text="Configuracion" Icon="build">
-                                                    <ZConfiguracion ReadEmpresaActivaAll="LeerEmpresaActivaAll" ReadLasConfigAll="LeerConfigAll"
-                                                                    ReadLasOrgsAll="LeerOrgAll" LasOrgs="LasOrgsAll" LosConfigs="LosConfigsAll" />
-                                                </RadzenAccordionItem>
+                                                    <RadzenAccordionItem Text="Configuracion" Icon="build">
+                                                        <ZConfiguracion ReadEmpresaActivaAll="LeerEmpresaActivaAll" ReadLasConfigAll="LeerConfigAll"
+                                                                        ReadLasOrgsAll="LeerOrgAll" LasOrgs="LasOrgsAll" LosConfigs="LosConfigsAll" />
+                                                    </RadzenAccordionItem>
 
-                                                <RadzenAccordionItem Text="Impresion Folios" Icon="dashboard">
-                                                    <ConfigFolio LasOrgs="LasOrgsAll" />
-                                                </RadzenAccordionItem>
+                                                    <RadzenAccordionItem Text="Impresion Folios" Icon="dashboard">
+                                                        <ConfigFolio LasOrgs="LasOrgsAll" />
+                                                    </RadzenAccordionItem>
+                                                }
                                             </Items>
                                         </RadzenAccordion>
 

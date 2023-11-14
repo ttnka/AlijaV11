@@ -12,6 +12,12 @@ namespace DashBoard.Pages.Alija
         public const string TBita = "Facturas";
 
         [Inject]
+        public Repo<Z200_Folio, ApplicationDbContext> FolioRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z209_Campos, ApplicationDbContext> CampoRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z210_Concepto, ApplicationDbContext> ConcepRepo { get; set; } = default!;
+        [Inject]
         public Repo<Z220_Factura, ApplicationDbContext> FacturaRepo { get; set; } = default!;
         [Inject]
         public Repo<Z222_FactDet, ApplicationDbContext> FactDetRepo { get; set; } = default!;
@@ -115,8 +121,6 @@ namespace DashBoard.Pages.Alija
                 await LogAll(LogT);
             }
         }
-
-
 
         protected async Task LeerFacturas(FiltroFactura? ff)
         {
@@ -263,46 +267,23 @@ namespace DashBoard.Pages.Alija
         {
             try
             {
-                int valorMinimo = 1; int valor = 0;
+                int valor = 0;
                 if (fact != null)
                 {
-                    if (fact.Estado == 1)
+                    if (fact.Estado == 2)
                     {
                         // Valor minimo es tener un FOLIOS el cual ya no se podra AGREGAR o MODIFICAR
-                        IEnumerable<Z222_FactDet> folios = await FactDetRepo.Get(x =>x.FacturaId == fact.FacturaId &&
+                        IEnumerable<Z222_FactDet> factDet = await FactDetRepo.Get(x =>x.FacturaId == fact.FacturaId &&
                                                             x.Status == true);
-                        valor += folios != null && folios.Any() ? 1 : 0;
-                        // ARCHIVOS PDF y XLS
+                        valor += factDet != null && factDet.Any() ? 1 : 0;
+                        
                         if (valor == 1)
                         {
-                            /*
-                            IEnumerable<Z203_Transporte> trans = await TransporteRepo.Get(x => x.FolioId == folio.FolioId &&
-                                                            x.Status == true);
-                            valor += trans != null && trans.Any() ? 1 : 0
-                            */
+                            return true;
                         }
-                        // REPORTE de HECHOS
-                        if (valor == 2)
-                        {
-                            /*
-                            IEnumerable<Z205_Carro> carro = await CarroRepo.Get(x => x.FolioId == folio.FolioId &&
-                                                            x.Status == true);
-                            valor += carro != null && carro.Any() ? 1 : 0;
-                            */
-                        }
-                        // FOTOS EVIDENCIAS
-                        if (valor == 3)
-                        {
-                            /*
-                            IEnumerable<Z204_Empleado> empleado = await EmpleadoRepo.Get(x => x.FolioId == folio.FolioId &&
-                                                                x.Status == true);
-                            valor += empleado != null && empleado.Any() ? 1 : 0;
-                            */
-                        }
-
                     }
                 }
-                return valor >= valorMinimo;
+                return false;
             }
             catch (Exception ex)
             {
@@ -314,8 +295,7 @@ namespace DashBoard.Pages.Alija
             }
         }
 
-
-        protected async Task<ApiRespuesta<Z220_Factura>> Servicio(ServiciosTipos tipo, Z220_Factura fact)
+        protected async Task<ApiRespuesta<Z220_Factura>> ServicioFactura(ServiciosTipos tipo, Z220_Factura fact)
         {
             ApiRespuesta<Z220_Factura> resp = new()
             {
@@ -375,6 +355,60 @@ namespace DashBoard.Pages.Alija
             }
 
         }
+
+        protected async Task<ApiRespValor> UpdateFolioEdo(ServiciosTipos tipo, Z220_Factura factura)
+        {
+            ApiRespValor respuesta = new ApiRespValor() { Exito = false};
+            int folioEdo = 0;
+            try
+            {
+                List<Z222_FactDet> factDetTmp = (await FactDetRepo.Get(x => x.Status == true &&
+                            x.FacturaId == factura.FacturaId)).ToList();
+                if (!factDetTmp.Any()) return respuesta;
+
+                if (tipo == ServiciosTipos.FacturarACliente && factura.Estado == 1)
+                {
+                    folioEdo = 3;
+                    factDetTmp.ForEach(f => f.Estado = 2);
+                    var respFactD =  await FactDetRepo.UpdatePlus(factDetTmp);
+                    ;
+                    if (!respFactD.Any())
+                    {
+                        throw new Exception($"No fue posible actualizar el detalle de la factura {factura.FacturaNum}!");
+                    }  
+                }
+                else if (tipo == ServiciosTipos.CanclarFactura && factura.Estado == 2)
+                {
+                    folioEdo = 1;
+                }
+                foreach (var factDet in factDetTmp)
+                {
+                    List<Z200_Folio> foliosTmp = (await FolioRepo.Get(x => x.Status == true &&
+                                                    x.FolioId == factDet.FolioId)).ToList();
+                    if (!foliosTmp.Any()) return respuesta;
+
+                    foliosTmp.ForEach(f => f.Estado = folioEdo);
+                    var respfolioT = await FolioRepo.UpdatePlus(foliosTmp);
+                    if (!respfolioT.Any())
+                    {
+                        throw new Exception(
+                            $"No fue posible actualizar detalle de folios que estan ligados a la factura " +
+                            $"{factura.FacturaNum}");
+                    }
+                }
+                respuesta.Exito = true;
+
+            }
+            catch (Exception ex)
+            {
+                respuesta.Exito = false;
+                respuesta.MsnError.Add(ex.Message);
+            }
+            return respuesta;
+
+        }
+
+        
 
         #region Usuario y Bitacora
 

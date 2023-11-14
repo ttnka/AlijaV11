@@ -15,7 +15,6 @@
     <None Remove="Pages\Zuver\" />
     <None Remove="Pages\Web\" />
     <None Remove="Pages\Alija\" />
-    <None Remove="Pages\Alija\Old\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.11" />
@@ -43,7 +42,6 @@
     <Folder Include="Pages\Zuver\" />
     <Folder Include="Pages\Web\" />
     <Folder Include="Pages\Alija\" />
-    <Folder Include="Pages\Alija\Old\" />
     <Folder Include="wwwroot\Imagenes\Web\" />
   </ItemGroup>
   <ItemGroup>

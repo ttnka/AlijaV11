@@ -81,7 +81,7 @@
                 </Template>
                 <EditTemplate Context="datos">
                     <RadzenTextBox Name="FacturaNum" @bind-Value="datos.FacturaNum" Change="ElTitulo"
-                                   Placeholder="Folio Factura" Style="width:100%;" />
+                                   Placeholder="Folio Factura" Style="width:100%;" MaxLength="50" /> <br />
                     <RadzenLengthValidator Component="FacturaNum" Min="5" Max="50" Text="El folio de la factura es Requerido (min 5 a max 50 caracteres)!" />
 
                 </EditTemplate>
@@ -321,6 +321,8 @@ else
         {
             if (fact == FacturaToInsert) FacturaToInsert = null!;
 
+            fact.Estado = fact.Status == false ? 4 : fact.Estado;
+
             string emp = LasOrgs.Any(x => x.OrgId == fact.OrgId) ?
                 LasOrgs.FirstOrDefault(x => x.OrgId == fact.OrgId)!.Comercial :
                 "";
@@ -331,7 +333,7 @@ else
             txt += fact.Status ? "Activo" : "Suspendido";
 
             Editando = !Editando;
-            ApiRespuesta<Z220_Factura> resultado = await Servicio(ServiciosTipos.Update, fact);
+            ApiRespuesta<Z220_Factura> resultado = await ServicioFactura(ServiciosTipos.Update, fact);
 
             if (resultado.Exito)
             {
@@ -368,17 +370,53 @@ else
 
     async Task SaveRow(Z220_Factura fact)
     {
+        bool errores = false;
+        string txt = "";
         if (fact.Estado == 2)
         {
             bool avanzar = await SigEdoFactura(fact);
-            if (!avanzar)
+            if (avanzar)
             {
-                string txt = "No fue posible modificar el registro ";
+                ApiRespValor upDateFolioEdo =  await UpdateFolioEdo(ServiciosTipos.FacturarACliente, fact);
+                if(!upDateFolioEdo.Exito)
+                {
+                    errores = true;
+                    txt += "No fue posible modificar el registro ";
+                    txt += "Los FOLIOS no fueron bloqueados seguiran disponibles para facturarse notifica al desarrollador";
+                    ShowNotification(ElMsn("Error", "Error", txt, 4000));
+                    FacturaGrid!.CancelEditRow(fact);
+
+                }
+            }
+            else
+            {
+                errores = true;
+                txt += "No fue posible modificar el registro ";
                 txt += "La FACTURA no cuenta con la informacion de FOLIOS a cobrar, ";
                 ShowNotification(ElMsn("Error", "Error", txt, 4000));
                 FacturaGrid!.CancelEditRow(fact);
-                return;
             }
+
+        }
+        else if(fact.Estado == 4)
+        {
+            ApiRespValor cancelFact = await UpdateFolioEdo(ServiciosTipos.CanclarFactura, fact);
+            if (!cancelFact.Exito)
+            {
+                errores = true;
+                txt += "No fue posible modificar el registro ";
+                txt += "Los FOLIOS no fueron bloqueados seguiran disponibles para facturarse notifica al desarrollador";
+                ShowNotification(ElMsn("Error", "Error", txt, 4000));
+                FacturaGrid!.CancelEditRow(fact);
+            }
+        }
+        if (errores)
+        {
+            Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                $"Error al intentar Crear / Cancelar una FACTURA, {TBita}, {txt}",
+                    Corporativo, ElUser.OrgId);
+            await LogAll(LogT);
+            return;
         }
         await FacturaGrid!.UpdateRow(fact);
     }
@@ -400,6 +438,7 @@ else
         await FacturaGrid!.InsertRow(FacturaToInsert);
 
     }
+
     async void OnCreateRow(Z220_Factura fact)
     {
         try
@@ -407,7 +446,7 @@ else
             if (fact == FacturaToInsert) FacturaToInsert = null!;
 
             Editando = !Editando;
-            ApiRespuesta<Z220_Factura> resultado = await Servicio(ServiciosTipos.Insert, fact);
+            ApiRespuesta<Z220_Factura> resultado = await ServicioFactura(ServiciosTipos.Insert, fact);
 
             string emp = LasOrgs.Any(x => x.OrgId == fact.OrgId) ? LasOrgs.FirstOrDefault(x => x.OrgId == fact.OrgId)!.Comercial :
                 "";

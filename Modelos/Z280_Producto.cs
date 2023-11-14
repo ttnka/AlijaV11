@@ -20,7 +20,7 @@ namespace DashBoard.Modelos
         public string Titulo { get; set; } = "";
         [Column(TypeName = "decimal(18,2)")]    
         public decimal Precio { get; set; }
-
+        public int TasaIVA { get; set; } 
         public string? Obs { get; set; }
         [StringLength(50)]
         public string Corporativo { get; set; } = "";

@@ -102,9 +102,11 @@ namespace DashBoard.Pages.Alija
                     await ReadLosFolios.InvokeAsync(nfo);
 
                 LosFolios = LosFoliosAll != null && LosFoliosAll.Any(x => x.Status == true && x.Estado == 2 &&
-                    x.EmpresaId == LaFactura.EmpresaId && x.OrgId == LaFactura.OrgId) ?
+                                                x.EmpresaId == LaFactura.EmpresaId && x.OrgId == LaFactura.OrgId) ?
+
                                 LosFoliosAll.Where(x => x.Status == true && x.Estado == 2 &&
                                 x.EmpresaId == LaFactura.EmpresaId && x.OrgId == LaFactura.OrgId).ToList() :
+
                                 new List<Z200_Folio>();
             }
             catch (Exception ex)

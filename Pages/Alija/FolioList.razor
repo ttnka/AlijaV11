@@ -325,6 +325,8 @@ else
         {
             if (folio == FolioToInsert) FolioToInsert = null!;
 
+            folio.Estado = folio.Status == false ? 4 : folio.Estado; 
+
             Editando = !Editando;
             ApiRespuesta<Z200_Folio> resultado = await Servicio(ServiciosTipos.Update, folio);
 
@@ -411,6 +413,7 @@ else
         Editando = !Editando;
         await FoliosGrid!.InsertRow(FolioToInsert);
     }
+
     async void OnCreateRow(Z200_Folio folio)
     {
         try

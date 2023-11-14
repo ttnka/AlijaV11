@@ -104,10 +104,10 @@
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z210_Concepto" Title="Precio"
-                                  Filterable="false" Resizable="true" Width="150px">
+                                  Filterable="false" Resizable="true" Width="100px">
 
                 <Template Context="datos">
-                   
+
                     <div style="text-align: right;">
                         <RadzenLabel>
                             @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @datos.Precio)}")
@@ -122,7 +122,7 @@
                         {
                             <RadzenNumeric Name="Precio" @bind-Value="datos.Precio"
                                            Style="width: 70%; text-align: right;" ShowUpDown="false" />
-                            
+
                         }
                         else
                         {
@@ -131,16 +131,16 @@
 
                             </RadzenLabel>
                         }
-                    </div> 
+                    </div>
                 </EditTemplate>
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z210_Concepto" Title="Importe"
-                                  Filterable="false" Resizable="true" Width="125px">
+                                  Filterable="false" Resizable="true" Width="100px">
 
                 <Template Context="datos">
                     <div style="text-align: right;">
-                        
+
                         <RadzenLabel>
                             @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @datos.Importe)}")
 
@@ -157,15 +157,48 @@
                     </div>
                 </EditTemplate>
                 <FooterTemplate>
-                    @if(LosConceptos.Count > 0)
-                    { 
-                            <RadzenText TextAlign="TextAlign.Right">
+                    @if (LosConceptos.Count > 0)
+                    {
+                        <RadzenText TextAlign="TextAlign.Right">
                             @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @ConceptoGrid!.View.Select(x => x.Importe).Sum())}")
 
                         </RadzenText>
                     }
                 </FooterTemplate>
-                
+
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z210_Concepto" Title="IVA"
+                                  Filterable="false" Resizable="true" Width="100px">
+
+                <Template Context="datos">
+                    <div style="text-align: right;">
+
+                        <RadzenLabel>
+                            @($"{(datos.Descuento/100).ToString("P0", System.Globalization.CultureInfo.InvariantCulture)}")
+
+                        </RadzenLabel>
+                    </div>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <div style="text-align: right;">
+                        <RadzenLabel>
+                            @($"{(datos.Descuento/100).ToString("P0", System.Globalization.CultureInfo.InvariantCulture)}")
+
+                        </RadzenLabel>
+                    </div>
+                </EditTemplate>
+                <FooterTemplate>
+                    @if (LosConceptos.Count > 0)
+                    {
+                        <RadzenText TextAlign="TextAlign.Right">
+                            @($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", @ConceptoGrid!.View.Select(x => x.Importe).Sum())}")
+
+                        </RadzenText>
+                    }
+                </FooterTemplate>
+
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z210_Concepto" Title="Comentarios"
@@ -187,7 +220,7 @@
                                   Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
                                   Width="250px" Title="Estado">
                 <Template Context="datos">
-                    @if (ElUser.Nivel > 5 || ( datos.Estado < 2 && ElFolio.Estado < 2))
+                    @if (ElUser.Nivel > 5 || (datos.Estado < 2 && ElFolio.Estado < 2))
                     {
                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
                                       Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
@@ -248,8 +281,11 @@ else
         {
             if (LosProductos.Any(x => x.ProductoId == ConceptoToInsert.Producto))
             {
-                ConceptoToInsert.Precio = LosProductos.FirstOrDefault(x =>
-                                                x.ProductoId == ConceptoToInsert.Producto)!.Precio;
+                Z280_Producto elProd = LosProductos.FirstOrDefault(x =>
+                                                x.ProductoId == ConceptoToInsert.Producto)!;
+                ConceptoToInsert.Precio = elProd.Precio;
+                ConceptoToInsert.Descuento = elProd.TasaIVA;
+
             }
         }
         if (ConceptoToInsert.Cantidad > 0 && ConceptoToInsert.Precio > 0)
@@ -278,7 +314,7 @@ else
     {
         try
         {
-            concepto.Importe = concepto.Cantidad * concepto.Precio;
+            concepto.Importe = concepto.Cantidad * concepto.Precio + (concepto.Descuento/100 * concepto.Cantidad * concepto.Precio) ;
 
             if (concepto == ConceptoToInsert) ConceptoToInsert = null!;
 
@@ -287,7 +323,9 @@ else
 
             Z280_Producto prod = LosProductos.Any(x => x.ProductoId == concepto.Producto) ?
                 LosProductos.FirstOrDefault(x => x.ProductoId == concepto.Producto)! : new();
+
             var imp = prod.Precio * concepto.Cantidad;
+            var iva = imp * (concepto.Descuento/100);
             string txt = $"{TBita}, Folio: {ElFolio.FolioId} Renglon: {concepto.Renglon},";
             txt += $"cantidad: {concepto.Cantidad} producto: {prod.Clave} {prod.Titulo}, ";
             txt += $"precio: {prod.Precio}, importe: {imp}";
@@ -302,7 +340,7 @@ else
                     Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp);
                 await Servicio(ServiciosTipos.Importe, concepto);
-                
+
             }
             else
             {
@@ -316,7 +354,7 @@ else
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await LogAll(logTemp);
-                
+
             }
         }
         catch (Exception ex)
@@ -385,7 +423,7 @@ else
                 await BitacoraAll(bitaTemp);
                 await Servicio(ServiciosTipos.Importe, concepto);
 
-                
+
             }
             else
             {
@@ -399,7 +437,7 @@ else
                 Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt,
                     Corporativo, ElUser.OrgId);
                 await LogAll(logTemp);
-                
+
             }
 
         }

@@ -33,6 +33,18 @@
       "PackagePath": "staticwebassets/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_15_59_22-Folio_7-638351328289634150.jpeg"
     },
     {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_15_59_22-Folio_9-638351654986105670.jpeg",
+      "PackagePath": "staticwebassets/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_15_59_22-Folio_9-638351654986105670.jpeg"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_20_45_16-Folio_2-638355051342100460.jpeg",
+      "PackagePath": "staticwebassets/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_20_45_16-Folio_2-638355051342100460.jpeg"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_20_45_16-Folio_6-638351998440163370.jpeg",
+      "PackagePath": "staticwebassets/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_20_45_16-Folio_6-638351998440163370.jpeg"
+    },
+    {
       "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_20_45_16-Folio_8-638351337633959220.jpeg",
       "PackagePath": "staticwebassets/Imagenes/Archivos/1123/whatsapp_image_2023-09-26_at_20_45_16-Folio_8-638351337633959220.jpeg"
     },
@@ -45,12 +57,32 @@
       "PackagePath": "staticwebassets/Imagenes/Qr/1123/35821538-fb24-430d-b45e-c0cdd9fd371c.png"
     },
     {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Qr/1123/36366b43-f322-4414-afd1-ab1436cfb5b9.png",
+      "PackagePath": "staticwebassets/Imagenes/Qr/1123/36366b43-f322-4414-afd1-ab1436cfb5b9.png"
+    },
+    {
       "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Qr/1123/4b570303-bc6c-423e-8ccc-dffbd24fed77.png",
       "PackagePath": "staticwebassets/Imagenes/Qr/1123/4b570303-bc6c-423e-8ccc-dffbd24fed77.png"
     },
     {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Web/foto01.png",
+      "PackagePath": "staticwebassets/Imagenes/Web/foto01.png"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Web/foto02.png",
+      "PackagePath": "staticwebassets/Imagenes/Web/foto02.png"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Web/foto03.png",
+      "PackagePath": "staticwebassets/Imagenes/Web/foto03.png"
+    },
+    {
       "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Web/logo1.png",
       "PackagePath": "staticwebassets/Imagenes/Web/logo1.png"
+    },
+    {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Web/logo_alijadores_png-Logo-638352015459948030.png",
+      "PackagePath": "staticwebassets/Imagenes/Web/logo_alijadores_png-Logo-638352015459948030.png"
     },
     {
       "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/bootstrap/bootstrap.min.css",
