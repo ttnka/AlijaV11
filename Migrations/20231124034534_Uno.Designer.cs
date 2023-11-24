@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DashBoard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231110164117_Inicial")]
-    partial class Inicial
+    [Migration("20231124034534_Uno")]
+    partial class Uno
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -408,6 +408,10 @@ namespace DashBoard.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Mails")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Maniobra")
                         .IsRequired()

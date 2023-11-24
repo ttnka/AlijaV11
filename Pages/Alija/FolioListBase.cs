@@ -4,6 +4,7 @@ using DashBoard.Data;
 using DashBoard.Modelos;
 using MathNet.Numerics.Distributions;
 using Microsoft.AspNetCore.Components;
+using NPOI.SS.Formula.Functions;
 using Org.BouncyCastle.Math;
 using Radzen;
 using Radzen.Blazor;
@@ -43,7 +44,7 @@ namespace DashBoard.Pages.Alija
         public EventCallback<FiltroFolio> ReadLosFoliosAll { get; set; }
         [Parameter]
         public EventCallback ReadLasOrgsAll { get; set; }
-        
+
 
         // Listas y clases
         protected List<KeyValuePair<int, string>> LosEdos { get; set; } =
@@ -60,7 +61,7 @@ namespace DashBoard.Pages.Alija
         protected bool Primera { get; set; } = true;
         protected bool Leyendo { get; set; } = false;
         protected bool Editando { get; set; } = false;
-        
+
 
         protected override async Task OnInitializedAsync()
         {
@@ -70,7 +71,7 @@ namespace DashBoard.Pages.Alija
                 if (!LasOrgs.Any())
                     await ReadLasOrgsAll.InvokeAsync();
             }
-            
+
             await Leer();
         }
 
@@ -104,8 +105,8 @@ namespace DashBoard.Pages.Alija
             {
                 IEnumerable<Z170_File> resp = await FileRepo.Get(x => x.Status == (ElUser.Nivel > 6 ? x.Status : true) &&
                                     x.FolioId == folioId);
-                LosArchivosAll = resp.Any() ? resp.ToList() : new List<Z170_File>();    
-                
+                LosArchivosAll = resp.Any() ? resp.ToList() : new List<Z170_File>();
+
             }
             catch (Exception ex)
             {
@@ -115,7 +116,7 @@ namespace DashBoard.Pages.Alija
                 await LogAll(LogT);
             }
         }
-        
+
         protected async Task LeerFolios(FiltroFolio? ff)
         {
             try
@@ -146,7 +147,7 @@ namespace DashBoard.Pages.Alija
                 await ReadLosFoliosAll.InvokeAsync(ff);
                 Leyendo = false;
                 StateHasChanged();
-                
+
             }
             catch (Exception ex)
             {
@@ -183,7 +184,7 @@ namespace DashBoard.Pages.Alija
             try
             {
                 if (LasOrgs.Any())
-                    LosClientes = LasOrgs.Where(x => x.Tipo == "Cliente" && x.Status == true).ToList();  
+                    LosClientes = LasOrgs.Where(x => x.Tipo == "Cliente" && x.Status == true).ToList();
             }
             catch (Exception ex)
             {
@@ -208,7 +209,7 @@ namespace DashBoard.Pages.Alija
             resp.Estado = oldFolio.Estado;
             resp.Status = oldFolio.Status;
 
-            return resp; 
+            return resp;
         }
 
         protected async Task LeerEstadosFolios()
@@ -237,36 +238,38 @@ namespace DashBoard.Pages.Alija
             bool hayErr = false;
             try
             {
-                var concepTmp = await ConceptoRepo.Get(x => x.FolioId == folio.FolioId && x.Status == true);
+                // busca los conceptos y necesitamos almenos 1
+                IEnumerable<Z210_Concepto> concepTmp = await ConceptoRepo.Get(x => x.FolioId == folio.FolioId && x.Status == true);
                 if (!concepTmp.Any() && concepTmp.Sum(x => x.Importe) < 1)
                 {
                     resp.MsnError.Add("No hay conceptos capturados en este folio, captura alguno!");
                     return resp;
                 }
-
-                var campoTmp = await CamposRepo.Get(x => x.FolioId == folio.FolioId && x.Status == true);
+                // busca la informacion en campos y requiere almenos 1 campo lleno
+                IEnumerable<Z209_Campos> campoTmp = await CamposRepo.Get(x => x.FolioId == folio.FolioId && x.Status == true);
                 if (!campoTmp.Any())
                 {
                     resp.MsnError.Add("No hay informacion de la operacion, necesitamos detalles captura todos los campos!");
                     return resp;
                 }
 
+                // busca cuales campos OCULTOS HAY
                 List<string> camposList = Constantes.CamposAcapurar.Split(",").ToList();
 
-                var noRequeridos = await ConfRepo.Get(x => x.SiNo == false && x.Usuario == folio.EmpresaId &&
+                IEnumerable<ZConfig> noRequeridos = await ConfRepo.Get(x => x.SiNo == false && x.Usuario == folio.EmpresaId &&
                         x.Grupo == "CAMPOS" && x.Tipo == "MOSTRADOS" && x.Status == true);
-                foreach(var campo1 in camposList)
+                foreach (var campo1 in camposList)
                 {
                     if (noRequeridos.Any(x => x.Titulo == campo1)) continue;
                     var prop = campoTmp.GetType().GetProperty(campo1);
-                    if (prop != null )
+                    if (prop != null)
                     {
                         var valor = prop.GetValue(campo1, null);
                         if (valor != null && string.IsNullOrEmpty(valor.ToString()))
                         {
                             resp.MsnError.Add($"Falta informacion de {campo1} capturala ");
                             hayErr = true;
-                        } 
+                        }
                     }
                 }
             }
@@ -285,7 +288,7 @@ namespace DashBoard.Pages.Alija
 
         protected async Task<ApiRespuesta<Z200_Folio>> Servicio(ServiciosTipos tipo, Z200_Folio folio)
         {
-            ApiRespuesta<Z200_Folio> resp = new(){ Exito = false };
+            ApiRespuesta<Z200_Folio> resp = new() { Exito = false };
 
             try
             {
@@ -297,9 +300,9 @@ namespace DashBoard.Pages.Alija
                         folio.FolioId = Guid.NewGuid().ToString();
                         folio.FolioNum = await FolioRepo.GetCount() + 1;
                         folio.Estado = 1;
-                        
+
                         folio.Corporativo = LasOrgs.FirstOrDefault(x => x.OrgId == folio.OrgId)!.Corporativo;
-                        
+
                         Z200_Folio folioInsert = await FolioRepo.Insert(folio);
                         if (folioInsert != null)
                         {
@@ -315,7 +318,7 @@ namespace DashBoard.Pages.Alija
                     else if (tipo == ServiciosTipos.Update)
                     {
                         Z200_Folio folioUpdate = await FolioRepo.Update(folio);
-                        
+
                         if (folioUpdate != null)
                         {
                             resp.Exito = true;
@@ -361,6 +364,68 @@ namespace DashBoard.Pages.Alija
                 return resp;
             }
 
+        }
+
+        [Inject]
+        public REnviarMail REnviar { get; set; } = default!;
+        
+        protected async Task<ApiRespValor> SendMails(Z200_Folio folio)
+        {
+            ApiRespValor respuesta = new() { Exito = false };
+            try
+            {
+                if (folio != null)
+                {
+                    var camposTmp = await CamposRepo.Get(x => x.FolioId == folio.FolioId && x.Status == true);
+                    if (camposTmp.Any())
+                    {
+                        string losMails = camposTmp.FirstOrDefault()!.Mails;
+                        if (!string.IsNullOrEmpty(losMails) || losMails.Length > 5)
+                        {
+                            MailCampos mCampos = new();
+                            List<string> mailsIndi = losMails.Split(",").ToList();
+                            if (mailsIndi.Count == 0) { mailsIndi.Add(losMails); }
+                            foreach(var m in mailsIndi)
+                            {
+                                mCampos.ParaNombre.Add("Cliente");
+                                mCampos.ParaEmail.Add(m);
+                            }
+                            IEnumerable<ZConfig> emailCampos = await ConfRepo.Get(x => x.Grupo == "EMail" &&
+                                                  x.Tipo == "Folio" && x.Status == true);
+                            mCampos.Titulo = emailCampos.Any(x => x.Titulo == "Titulo") ?
+                                    emailCampos.FirstOrDefault(x => x.Titulo == "Titulo")!.Txt! :
+                                    "Nuevo Folio en alijadores.com";
+                            mCampos.Titulo += $" folio: {folio.FolioNum}";
+                            mCampos.Cuerpo = emailCampos.Any(x => x.Titulo == "Cuerpo") ?
+                                emailCampos.FirstOrDefault(x => x.Titulo == "Cuerpo")!.Txt! :
+                                "Se creo un nuevo folio en la aplicacion alijadores.com";
+                            mCampos.Cuerpo += $"<br /> Folio: {folio.FolioNum} <br /> Imprimelo: ";
+                            mCampos.Cuerpo += $"<a href='/folios/{folio.FolioId}'>Ver folio</a>";
+
+                            var resMail = await REnviar.EnviarMail(mCampos);
+                            if (!resMail.Exito)
+                            {
+                                respuesta.MsnError.Add("No fue posible enviar email");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    respuesta.MsnError.Add("Folio null paraa  enviar correo!");
+                }
+                
+            }
+            catch (Exception ex)
+            {       
+                respuesta.MsnError.Add(ex.Message);
+                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
+                        $"Error al intentar enviar mail con la informacion del folio {TBita} {ex}",
+                        Corporativo, ElUser.OrgId);
+                await LogAll(LogT);
+            }
+            respuesta.Exito = !respuesta.MsnError.Any();
+            return respuesta;
         }
 
         #region Usuario y Bitacora

@@ -3,11 +3,11 @@ namespace DashBoard.Modelos
 {
 	public class MailCampos
 	{
-        public string ParaEmail { get; set; } = "";
+        public List<string> ParaNombre { get; set; } = new List<string>();
+        public List<string> ParaEmail { get; set; } = new List<string>();
         public string Titulo { get; set; } = "";
         public string Cuerpo { get; set; } = "";
 
-        public string ParaNombre { get; set; } = "";
         public string UserId { get; set; } = "";
         public string OrgId { get; set; } = "";
         public string Corporativo { get; set; } = "";
@@ -21,8 +21,8 @@ namespace DashBoard.Modelos
         public string UserName { get; set; } = null!;
         public string Password { get; set; } = null!;
 
-        public MailCampos PoblarMail(string paraEmail, string titulo, string cuerpo,
-            string paraNombre, string userId, string orgId, string corp, string senderName,
+        public MailCampos PoblarMail(List<string> paraNombre, List<string> paraEmail, string titulo, string cuerpo,
+            string userId, string orgId, string corp, string senderName,
             string senderEMail, string server, int port, string userName, string password)
         {
             this.ParaEmail = paraEmail;

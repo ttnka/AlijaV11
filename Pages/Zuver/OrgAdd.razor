@@ -184,13 +184,13 @@
                         Corporativo, ElUser.OrgId);
                 await BitacoraAll(bitaTemp1);
 
-                ZConfig nZc = new ZConfig()
-                {   ConfigId = Guid.NewGuid().ToString(),
-                    Txt = org.Corporativo,
-                    Titulo = Constantes.EmpresaActiva,
-                    Usuario = org.UserId
+                Z180_EmpActiva nZc = new Z180_EmpActiva()
+                {
+                    EmpActId = Guid.NewGuid().ToString(),
+                    OrgId = org.Corporativo,
+                    UserId = resultado.Data.UserId
                 };
-                ApiRespuesta<ZConfig> nEa = await EmpActAddUser(nZc);
+                ApiRespuesta<Z180_EmpActiva> nEa = await EmpActAddUser(nZc);
                 if (nEa.Exito)
                 {
                     txt1 = $"Se registro empresa activa {org.UserNombre} {org.UserPaterno}";
@@ -209,6 +209,7 @@
                     Z192_Logs logTemp = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId, txt, Corporativo, ElUser.OrgId);
                     await LogAll(logTemp);
                 }
+                    
                 await LeerOrgAndUserAll.InvokeAsync();
 
                 Cancelar();

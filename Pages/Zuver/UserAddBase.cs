@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MimeKit;
+using NPOI.SS.Formula.Functions;
 using Radzen;
 
 namespace DashBoard.Pages.Zuver
@@ -20,13 +21,14 @@ namespace DashBoard.Pages.Zuver
         [Inject]
         public IAddUser AddUserRepo { get; set; } = default!;
         [Inject]
+        public IEnviarMail RenviarMail { get; set; } = default!;
+        [Inject]
         public Repo<Z110_User, ApplicationDbContext> UserRepo { get; set; } = default!;
         [Inject]
         public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
         [Inject]
         public Repo<Z180_EmpActiva, ApplicationDbContext> EmpActRepo { get; set; } = default!;
-        [Inject]
-        public IEnviarMail SendMail { get; set; } = default!;
+        
 
         [Parameter]
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
@@ -358,8 +360,32 @@ namespace DashBoard.Pages.Zuver
                                 {
                                     resp.MsnError.Add($"{e}");
                                 }
-                                
                             }
+                            else
+                            {
+                                IEnumerable<ZConfig> emailCampos = await ConfRepo.Get(x => x.Grupo == "EMail" &&
+                                                x.Tipo == "Usuario" && x.Status == true);
+                                emailCampos = emailCampos.OrderByDescending(x => x.Fecha1);
+                                MailCampos mc = new();
+                                mc.ParaNombre.Add(uResp.Data.Completo);
+                                mc.ParaEmail.Add(uResp.Data.OldEmail);
+                                mc.Titulo = emailCampos.Any(x => x.Titulo == "Titulo") ?
+                                    emailCampos.FirstOrDefault(x => x.Titulo == "Titulo")!.Txt! :
+                                    "Nuevo acceso en alijadores.com para este usuario de ";
+                                mc.Titulo += LasOrgs.Any(x => x.OrgId == uResp.Data.OrgId) ?
+                                    $" {LasOrgs.FirstOrDefault(x=>x.OrgId == uResp.Data.OrgId)!.Comercial}" : "";
+                                mc.Cuerpo = emailCampos.Any(x => x.Titulo == "Cuerpo") ?
+                                    emailCampos.FirstOrDefault(x => x.Titulo == "Cuerpo")!.Txt! :
+                                    "Se creo un nuevo acceso en la aplicacion alijadores.com";
+                                mc.Cuerpo += $"<br /> Usuario: {mc.ParaEmail} <br /> contraseña: {userCreate.Data.Pass}";
+
+                                var eMail = await RenviarMail.EnviarMail(mc);
+                                if (!eMail.Exito)
+                                {
+                                    resp.MsnError.Add("No fue posible enviar email de regsitro");
+                                }
+                            }
+                            
                         }
                         else
                         {
@@ -370,11 +396,14 @@ namespace DashBoard.Pages.Zuver
                             }
                            
                         }
-                        return resp;
+
                     }
                 }
-                resp.Exito = false;
-                resp.MsnError.Add("Sin valor para crear un nuevo acceso");
+                else
+                {
+                    resp.MsnError.Add("Sin valor para crear un nuevo acceso");
+                }
+                
                 
             }
             catch (Exception ex)
@@ -386,6 +415,7 @@ namespace DashBoard.Pages.Zuver
                 resp.Exito = false;
                 
             }
+            resp.Exito = !resp.MsnError.Any();
             return resp;
         }
 

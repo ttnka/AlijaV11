@@ -13,15 +13,11 @@ namespace DashBoard.Pages.Sistema
         public Repo<Z100_Org, ApplicationDbContext> OrgsRepo { get; set; } = default!;
         [Inject]
         public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
-
         [Inject]
         public IAddUser AddUserRepo { get; set; } = default!;
         [Inject]
         public Repo<Z110_User, ApplicationDbContext> UserRepo { get; set; } = default!;
-        [Inject]
-        public Repo<Z190_Bitacora, ApplicationDbContext> BitacoraRepo { get; set; } = default!;
-        [Inject]
-        public Repo<Z192_Logs, ApplicationDbContext> LogRepo { get; set; } = default!;
+        
 
         [Inject]
         public NavigationManager NM { get; set; } = default!;
@@ -43,6 +39,7 @@ namespace DashBoard.Pages.Sistema
                 Editando = false;
                 await Creacion();
                 await AgregarCamposRequeridos();
+                await AgregaTextoMails();
             }
             Clave.Pass = "";
             NM.NavigateTo("/");
@@ -158,14 +155,14 @@ namespace DashBoard.Pages.Sistema
                 txt += $" su administrador y otra como empresa donde registrar al publico en general";
                 Z190_Bitacora bitaTemp = MyFunc.MakeBitacora(eAddUsuario.UserId, eAddUsuario.OrgId,
                     txt, "All", eAddUsuario.OrgId);
-                await BitacoraRepo.Insert(bitaTemp);
+                await BitacoraAll(bitaTemp);
                 return true;
             }
             catch (Exception ex)
             {
                 Z192_Logs logTemp = MyFunc.MakeLog("Sistema"!, "Sistema",
                     $"{TBita}, Error al intentar Arranque de bases de datos {ex}", "All", "Sistema");
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
                 return false;
             }
         }
@@ -245,16 +242,150 @@ namespace DashBoard.Pages.Sistema
 
                 if (lista.Any())
                 {
-                    await ConfRepo.InsertPlus(lista);
+                   var varios =  await ConfRepo.InsertPlus(lista);
+                    string txt = "Se agrego varios elementos, ";
+                    if (varios.Any())
+                    {
+                        foreach(var t in varios)
+                        {
+                            txt += $"Grupo: {t.Grupo}, Tipo: {t.Tipo}, Titulo: {t.Titulo}, ";
+                        }
+                        Z190_Bitacora bita = MyFunc.MakeBitacora("Sistema", "Sistema", txt, "Sistema", "Sistema");
+                        await BitacoraAll(bita);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Z192_Logs logTemp = MyFunc.MakeLog("Sistema"!, "Sistema",
                     $"{TBita}, Error al intentar Arranque agregar campos a configurador {ex}", "All", "Sistema");
-                await LogRepo.Insert(logTemp);
+                await LogAll(logTemp);
             }
         } 
+
+        protected async Task AgregaTextoMails()
+        {
+            try
+            {
+                List<ZConfig> nuevosReg = new List<ZConfig>();
+                //  para los mials hay tres tipo de texto, usamos txt para titulo o bien cuerpo
+                //  Grupo: Email
+                //  Tipo:Organizacion, Usuario, Folio
+                //  Titulo: Titulo, Cuerpo
+                
+                ZConfig t1 = new()
+                {
+                    ConfigId = Guid.NewGuid().ToString(),
+                    Grupo = "EMail",
+                    Tipo = "Organizacion",
+                    Titulo = "Titulo",
+                    Txt = "Bienvenidos a Alijadores.com !",
+                    Fecha1 = DateTime.Now
+                };
+                nuevosReg.Add(t1);
+
+                t1 = new() {
+                    ConfigId = Guid.NewGuid().ToString(),
+                    Grupo = "EMail",
+                    Tipo = "Organizacion",
+                    Titulo = "Cuerpo",
+                    Txt = "<h1>Saludos tenemos una nueva organizacion!</h1>",
+                    Fecha1 = DateTime.Now
+                };
+                #region Texto de bienvenida
+                t1.Txt += "<br /> Esta nueva organizacion se registro con tu correo, puedes consultar en";
+                t1.Txt += "<br /> <a href='https://alijadores.com'>Alijadores.com</a> todos nuestros servicios";
+                t1.Txt += "<br /> Utiliza esta cuenta de correo como usuario y la contraseña es tu RFC.";
+                t1.Txt += "<br /> en tu primera visita es necesario cambiar tu contraseña por seguridad.";
+                t1.Txt += "<br /> si tienes dudas te invitamos a contactarnos, via telefonica o bien email";
+                t1.Txt += "<br /> webmaster@alijadores.com";
+                t1.Txt += "<br /><br /> Atentamente ";
+                t1.Txt += "<br /> <b>El equipo de trabajo de Alijadores</b>";
+                #endregion
+                nuevosReg.Add(t1);
+
+                t1 = new()
+                {
+                    ConfigId = Guid.NewGuid().ToString(),
+                    Grupo = "EMail",
+                    Tipo = "Usuario",
+                    Titulo = "Titulo",
+                    Txt = "Bienvenido a Alijadores.com! tienes un nuevo usuario",
+                    Fecha1 = DateTime.Now
+                };
+                nuevosReg.Add(t1);
+
+                t1 = new()
+                {
+                    ConfigId = Guid.NewGuid().ToString(),
+                    Grupo = "EMail",
+                    Tipo = "Usuario",
+                    Titulo = "Cuerpo",
+                    Txt = "<h1>Saludos tenemos un nuevo usuario con tu nombre!</h1>",
+                    Fecha1 = DateTime.Now
+                };
+                #region Texto de nuevo usuario
+                t1.Txt += "<br /> Hola somos <a href='https://alijadores.com'>Alijadores.com</a>, ";
+                t1.Txt += "<br /> el administrador de tu empresa, creo un nuevo usuario con tu cuenta de correo";
+                t1.Txt += "<br /> puedes utiliza esta cuenta de correo como usuario y la contraseña la tiene tu administrador.";
+                t1.Txt += "<br /> puedes solicitar cambiar tu contraseña por seguridad. Para lo cual te enviaremos otro correo";
+                t1.Txt += "<br /> si tienes dudas te invitamos a contactarnos, via telefonica o bien email";
+                t1.Txt += "<br /> webmaster@alijadores.com";
+                t1.Txt += "<br /><br /> Atentamente ";
+                t1.Txt += "<br /> <b>El equipo de trabajo de Alijadores</b>";
+                #endregion
+                nuevosReg.Add(t1);
+
+                t1 = new()
+                {
+                    ConfigId = Guid.NewGuid().ToString(),
+                    Grupo = "EMail",
+                    Tipo = "Folio",
+                    Titulo = "Titulo",
+                    Txt = "Somos Alijadores.com! y tenemos un nuevo folio / factura con tu nombre",
+                    Fecha1 = DateTime.Now
+                };
+                nuevosReg.Add(t1);
+
+                t1 = new()
+                {
+                    ConfigId = Guid.NewGuid().ToString(),
+                    Grupo = "EMail",
+                    Tipo = "Folio",
+                    Titulo = "Cuerpo",
+                    Txt = "<h1>Saludos tenemos un nuevo folio / factura de un nuevo trabajo</h1>",
+                    Fecha1 = DateTime.Now
+                };
+                #region Texto de nuevo Folio / Factura
+                t1.Txt += "<br /> Hola somos <a href='https://alijadores.com'>Alijadores.com</a>, ";
+                t1.Txt += "<br /> tenemos un nuevo folio / factura de tu empresa ";
+                t1.Txt += "<br /> puedes consultar este documento en la liga que anexamos";
+                t1.Txt += "<br /> si tienes dudas te invitamos a contactarnos, via telefonica o bien email";
+                t1.Txt += "<br /> webmaster@alijadores.com";
+                t1.Txt += "<br /><br /> Atentamente ";
+                t1.Txt += "<br /> <b>El equipo de trabajo de Alijadores</b>";
+                #endregion    
+                nuevosReg.Add(t1);
+
+                var varios = await ConfRepo.InsertPlus(nuevosReg);
+                string txt = "Se agrego los siguientes campos";
+                if (varios.Any())
+                {
+                    foreach (var t in varios)
+                    {
+                        txt += $"Grupo: {t.Grupo}, tipo: {t.Tipo}, titulo: {t.Titulo}, Texto: {t.Txt}";
+                    }
+                    Z190_Bitacora bita = MyFunc.MakeBitacora("Sistema", "Sistema", txt, "Sistema", "Sistema");
+                    await BitacoraAll(bita);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs logTemp = MyFunc.MakeLog("Sistema" , "Sistema",
+                    $"{TBita}, Error al intentar TEXTO para enviar mails {ex}", "All", "Sistema");
+                await LogAll(logTemp);
+            }
+        }
 
         public class LaClave
         {
@@ -262,6 +393,51 @@ namespace DashBoard.Pages.Sistema
         }
         public LaClave Clave { get; set; } = new();
         public MyFunc MyFunc { get; set; } = new();
+
+        [Inject]
+        public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z192_Logs, ApplicationDbContext> LogRepo { get; set; } = default!;
+        public Z190_Bitacora LastBita { get; set; } = new();
+        public Z192_Logs LastLog { get; set; } = new();
+        public async Task BitacoraAll(Z190_Bitacora bita)
+        {
+            try
+            {
+                if (bita.BitacoraId != LastBita.BitacoraId)
+                {
+                    LastBita = bita;
+                    await BitaRepo.Insert(bita);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog("Sistema", "Sistema",
+                    $"Error al intentar iniciar, {TBita},{ex}",
+                    "Sistema", "Sistema");
+                await LogAll(LogT);
+            }
+        }
+
+        public async Task LogAll(Z192_Logs log)
+        {
+            try
+            {
+                if (log.BitacoraId != LastLog.BitacoraId)
+                {
+                    LastLog = log;
+                    await LogRepo.Insert(log);
+                }
+            }
+            catch (Exception ex)
+            {
+                Z192_Logs LogT = MyFunc.MakeLog("Sistema", "Sistema",
+                    $"Error al intentar iniciar, {TBita},{ex}",
+                    "Sistema", "Sistema");
+                await LogAll(LogT);
+            }
+
+        }
     }
 }
 

@@ -6,23 +6,23 @@
 
 
 
-<RadzenCard>
+<RadzenCard style="border: 1px solid #ccc; padding: 10px;">
 
     @if (LlaveId == "")
     {
-        <h1>La direccion esta incorrecta!</h1>
+        <h1 style="text-align: center; text-decoration: underline;">La direccion esta incorrecta!</h1>
         <RadzenLink Path="@($"{Constantes.ElDominio}")">Vuele al Inicio</RadzenLink>
     }
 
     else if (SinLlave)
     {
-        <h1>La direccion esta incorrecta!</h1>
+        <h1 style="text-align: center; text-decoration: underline;">La direccion esta incorrecta!</h1>
         <RadzenLink Path="@($"{Constantes.ElDominio}")">Vuele al Inicio</RadzenLink>
     }
     else
     {
         <div class="container-fluid">
-            <RadzenFieldset>
+            <RadzenFieldset style="border: 1px solid #ccc; padding: 10px;">
                 <div class="form-group row">
                     <div class="col-md-5 col-sm-12 align-items-center d-flex">
                         @if (string.IsNullOrEmpty(ElQr))

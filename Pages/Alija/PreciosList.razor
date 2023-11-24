@@ -104,13 +104,14 @@
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z280_Producto" Title="IVA" Property="TasaIVA"
+            <RadzenDataGridColumn TItem="Z280_Producto" Title="IVA %" Property="TasaIVA"
                                   Filterable="false" Resizable="true" Width="100px">
 
                 <Template Context="datos">
                     <div style="text-align: right;">
                         <RadzenLabel>
-                            @($"{(datos.TasaIVA/100).ToString("P0", System.Globalization.CultureInfo.InvariantCulture)}")
+                            @{ decimal tiva = datos.TasaIVA; } 
+                            @($"{(tiva / 100).ToString("P0", System.Globalization.CultureInfo.InvariantCulture)}")
                             
                         </RadzenLabel>
                     </div>

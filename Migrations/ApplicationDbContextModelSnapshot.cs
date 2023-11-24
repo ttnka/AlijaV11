@@ -406,6 +406,10 @@ namespace DashBoard.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
+                    b.Property<string>("Mails")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Maniobra")
                         .IsRequired()
                         .HasMaxLength(25)

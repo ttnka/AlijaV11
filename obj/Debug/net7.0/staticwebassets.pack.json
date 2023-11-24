@@ -85,6 +85,10 @@
       "PackagePath": "staticwebassets/Imagenes/Web/logo_alijadores_png-Logo-638352015459948030.png"
     },
     {
+      "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Web/logoalipacifico-Logo-638361115298299310.png",
+      "PackagePath": "staticwebassets/Imagenes/Web/logoalipacifico-Logo-638361115298299310.png"
+    },
+    {
       "Id": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/css/bootstrap/bootstrap.min.css",
       "PackagePath": "staticwebassets/css/bootstrap/bootstrap.min.css"
     },

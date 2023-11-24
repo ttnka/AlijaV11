@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "xX66qKcj1Pu9gttAr0me9TloDyoUFY/3wvEviRZ2ZN8=",
+  "Hash": "1zJpxDJ3G9+Lt8occ66drq1jlPWRtmtfltqsUJWvYAs=",
   "Source": "DashBoard",
   "BasePath": "_content/DashBoard",
   "Mode": "Default",
@@ -2191,6 +2191,23 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/Imagenes/Web/logo1.png"
+    },
+    {
+      "Identity": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/Imagenes/Web/logoalipacifico-Logo-638361115298299310.png",
+      "SourceId": "DashBoard",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/ivanuhernandez/Projects/AlijaV11/wwwroot/",
+      "BasePath": "_content/DashBoard",
+      "RelativePath": "Imagenes/Web/logoalipacifico-Logo-638361115298299310.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/Imagenes/Web/logoalipacifico-Logo-638361115298299310.png"
     }
   ]
 }

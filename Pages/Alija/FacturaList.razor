@@ -16,7 +16,7 @@
                     RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
 
         <HeaderTemplate>
-            @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30)
+            @if (ElUser.Nivel > 5 && EmpresaActiva.OrgId.Length > 30)
             {
                 <RadzenButton Icon="plus" style="margin-bottom: 10px"
                               ButtonStyle="ButtonStyle.Info" Click="InsertRow">

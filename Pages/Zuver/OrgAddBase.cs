@@ -9,17 +9,22 @@ using Radzen.Blazor;
 
 namespace DashBoard.Pages.Zuver
 {
-	public class OrgAddBase : ComponentBase
-	{
+    public class OrgAddBase : ComponentBase
+    {
         public const string TBita = "Agregar Organizaciones";
 
         [Inject]
         public Repo<Z100_Org, ApplicationDbContext> OrgRepo { get; set; } = default!;
         [Inject]
-        public Repo<ZConfig, ApplicationDbContext> ConfRepo { get; set; } = default!;
-
+        public Repo<Z110_User, ApplicationDbContext> UserRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z180_EmpActiva, ApplicationDbContext> ConfRepo { get; set; } = default!;
+        [Inject]
+        public IEnviarMail RenviarMail { get; set; } = default!;
         [Inject]
         public IAddUser AddUserRepo { get; set; } = default!;
+        [Inject]
+        public Repo<ZConfig, ApplicationDbContext> configRepo { get; set; } = default!; 
 
         [Parameter]
         public Dictionary<string, string> DicData { get; set; } =
@@ -112,12 +117,8 @@ namespace DashBoard.Pages.Zuver
 
         public async Task<ApiRespuesta<LaOrgNew>> Servicio(ServiciosTipos tipo, LaOrgNew org)
         {
-            ApiRespuesta<LaOrgNew> resp = new()
-            {
-                Exito = false,
-               
-            };
-
+            ApiRespuesta<LaOrgNew> resp = new() { Exito = false };
+            
             try
             {
                 if(org != null )
@@ -181,17 +182,60 @@ namespace DashBoard.Pages.Zuver
                                 eAddUsuario.Nivel = org.UserNivel;
                             }
 
-                            ApiRespuesta<AddUser> UserInsert = await AddUserRepo.CrearNewAcceso(eAddUsuario);
-                            if (!UserInsert.Exito)
+                            ApiRespuesta<AddUser> userInsert = await AddUserRepo.CrearNewAcceso(eAddUsuario);
+                            if (!userInsert.Exito)
                             {
                                 resp.MsnError.Add("No se agrego un usuario de la nueva organizacion");
                                 return resp;    
                             }
-                            
+
+                            Z110_User nUser = new()
+                            {
+                                UserId = userInsert.Data.UserId,
+                                Nombre = userInsert.Data.Nombre,
+                                Paterno = userInsert.Data.Paterno,
+                                Materno = string.IsNullOrEmpty(userInsert.Data.Materno) ? "" : userInsert.Data.Materno,
+                                Nivel = userInsert.Data.Nivel,
+                                OrgId = userInsert.Data.OrgId,
+                                OldEmail = userInsert.Data.Mail
+                            };
+                            ApiRespuesta<Z110_User> uResp = await InsertUser(nUser);
+                            if (!uResp.Exito)
+                            {
+                                resp.Exito = false;
+                                foreach (var e in uResp.MsnError)
+                                {
+                                    resp.MsnError.Add($"{e}");
+                                }
+
+                            } else
+                            {
+                                IEnumerable<ZConfig> emailCampos = await configRepo.Get(x => x.Grupo == "EMail" &&
+                                                x.Tipo == "Organizacion" && x.Status == true ) ;
+                                emailCampos = emailCampos.OrderByDescending(x => x.Fecha1);
+                                MailCampos mc = new();
+                                mc.ParaNombre.Add(uResp.Data.Completo);
+                                mc.ParaEmail.Add(uResp.Data.OldEmail);
+                                mc.Titulo = emailCampos.Any(x=>x.Titulo == "Titulo") ?
+                                    emailCampos.FirstOrDefault(x => x.Titulo == "Titulo")!.Txt! :
+                                    "Nueva Organizacion en alijadores.com";
+                                mc.Titulo += $" {org.Comercial}";
+                                mc.Cuerpo = emailCampos.Any(x => x.Titulo == "Cuerpo") ?
+                                    emailCampos.FirstOrDefault(x     => x.Titulo == "Cuerpo")!.Txt! :
+                                    "Se creo una nueva organizacion en la aplicacion alijadores.com";
+                                mc.Cuerpo += $"<br /> Usuario: {mc.ParaEmail} <br /> contraseña: {eAddUsuario.Pass}";
+
+                                var eMail = await RenviarMail.EnviarMail(mc);
+                                if (!eMail.Exito) 
+                                {
+                                    resp.MsnError.Add("No fue posible enviar email de regsitro");
+                                }
+                            }
+
                             org.OrgId = orgInsert.OrgId;
-                            org.UserId = UserInsert.Data.UserId;
+                            org.UserId = userInsert.Data.UserId;
                             resp.Data = org;
-                            resp.Exito = true;
+                            resp.Exito = !resp.MsnError.Any();
                             return resp;
                         }
                     }
@@ -210,9 +254,34 @@ namespace DashBoard.Pages.Zuver
             }
         }
 
-        public async Task<ApiRespuesta<ZConfig>> EmpActAddUser(ZConfig datos)
+        public async Task<ApiRespuesta<Z110_User>> InsertUser(Z110_User nUser)
         {
-            ApiRespuesta<ZConfig> resultado = new() { Exito = false};
+            ApiRespuesta<Z110_User> resultado = new();
+            try
+            {
+                if (nUser != null)
+                {
+                    Z110_User userInsert = await UserRepo.Insert(nUser);
+                    resultado.Exito = true;
+                    resultado.Data = userInsert;
+                }
+                else
+                {
+                    resultado.Exito = false;
+                    resultado.MsnError.Add($"No se pudo insertar el usuario");
+                }
+            }
+            catch (Exception ex)
+            {
+                resultado.Exito = false;
+                resultado.MsnError.Add(ex.Message);
+            }
+            return resultado;
+        }
+
+        public async Task<ApiRespuesta<Z180_EmpActiva>> EmpActAddUser(Z180_EmpActiva datos)
+        {
+            ApiRespuesta<Z180_EmpActiva> resultado = new() { Exito = false};
             try
             {
                 if (datos == null)

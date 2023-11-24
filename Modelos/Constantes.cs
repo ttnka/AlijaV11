@@ -7,7 +7,7 @@ namespace DashBoard.Modelos
 {
 	public class Constantes
 	{
-        public const string ElDominio = "https://pegia.com.mx";
+        public const string ElDominio = "https://alijadores.com";
         //public const string ElDominio = "localhost:7234";
         // Mail 01
 
@@ -72,7 +72,7 @@ namespace DashBoard.Modelos
         public const string PagoEstado = "Nuevo,Pagado,Conciliado,XCancelado";
         public const string EmpresaActiva = "Empresa Activa";
 
-        public const string CamposAcapurar = "AgenteAduanal,Pedimento,Factura,Mercancia,Tractor,Caja1,Caja2,Placas,TractorTipo,Transportista,Maniobra,Despachador,CartaPorte,SelloRemovido,SelloColocado,Chofer,Identificacion,Cuadrilla,Obs";
+        public const string CamposAcapurar = "AgenteAduanal,Pedimento,Factura,Mercancia,Tractor,Caja1,Caja2,Placas,TractorTipo,Transportista,Maniobra,Despachador,CartaPorte,SelloRemovido,SelloColocado,Chofer,Identificacion,Cuadrilla,Obs,Mails";
         public const string TractorTipo = "Trailer,Rabon";
         public const string ManiobraTipo = "Palet,Granel";
 

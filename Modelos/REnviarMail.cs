@@ -1,4 +1,4 @@
-﻿    using System;
+﻿using System;
 using DashBoard.Data;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -41,16 +41,20 @@ namespace DashBoard.Modelos
             }
 
             #endregion
+
             #region Evaluar si es correo de pruebas
 
-            if (mailCampos.ParaEmail.EndsWith(".com1") ||
-                mailCampos.ParaEmail == Constantes.DeMail01)
+            foreach (var m in mailCampos.ParaEmail)
             {
-                respuesta.Exito = true;
-                respuesta.MsnError.Add("Email de prueba exitos!");
+                if (m.EndsWith(".com1") || m == Constantes.DeMail01)
+                {
+                    respuesta.Exito = true;
+                    respuesta.Texto = "Email de prueba exitos!";
 
-                return respuesta;
+                    return respuesta;
+                }
             }
+            
             #endregion
 
             try
@@ -58,15 +62,17 @@ namespace DashBoard.Modelos
                 var message = new MimeMessage();
 
                 message.From.Add(new MailboxAddress(Constantes.DeNombreMail01, Constantes.DeMail01));
-                message.To.Add(new MailboxAddress(mailCampos.ParaNombre, mailCampos.ParaEmail));
+                for(var i = 0; i < mailCampos.ParaNombre.Count; i++)
+                {
+                    message.To.Add(new MailboxAddress(mailCampos.ParaNombre[i], mailCampos.ParaEmail[i]));
+                }
+                
                 message.Subject = mailCampos.Titulo;
 
                 message.Body = new TextPart("html")
                 {
                     Text = mailCampos.Cuerpo
                 };
-
-
 
                 using (var client = new SmtpClient())
                 {
@@ -75,7 +81,6 @@ namespace DashBoard.Modelos
                     await client.SendAsync(message);
                     await client.DisconnectAsync(true);
                 }
-
 
                 respuesta.Exito = true;
                 respuesta.Data = mailCampos;
@@ -89,11 +94,11 @@ namespace DashBoard.Modelos
                 respuesta.MsnError.Add(text);
 
             }
+            respuesta.Exito = !respuesta.MsnError.Any();
             return respuesta;
             
         }
         
-
     }
 }
 

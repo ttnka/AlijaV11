@@ -70,7 +70,6 @@ namespace DashBoard.Modelos
                 }
                 else
                 { 
-                    resultado.Exito = false;
                     resultado.MsnError.Add("No se creo al nuevo accceso no hay explicacion");
                     resultado.MsnError.AddRange(result.Errors
                         .Select(error => error.Description));
@@ -81,6 +80,7 @@ namespace DashBoard.Modelos
                 resultado.MsnError.Add($"Error, No se creo el nuevo acceso al sistema {ex}");
                 throw ;
             }
+            resultado.Exito = !resultado.MsnError.Any();
             return resultado;
         }
 

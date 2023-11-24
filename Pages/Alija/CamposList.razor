@@ -14,7 +14,7 @@
                     RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
 
         <HeaderTemplate>
-            @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30 && ElFolio.Estado < 2)
+            @if (ElUser.Nivel > 4 && EmpresaActiva.OrgId.Length > 30 && ElFolio.Estado < 2 && !HayRegistro)
                 {
                 <RadzenButton Icon="plus" style="margin-bottom: 10px"
                               ButtonStyle="ButtonStyle.Info" Click="InsertRow">
@@ -552,7 +552,15 @@
 
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                <RadzenLabel>Libre</RadzenLabel>
+                                @if (Mostrar.Any(x => x.Titulo == "Mails" && x.SiNo == false))
+                                {
+                                    <label></label>
+                                }
+                                else
+                                {
+                                    <RadzenLabel>@datos.Mails</RadzenLabel>
+
+                                }
                             </div>
                         </div>
                     </div>
@@ -1028,13 +1036,15 @@
                                 }
                             </div>
                             <div class="col-md-4 align-items-center d-flex">
-                                @if (Mostrar.Any(x => x.Titulo == "Obs" && x.SiNo== false))
+                                @if (Mostrar.Any(x => x.Titulo == "Mails" && x.SiNo == false))
                                 {
                                     <label></label>
                                 }
                                 else
                                 {
-                                    <RadzenLabel>Libre</RadzenLabel>}
+                                    <RadzenTextArea Name="Mail" @bind-Value="datos.Mails"
+                                                    Style="width: 95%" Placeholder="e-Mail para notificar" />
+                                }
                             </div>
                         </div>
                     </div>

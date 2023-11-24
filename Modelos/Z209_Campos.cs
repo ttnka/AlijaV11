@@ -47,6 +47,7 @@ namespace DashBoard.Modelos
         [StringLength(75)]
         public string Cuadrilla { get; set; } = "";
         public string Obs { get; set; } = "";
+        public string Mails { get; set; } = "";
         public int Estado { get; set; } = 2;
         public bool Status { get; set; } = true;
     }

@@ -143,7 +143,7 @@ namespace DashBoard.Pages.Alija
                 IEnumerable<Z100_Org> res = new List<Z100_Org>();
                 if (ElUser.Nivel < 5)
                 {
-                    res = await OrgRepo.Get(x => x.Estado == 1 && x.Corporativo == CorporativoAll);
+                    res = await OrgRepo.Get(x => x.Estado == 1 && x.OrgId == CorporativoAll);
                 }
                 else
                 {
@@ -387,6 +387,7 @@ namespace DashBoard.Pages.Alija
         public ZFiltros MyFiltros { get; set; } = new();
 
         #region Usuario y Bitacora
+
         [CascadingParameter(Name = "CorporativoAll")]
         public string Corporativo { get; set; } = "All";
 
@@ -394,6 +395,7 @@ namespace DashBoard.Pages.Alija
         public Z110_User ElUser { get; set; } = new();
 
         public MyFunc MyFunc { get; set; } = new MyFunc();
+
         public NotificationMessage ElMsn(string tipo, string titulo, string mensaje, int duracion)
         {
             NotificationMessage respuesta = new();
@@ -486,7 +488,7 @@ namespace DashBoard.Pages.Alija
                     ElUser = await UserRepo.GetById(elId!);
 
         //Niveles = "1Registrado,2Proveedor,3Cliente,4Cliente_Admin,5Alija,6Alija_Admin";
-                    if (ElUser == null)
+                    if (ElUser == null || ElUser.UserId.Length < 15)
                     {
                         NM.NavigateTo("Identity/Account/Login?ReturnUrl=/alijadores", true);
                     }
@@ -494,6 +496,8 @@ namespace DashBoard.Pages.Alija
                     else
                     {
                         CorporativoAll = ElUser.OrgId;
+                        if (ElUser.Nivel == 3 || ElUser.Nivel == 4) NM.NavigateTo("/Clientes", true);
+                        
                         await Leer();
                     }
                 }

@@ -34,6 +34,7 @@ namespace DashBoard.Pages.Alija
 
         public RadzenDataGrid<Z209_Campos>? CamposGrid { get; set; } = new RadzenDataGrid<Z209_Campos>();
 
+        protected bool HayRegistro { get; set; } = false;
         protected bool Primera { get; set; } = true;
         protected bool Leyendo { get; set; } = false;
         protected bool Editando { get; set; } = false;
@@ -68,26 +69,7 @@ namespace DashBoard.Pages.Alija
                 await LogAll(LogT);
             }
         }
-        /*
-        protected async Task LeerMostrar1()
-        {
-            try
-            {
-                LosConfig = (await ConfRepo.Get(x => x.Status == true)).ToList();
-                
-                Mostrar = LosConfig.Any() ? LosConfig.Where(x => x.Usuario == ElFolio.OrgId && x.Status == true &&
-                    x.Grupo == "CAMPOS" && x.Tipo == "REQUERIDOS").ToList() : new List<ZConfig>();
-                
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs LogT = MyFunc.MakeLog(ElUser.UserId, ElUser.OrgId,
-                $"Error al intentar Leer datos del los campos que son requeridos {ElFolio.FolioNum}, {TBita}, {ex}",
-                    Corporativo, ElUser.OrgId);
-                await LogAll(LogT);
-            }
-        }
-        */
+        
         protected async Task LeerListados()
         {
             try
@@ -142,7 +124,16 @@ namespace DashBoard.Pages.Alija
                     }
                     
                 }
-                LosCampos = resp != null && resp.Any() ? resp.ToList() : new List<Z209_Campos>() ;
+                if (resp != null && resp.Any())
+                {
+                    LosCampos = resp.ToList();
+                    HayRegistro = true;
+                }
+                else
+                {
+                    LosCampos =  new List<Z209_Campos>();
+                    HayRegistro = false;
+                }
             }
             catch (Exception ex)
             {

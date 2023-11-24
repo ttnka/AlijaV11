@@ -1,18 +1,38 @@
 ﻿<Properties StartupConfiguration="{B0F2F48F-367B-4CDE-BE11-032DC9FE8C2A}|https">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Pages/Alija/FactDetList.razor">
-    <Files>
-      <File FileName="Pages/Alija/FactDetList.razor" Line="93" Column="122" />
-      <File FileName="Pages/Alija/FactDetListBase.cs" Line="118" Column="14" />
-    </Files>
+  <MonoDevelop.Ide.ItemProperties.DashBoard PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FilesUpBase.cs" relfile="Pages/Sistema/FilesUpBase.cs" line="163" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FilesUpBase.cs" relfile="Pages/Sistema/FilesUpBase.cs" line="168" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FacturaListBase.cs" relfile="Pages/Alija/FacturaListBase.cs" line="272" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FacturaListBase.cs" relfile="Pages/Alija/FacturaListBase.cs" line="274" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FacturaListBase.cs" relfile="Pages/Alija/FacturaListBase.cs" line="331" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FacturaListBase.cs" relfile="Pages/Alija/FacturaListBase.cs" line="364" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FacturaListBase.cs" relfile="Pages/Alija/FacturaListBase.cs" line="370" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FacturaListBase.cs" relfile="Pages/Alija/FacturaListBase.cs" line="269" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FacturaListBase.cs" relfile="Pages/Alija/FacturaListBase.cs" line="283" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FacturaListBase.cs" relfile="Pages/Alija/FacturaListBase.cs" line="284" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FacturaListBase.cs" relfile="Pages/Alija/FacturaListBase.cs" line="285" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Alija/FacturaListBase.cs" relfile="Pages/Alija/FacturaListBase.cs" line="286" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Web/IndexClientesBase.cs" relfile="Pages/Web/IndexClientesBase.cs" line="99" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Web/IndexClientesBase.cs" relfile="Pages/Web/IndexClientesBase.cs" line="103" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Web/IndexClientesBase.cs" relfile="Pages/Web/IndexClientesBase.cs" line="110" column="1" />
+      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Web/IndexClientesBase.cs" relfile="Pages/Web/IndexClientesBase.cs" line="117" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="DashBoard" expanded="True">
             <Node name="DashBoard">
-              <Node name="Modelos" expanded="True" />
               <Node name="Pages" expanded="True">
-                <Node name="Alija" expanded="True" />
-                <Node name="_Host.cshtml" selected="True" />
+                <Node name="Alija" expanded="True">
+                  <Node name="ConceptoList.razor" selected="True" />
+                </Node>
+                <Node name="Web" expanded="True" />
+                <Node name="Zuver" expanded="True" />
               </Node>
             </Node>
           </Node>
@@ -20,14 +40,6 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.DashBoard PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FilesUpBase.cs" relfile="Pages/Sistema/FilesUpBase.cs" line="162" column="1" />
-      <Breakpoint file="/Users/ivanuhernandez/Projects/AlijaV11/Pages/Sistema/FilesUpBase.cs" relfile="Pages/Sistema/FilesUpBase.cs" line="167" column="1" />
-    </BreakpointStore>
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
 </Properties>

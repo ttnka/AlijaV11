@@ -25,11 +25,7 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Z192_Logs> LogsBitacora { get; set; }
     public DbSet<Z200_Folio> Folios { get; set;}
     public DbSet<Z201_FolioPrint> FolioPrints { get; set; }
-    /*
-    public DbSet<Z203_Transporte> Transportistas { get; set;}
-    public DbSet<Z204_Empleado> Empleados { get; set;}
-    public DbSet<Z205_Carro> Carros { get; set;}
-    */
+    
     public DbSet<Z209_Campos> Campos { get; set; }
     public DbSet<Z210_Concepto> Concpetos { get; set;}
     public DbSet<Z220_Factura> Facturas { get; set;}

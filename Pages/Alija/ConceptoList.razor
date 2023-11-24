@@ -1,4 +1,5 @@
 ﻿
+
 @inherits ConceptoListBase
 @inject NotificationService NS
 @using DashBoard.Modelos
@@ -121,7 +122,7 @@
                         @if (DicProductos.ContainsKey(datos.Producto))
                         {
                             <RadzenNumeric Name="Precio" @bind-Value="datos.Precio"
-                                           Style="width: 70%; text-align: right;" ShowUpDown="false" />
+                                           Style="width: 100%; text-align: right;" ShowUpDown="false" />
 
                         }
                         else
@@ -448,7 +449,7 @@ else
                     Corporativo, ElUser.OrgId);
             await LogAll(logTemp);
         }
-        await ConceptoGrid!.Reload();
+        //await ConceptoGrid!.Reload();
 
     }
 
